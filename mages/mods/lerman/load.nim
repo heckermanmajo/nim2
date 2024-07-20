@@ -32,6 +32,7 @@ let ModImages = (
     loadTexture("./mods/lerman/res/water_2.png"),
     loadTexture("./mods/lerman/res/water_3.png"),
   ],
+  menu_background: loadTexture("./mods/lerman/res/background.png")
 )
 
 
@@ -103,7 +104,7 @@ proc populate_scenario(self: var Scenario, L: Logger) =
   for x in 0..WorldWidth_in_tiles-1:
     var tab = initTable[int, Tile]()
     self.tiles_map[x] = tab
-    L.log("x: " & $x & " -> " & $self.tiles_map[x].len)
+    #L.log("x: " & $x & " -> " & $self.tiles_map[x].len)
     for y in 0..WorldHeight_in_tiles-1:
       var tile = Tile()
       tile.pos = Vector2(x:x.float * TileSizePixel, y:y.float * TileSizePixel)

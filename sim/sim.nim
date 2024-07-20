@@ -63,8 +63,8 @@ else:
     removeFile(file.path)
 
 
-simulation.cohorts[1] = new_Cohort(id=1)
-simulation.cohorts[2] = new_Cohort(id=2)
+simulation.cohorts[1] = new_Cohort(id=1, individuals= @[1, 2, 3], members= initTable[int, int]())
+simulation.cohorts[2] = new_Cohort(id=2, individuals= @[4, 5, 6], members= initTable[int, int]())
 
 # add 4 individuals
 simulation.individuals[1] = new_Individual(id= 1, age= 0)

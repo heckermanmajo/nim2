@@ -1,12 +1,18 @@
-# Simulation
+# Aspekte einer Gesellschaft
 
-Wie fangen wir die Simulation an?
+Ich muss erst ein modell entwerfen, in dem alles das 
+sinnvoll in abstraktionen gepackt ist, die man tatsächlich simulieren kann.
 
-So grob wie es nur geht: 
--> Man fängt an mit Demografie.
--> Dan fügt man interaktionen hinzu.
--> simple ökonomie, etc.
+Man kann alle kulturellen unterschiede, usw. in einen Delta-Kommunikation
+Delta erwartung faktor packen.
 
--> Alles auf die Protokolle herunter-brechen
-  so, dass man die konkrete situation mit daten 
-  darstellen kann und keinen extra code braucht.
+-> Konkurrenz unterschiedlicher 
+
+
+- ressourcen
+- age
+- kommmunikative schwierigkeiten anhand unterschilciher cohorten art
+- protokolle zur produktion von gütern
+- individualität
+- iq
+- health: mental, body, etc.
