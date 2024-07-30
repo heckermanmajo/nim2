@@ -9,20 +9,52 @@ import types
 import utils
 import game_utils
 
+# Controllgruppen-Steuerung
+
+proc update_control_group_centers*(self: var Battle, dt: float) =
+  for cg in self.control_groups:
+    var center_x = 0; center_y = 0
+    for u in cg.units: (center_x += u.shape.x.int; center_y +=u.shape.y.int)
+    cg.center = Vector2(center_x/cg.units.len, center_y/cg.units.len)
+
+proc handle_control_group_logic*() =
+  ## remove if no units left
+  ## move the control group
+  ## fight enemy
+  ## return to default goal if fighting has stopped
+  discard
+
+proc draw_control_group_centers*(self: Battle, dt: float) =
+  for cg in self.control_groups:
+    discard # todo: draw text of the mode and center point
+    #Idle
+    #Concentrate
+    #Moving
+    #Fighting
 
 
+proc manage_unit_deaths*() =
+  ## check for units with that are dead and remove them
+  discard
 
-
+proc manage_control_group_deaths*() = discard
 
 proc collide_units_with_each_other*(self: Battle, dt: float) = discard
-proc think_units*(self: Battle, dt: float) = discard
+
+proc think_units*(self: Battle, dt: float) =
+  ## if a unit finds an enemy or is attacked, the control-group
+  ## moves into the fight
+  discard
+
 proc fight_units*(self: Battle, dt: float) = discard
-proc fly_projectiles*(self: Battle, dt: float) = discard
+
+proc fly_and_collide_projectiles*(self: Battle, dt: float) = discard
+
+proc draw_projectiles*(self: Battle, dt: float) = discard
 
 proc draw_all_units*(self: Battle, dt: float) =
-  for u in self.units:
+  for u in self.units: (if u.dead: continue);
     if self.game.given_pos_in_view(u.shape):
-      #drawRectangle(u.shape, BLUE)
       let center_x = (u.shape.x + u.shape.width / 2).int32
       let center_y = (u.shape.y + u.shape.height / 2).int32
       drawCircleGradient(center_x, center_y, u.shape.width / 2, BLUE, SKYBLUE);
@@ -91,10 +123,6 @@ proc update_chunk_position_of_unit*(self: var Battle, unit: var Unit) =
   unit.chunk_i_am_on = self.get_chunk_by_xy(unit.shape.x.int,unit.shape.y.int)
   unit.chunk_i_am_on.units.add(unit)
 
-# 60 fps, fight update: alle 60 sekunden
-# move units all 2 frames: all unist / 2
-# use unit velocity
-# do this in chunks:
 proc move_units*(self: var Battle, dt: float) =
   let SPEED = 100.0
   for _, u in mpairs(self.units):

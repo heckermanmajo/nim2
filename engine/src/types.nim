@@ -34,6 +34,7 @@ type
     chunks_on_xy*: Table[int, Table[int, Chunk]]
     units*: seq[Unit]
     currently_selected_units*: seq[Unit]
+    control_groups*: seq[ControlGroup]
 
   Chunk* = ref object
     units*: seq[Unit]
@@ -47,8 +48,28 @@ type
     Idle
     MovingToChunk
     Fighting
+    MovingToEnemyUnit
+
+  Faction* = ref object
+    name*: string
+    player*: bool
+
+  ControlGroupMode = enum
+    Idle
+    Concentrate
+    Moving
+    Fighting
+
+  ControlGroup* = ref object
+    units*: seq[Unit]
+    target_chunk*: Chunk
+    center*: Vector2
+    current_mode*: ControlGroupMode
+    last_group_mode*:ControlGroupMode
+
 
   Unit* = ref object
+    dead*: bool
     type_data*: UnitType
     shape*: Rectangle
     rotation*: float
