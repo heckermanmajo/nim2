@@ -33,11 +33,11 @@ import raylib
 import raymath
 
 # engine modules ...
+import src/config
 import src/types
+import src/utils
 import src/game_utils
-
-const DEBUG = true
-const LOGFILE_NAME = "log.txt"
+import src/battle
 
 var game = Game(
   camera: Camera2D(
@@ -62,10 +62,26 @@ var game = Game(
     chunks_on_xy:initTable[int, Table[int, Chunk]](),
     units: newSeq[Unit]()))
 
+game.battle.game = game
+
 for chunk in game.battle.chunks:
   if not game.battle.chunks_on_xy.hasKey(chunk.x):
     game.battle.chunks_on_xy[chunk.x] = initTable[int, Chunk]()
   game.battle.chunks_on_xy[chunk.x][chunk.y] = chunk
+
+
+## create random units
+for i in 0..10:
+  let x = rand(0..WORLD_MAX_X).float
+  let y = rand(0..WORLD_MAX_Y).float
+  game.battle.units.add(
+    block:
+      var chunk = game.battle.get_chunk_by_xy(x.int,y.int)
+      let unit = Unit(
+        shape:Rectangle(x:x,y:y,width:32,height:32),
+        chunk_i_am_on: chunk)
+      chunk.units.add(unit)
+      unit)
 
 
 game.log("Start mages demo ... ")
@@ -107,22 +123,52 @@ block:
 
     # mouse clicks/selections -> mutable Options. Can be set to none by the ui if they are
     # consumed by the ui.
-    var selection_rect_or_empty: Option[Rectangle] = game.get_left_mouse_drag_selection_rect_and_draw_it()
+    var selection_rect_or_empty: Option[tuple[screen_relative: Rectangle, world_relative: Rectangle]] = game.get_left_mouse_drag_selection_rect_and_draw_it()
     var left_click_on_the_screen: Option[tuple[screen_relative: Vector2, world_relative: Vector2]]
       = game.get_click_on_the_screen(MouseButton.Left)
     var right_click_on_the_screen: Option[tuple[screen_relative: Vector2, world_relative: Vector2]]
       = game.get_click_on_the_screen(MouseButton.Right)
+
+    if selection_rect_or_empty.isSome:
+      game.battle.currently_selected_units = @[]
+      for u in game.battle.units:
+        if get_overlap(u.shape, selection_rect_or_empty.get.world_relative).isSome:
+          game.battle.currently_selected_units.add(u)
+
+    if game.battle.currently_selected_units.len != 0:
+      if right_click_on_the_screen.isSome:
+        let target = game.battle.get_chunk_by_xy_optional(
+          x= right_click_on_the_screen.get.world_relative.x.int,
+          y= right_click_on_the_screen.get.world_relative.y.int)
+        if target.isSome:
+          for u in game.battle.currently_selected_units:
+            # todo: improve this into a formation ...
+            let delta = game.battle.currently_selected_units.len.float * 32.float
+            let target_x = right_click_on_the_screen.get.world_relative.x + game.world_sanatize_x(rand( -delta .. delta ))
+            let target_y = right_click_on_the_screen.get.world_relative.y + game.world_sanatize_y(rand( -delta .. delta ))
+
+            u.move_target = some(Vector2(
+              x: target_x,
+              y: target_y))
+
+
+    game.battle.move_units(dt=delta_time)
+
+
     # --------------------------------------------------------------------------
     # START of game drawing logic
     # --------------------------------------------------------------------------
 
     beginDrawing()
-    clearBackground(RAYWHITE)
+    clearBackground(LIGHT_GRAY)
 
     beginMode2D(game.camera);
 
-    when(DEBUG):
+    when(config.DEBUG):
       game.draw_chunk_outline_and_units_in_it()
+
+    game.battle.draw_all_units(delta_time)
+    game.battle.draw_rect_around_selected_units(delta_time)
 
     endMode2D()
 
@@ -134,7 +180,7 @@ block:
     # Draw some debug information
     # --------------------------------------------------------------------------
 
-    when(DEBUG):
+    when(config.DEBUG):
       let top_bar_height = 40
       let fps = getFPS()
       drawText("FPS: " & $fps, 10, (10+top_bar_height).int32, 20, RED)

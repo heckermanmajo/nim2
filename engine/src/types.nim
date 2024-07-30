@@ -3,8 +3,9 @@ import std/options
 
 import raylib
 
-const chunks_per_side* = 10
-const CHUNK_SIZE_IN_PIXEL* = 128
+import config
+import utils
+
 
 type
 
@@ -28,14 +29,38 @@ type
     mouseDragStart*: Option[Vector2]
 
   Battle* = ref object
+    game*: Game
     chunks*: seq[Chunk]
     chunks_on_xy*: Table[int, Table[int, Chunk]]
     units*: seq[Unit]
+    currently_selected_units*: seq[Unit]
 
   Chunk* = ref object
     units*: seq[Unit]
     x*: int
     y*: int
 
+  UnitType = ref object
+    texture: Texture2D
+
+  UnitBahaviourMode = enum
+    Idle
+    MovingToChunk
+    Fighting
+
   Unit* = ref object
+    type_data*: UnitType
+    shape*: Rectangle
+    rotation*: float
+    velocity*: Vector2
+    attack_target*: Option[Unit]
+    move_target*: Option[Vector2]
+    chunk_i_am_on*: Chunk
+    mode: UnitBahaviourMode
+
+  Projectile* = ref object
+    shape*: Rectangle
+    velocity*: Vector2
+
+  BadGameState* = object of Defect
 

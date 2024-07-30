@@ -3,7 +3,9 @@ import std/options
 
 import raylib
 
+import config
 import types
+import utils
 
 proc log*(self: Game; msg: string) = self.logfile.write(msg & "\n")
 
@@ -53,7 +55,8 @@ proc zoom_in_out*(self: var Game, dt: float) =
       of 20..40: self.zoom_level = ZoomLevel.Big; 0.5
       else: self.zoom_level = ZoomLevel.Big; 0.1
 
-proc given_pos_in_view*(self: Game; x: float, y: float, width: float, height: float): bool =
+
+proc given_pos_in_view*(self: Game; x, y, width, height: float): bool =
   let viewTopLeftX = self.camera.target.x
   let viewTopLeftY = self.camera.target.y
   let viewBottomRightX = self.camera.target.x + (getScreenWidth().float) / self.camera.zoom
@@ -62,6 +65,9 @@ proc given_pos_in_view*(self: Game; x: float, y: float, width: float, height: fl
               x + width < viewTopLeftX or
               y > viewBottomRightY or
               y + height < viewTopLeftY)
+
+proc given_pos_in_view*(self: Game; rect: Rectangle): bool =
+  return self.given_pos_in_view( rect.x, rect.y, rect.width, rect.height)
 
 proc draw_chunk_outline_and_units_in_it*(self: Game) =
   let COLOR = RED
@@ -86,7 +92,7 @@ proc draw_chunk_outline_and_units_in_it*(self: Game) =
     drawText($number_of_units_in_chunk, top_left_chunk_corner_x.int32, top_left_chunk_corner_y.int32, 20, COLOR)
 
 
-proc get_left_mouse_drag_selection_rect_and_draw_it*(self: Game): Option[Rectangle] =
+proc get_left_mouse_drag_selection_rect_and_draw_it*(self: Game): Option[tuple[screen_relative: Rectangle, world_relative: Rectangle]] =
   ## This function returns the rectangle of a mouse selection of the left mouse
   ## it also draws the selection rect during dragging
   if isMouseButtonDown(MouseButton.Left):
@@ -98,16 +104,23 @@ proc get_left_mouse_drag_selection_rect_and_draw_it*(self: Game): Option[Rectang
     else:
       mouseStartPosition = self.mouseDragStart.get
       mouseCurrentPosition = getMousePosition()
-      let rect = Rectangle(
+      let rect_screen_relative = Rectangle(
         x: min(mouseStartPosition.x, mouseCurrentPosition.x),
         y: min(mouseStartPosition.y, mouseCurrentPosition.y),
         width: abs(mouseCurrentPosition.x - mouseStartPosition.x),
         height: abs(mouseCurrentPosition.y - mouseStartPosition.y))
-      drawRectangleLines(rect, 2, RED)
-      return some(rect)
+
+      var rect_world_relative = Rectangle(
+        x: (min(mouseStartPosition.x, mouseCurrentPosition.x) - self.camera.offset.x) / self.camera.zoom + self.camera.target.x,
+        y: (min(mouseStartPosition.y, mouseCurrentPosition.y) - self.camera.offset.y) / self.camera.zoom + self.camera.target.y,
+        width: abs(mouseCurrentPosition.x - mouseStartPosition.x).float / self.camera.zoom,
+        height: abs(mouseCurrentPosition.y - mouseStartPosition.y).float / self.camera.zoom)
+
+      drawRectangleLines(rect_screen_relative, 2, RED)
+      return some((rect_screen_relative, rect_world_relative))
   else:
     self.mouseDragStart = none(Vector2)
-  return none(Rectangle)
+  return none(tuple[screen_relative: Rectangle, world_relative: Rectangle])
 
 proc get_click_on_the_screen*(game: Game; button: MouseButton): Option[tuple[screen_relative: Vector2, world_relative: Vector2]] =
   if not isMouseButtonPressed(button): return none(tuple[screen_relative: Vector2, world_relative: Vector2])
@@ -116,3 +129,7 @@ proc get_click_on_the_screen*(game: Game; button: MouseButton): Option[tuple[scr
       x: (getMousePosition().x - game.camera.offset.x) / game.camera.zoom + game.camera.target.x,
       y: (getMousePosition().y - game.camera.offset.y) / game.camera.zoom + game.camera.target.y)))
 
+func world_sanatize_x*(self: Game, x: int): int  = (if x < 0: return 0; if x > WORLD_MAX_X: return WORLD_MAX_X; return x)
+func world_sanatize_x*(self: Game, x: float): float = return self.world_sanatize_x(x.int).float
+func world_sanatize_y*(self: Game, y: int): int = (if y < 0: return 0; if y > WORLD_MAX_Y: return WORLD_MAX_Y; return y)
+func world_sanatize_y*(self: Game, y: float): float = return self.world_sanatize_y(y.int).float
