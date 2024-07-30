@@ -1,8 +1,8 @@
-# define lerman -> builds the lerman mod
+  # define lerman -> builds the lerman mod
 nim compile \
   --define:lerman \
   --define:debug \
   --checks:on \
-  --opt:none \
+  --define:release \
   main.nim \
-  && ./main
+  && ./main#  #--opt:none \

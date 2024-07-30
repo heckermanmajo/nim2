@@ -42,8 +42,8 @@ import raymath
 include ui/Button
 
 const TileSizePixel = 124
-const WorldWidth_in_tiles = 100
-const WorldHeight_in_tiles = 100
+const WorldWidth_in_tiles = 10
+const WorldHeight_in_tiles = 10
 const WorldWidth_in_pixels = WorldWidth_in_tiles * TileSizePixel
 const WorldHeight_in_pixels = WorldHeight_in_tiles * TileSizePixel
 
