@@ -21,7 +21,8 @@ Pathfinging-via Threads
 https://nim-by-example.github.io/channels/
 
 ]]##
-import std/[sequtils, math, random, strutils,tables, hashes,options,oids,os,files,deques]
+#import std/[sequtils, math, random, strutils,tables, hashes,options,oids,os,files,deques]
+import std/[random,tables, hashes,options]
 
 
 # Profiling support for Nim. This is an embedded profiler that
@@ -40,6 +41,9 @@ import src/game_utils
 import src/battle
 
 var game = Game(
+  unit_types: {
+    "soldier": UnitType(width: 32, height: 32)
+  }.toTable,
   camera: Camera2D(
     target: Vector2(x: 0, y: 0),
     offset: Vector2(x: 0, y: 0),
@@ -71,17 +75,17 @@ for chunk in game.battle.chunks:
 
 
 ## create random units
-for i in 0..10:
-  let x = rand(0..WORLD_MAX_X).float
-  let y = rand(0..WORLD_MAX_Y).float
-  game.battle.units.add(
-    block:
-      var chunk = game.battle.get_chunk_by_xy(x.int,y.int)
-      let unit = Unit(
-        shape:Rectangle(x:x,y:y,width:32,height:32),
-        chunk_i_am_on: chunk)
-      chunk.units.add(unit)
-      unit)
+#for i in 0..10:
+#  let x = rand(0..WORLD_MAX_X).float
+#  let y = rand(0..WORLD_MAX_Y).float
+#  game.battle.units.add(
+#    block:
+#      var chunk = game.battle.get_chunk_by_xy(x.int,y.int)
+#      let unit = Unit(
+#        shape:Rectangle(x:x,y:y,width:32,height:32),
+#        chunk_i_am_on: chunk)
+#      chunk.units.add(unit)
+#      unit)
 
 
 game.log("Start mages demo ... ")
@@ -95,12 +99,7 @@ setWindowMonitor(0)
 
 # toggleFullscreen();
 
-#let Images = (
-#  unit: [
-#    #loadTexture("./mods/lerman/res/flat_0.png"),
-#  ]
-#)
-
+discard game.battle.create_control_group(unity_type=game.unit_types["soldier"], size=30, start_pos= Vector2(x:100, y: 100))
 
 # load all resources within the block
 # otherwise we get segfault at close window call at the end...
@@ -120,12 +119,14 @@ block:
     game.move_camera_with_wasd(delta_time)
     game.move_world_with_mouse_middle_drag(delta_time)
     game.zoom_in_out(delta_time)
+    game.recenter_camera_target_on_map()
 
     # mouse clicks/selections -> mutable Options. Can be set to none by the ui if they are
     # consumed by the ui.
     var selection_rect_or_empty: Option[tuple[screen_relative: Rectangle, world_relative: Rectangle]] = game.get_left_mouse_drag_selection_rect_and_draw_it()
     var left_click_on_the_screen: Option[tuple[screen_relative: Vector2, world_relative: Vector2]]
       = game.get_click_on_the_screen(MouseButton.Left)
+    discard left_click_on_the_screen  
     var right_click_on_the_screen: Option[tuple[screen_relative: Vector2, world_relative: Vector2]]
       = game.get_click_on_the_screen(MouseButton.Right)
 
@@ -144,8 +145,8 @@ block:
           for u in game.battle.currently_selected_units:
             # todo: improve this into a formation ...
             let delta = game.battle.currently_selected_units.len.float * 32.float
-            let target_x = right_click_on_the_screen.get.world_relative.x + game.world_sanatize_x(rand( -delta .. delta ))
-            let target_y = right_click_on_the_screen.get.world_relative.y + game.world_sanatize_y(rand( -delta .. delta ))
+            let target_x = right_click_on_the_screen.get.world_relative.x# + game.world_sanatize_x(rand( -delta .. delta ))
+            let target_y = right_click_on_the_screen.get.world_relative.y# + game.world_sanatize_y(rand( -delta .. delta ))
 
             u.move_target = some(Vector2(
               x: target_x,
@@ -153,6 +154,8 @@ block:
 
 
     game.battle.move_units(dt=delta_time)
+    game.battle.collide_units_with_each_other(dt=delta_time)
+    game.battle.apply_unit_collision_velocity(dt=delta_time)
 
 
     # --------------------------------------------------------------------------
@@ -183,15 +186,15 @@ block:
     when(config.DEBUG):
       let top_bar_height = 40
       let fps = getFPS()
-      drawText("FPS: " & $fps, 10, (10+top_bar_height).int32, 20, RED)
-      drawText("Camera: " & $game.camera.target, 10, (30+top_bar_height).int32, 20, RED)
-      drawText("Zoom: " & $game.camera.zoom, 10, (50+top_bar_height).int32, 20, RED)
+      drawText(("FPS: " & $fps).cstring, 10, (10+top_bar_height).int32, 20, RED)
+      drawText(("Camera: " & $game.camera.target).cstring, 10, (30+top_bar_height).int32, 20, RED)
+      drawText(("Zoom: " & $game.camera.zoom).cstring, 10, (50+top_bar_height).int32, 20, RED)
       let mouse_pos = getMousePosition()
-      drawText("Mouse: " & $mouse_pos, 10, (70+top_bar_height).int32, 20, RED)
+      drawText(("Mouse: " & $mouse_pos).cstring, 10, (70+top_bar_height).int32, 20, RED)
       # cam target
       #drawText("Cam target: " & $game.camera.target.x & " - " & $game.camera.target.y, 10, (90+top_bar_height).int32, 20, RED)
     # zoom level
-      drawText("Zoom Level: " & $game.zoom_level, 10, (90+top_bar_height).int32, 20, RED)
+      drawText(("Zoom Level: " & $game.zoom_level).cstring, 10, (90+top_bar_height).int32, 20, RED)
 
     endDrawing()
     # --------------------------------------------------------------------------

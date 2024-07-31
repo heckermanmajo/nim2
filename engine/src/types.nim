@@ -3,15 +3,12 @@ import std/options
 
 import raylib
 
-import config
-import utils
-
 
 type
 
   ZoomLevel* = enum
-    ## Zoomlevel of the campaign map; The zoom changes the way of displaying
-    ## the map and the armies on the map.
+    ## Zoomlevel of the map. If it changes, we might change the way to display stuff 
+    ## to keep an acceptable fps-rate.
     Mini
     VerySmall
     Small
@@ -19,6 +16,7 @@ type
     Big
 
   Game* = ref object
+    ## Global game state.
     camera*: Camera2D
     logfile*: File
     zoom_factor*: float
@@ -27,6 +25,7 @@ type
     zoom_level*: ZoomLevel
     battle*: Battle
     mouseDragStart*: Option[Vector2]
+    unit_types*: Table[string, UnitType]
 
   Battle* = ref object
     game*: Game
@@ -35,16 +34,19 @@ type
     units*: seq[Unit]
     currently_selected_units*: seq[Unit]
     control_groups*: seq[ControlGroup]
+    currently_selected_control_groups*: seq[ControlGroup]
 
   Chunk* = ref object
     units*: seq[Unit]
     x*: int
     y*: int
 
-  UnitType = ref object
-    texture: Texture2D
+  UnitType* = ref object
+    #texture*: Texture2D
+    width*: float
+    height*: float
 
-  UnitBahaviourMode = enum
+  UnitBahaviourMode* = enum
     Idle
     MovingToChunk
     Fighting
@@ -54,7 +56,7 @@ type
     name*: string
     player*: bool
 
-  ControlGroupMode = enum
+  ControlGroupMode* = enum
     Idle
     Concentrate
     Moving
@@ -62,7 +64,7 @@ type
 
   ControlGroup* = ref object
     units*: seq[Unit]
-    target_chunk*: Chunk
+    target_chunk*: Option[Chunk]
     center*: Vector2
     current_mode*: ControlGroupMode
     last_group_mode*:ControlGroupMode
@@ -74,10 +76,13 @@ type
     shape*: Rectangle
     rotation*: float
     velocity*: Vector2
+    collision_velocity*: Vector2
     attack_target*: Option[Unit]
     move_target*: Option[Vector2]
     chunk_i_am_on*: Chunk
-    mode: UnitBahaviourMode
+    mode*: UnitBahaviourMode
+    myControlGroup*: ControlGroup
+    last_push*: float
 
   Projectile* = ref object
     shape*: Rectangle

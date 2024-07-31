@@ -1,11 +1,9 @@
-import std/tables
 import std/options
 
 import raylib
 
 import config
 import types
-import utils
 
 proc log*(self: Game; msg: string) = self.logfile.write(msg & "\n")
 
@@ -89,10 +87,11 @@ proc draw_chunk_outline_and_units_in_it*(self: Game) =
     let number_of_units_in_chunk = chunk.units.len
     let top_left_chunk_corner_x = real_chunk_x + 10
     let top_left_chunk_corner_y = real_chunk_y + 10
-    drawText($number_of_units_in_chunk, top_left_chunk_corner_x.int32, top_left_chunk_corner_y.int32, 20, COLOR)
+    drawText(($number_of_units_in_chunk).cstring, top_left_chunk_corner_x.int32, top_left_chunk_corner_y.int32, 20, COLOR)
 
 
-proc get_left_mouse_drag_selection_rect_and_draw_it*(self: Game): Option[tuple[screen_relative: Rectangle, world_relative: Rectangle]] =
+proc get_left_mouse_drag_selection_rect_and_draw_it*(self: Game): 
+  Option[tuple[screen_relative: Rectangle, world_relative: Rectangle]] =
   ## This function returns the rectangle of a mouse selection of the left mouse
   ## it also draws the selection rect during dragging
   if isMouseButtonDown(MouseButton.Left):
@@ -129,7 +128,21 @@ proc get_click_on_the_screen*(game: Game; button: MouseButton): Option[tuple[scr
       x: (getMousePosition().x - game.camera.offset.x) / game.camera.zoom + game.camera.target.x,
       y: (getMousePosition().y - game.camera.offset.y) / game.camera.zoom + game.camera.target.y)))
 
-func world_sanatize_x*(self: Game, x: int): int  = (if x < 0: return 0; if x > WORLD_MAX_X: return WORLD_MAX_X; return x)
-func world_sanatize_x*(self: Game, x: float): float = return self.world_sanatize_x(x.int).float
-func world_sanatize_y*(self: Game, y: int): int = (if y < 0: return 0; if y > WORLD_MAX_Y: return WORLD_MAX_Y; return y)
-func world_sanatize_y*(self: Game, y: float): float = return self.world_sanatize_y(y.int).float
+func world_sanatize_x*(self: Game, x: int): int  
+  = (if x < 0: return 0; if x > WORLD_MAX_X: return WORLD_MAX_X; return x)
+
+func world_sanatize_x*(self: Game, x: float): float 
+  = return self.world_sanatize_x(x.int).float
+
+func world_sanatize_y*(self: Game, y: int): int 
+  = (if y < 0: return 0; if y > WORLD_MAX_Y: return WORLD_MAX_Y; return y)
+
+func world_sanatize_y*(self: Game, y: float): float 
+  = return self.world_sanatize_y(y.int).float
+
+func recenter_camera_target_on_map*(self: Game) {.inline.} =
+  let padding = 1200.0 
+  if self.camera.target.x > WORLD_MAX_X.float + padding: self.camera.target.x = WORLD_MAX_X + padding
+  if self.camera.target.y > WORLD_MAX_Y.float + padding: self.camera.target.y = WORLD_MAX_Y + padding
+  if self.camera.target.x < - padding: self.camera.target.x = - padding
+  if self.camera.target.y < - padding: self.camera.target.y = - padding
