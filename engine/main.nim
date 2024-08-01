@@ -22,7 +22,7 @@ https://nim-by-example.github.io/channels/
 
 ]]##
 #import std/[sequtils, math, random, strutils,tables, hashes,options,oids,os,files,deques]
-import std/[random,tables, hashes,options]
+import std/[random,tables, hashes,options, math]
 
 
 # Profiling support for Nim. This is an embedded profiler that
@@ -36,13 +36,15 @@ import raymath
 # engine modules ...
 import src/config
 import src/types
-import src/utils
-import src/game_utils
+import src/core
 import src/battle
+import src/unit
+import src/control_group
+import src/chunk
 
 var game = Game(
   unit_types: {
-    "soldier": UnitType(width: 32, height: 32)
+    "soldier": UnitType(width: 32, height: 32),#, texture: loadTexture("./s_blue.png"))
   }.toTable,
   camera: Camera2D(
     target: Vector2(x: 0, y: 0),
@@ -52,9 +54,21 @@ var game = Game(
   logfile: open(LOGFILE_NAME, fmWrite),
   wasd_move_speed: 800,
   zoomFactor: 1,
-  mouse_middle_drag_speed: 7000,
+  mouse_middle_drag_speed: 400,
   zoom_level: ZoomLevel.Default,
   battle: Battle(
+    factions: {
+      "player": Faction(
+        name: "SCHMOP",
+        player: true,
+        color: BLUE
+      ),
+      "kekkus": Faction(
+        name:"kekkus",
+        player: false,
+        color: RED
+      )
+    }.toTable,
     chunks: block:
       var chunks = newSeq[Chunk]()
       for x in 0..chunks_per_side:
@@ -64,7 +78,8 @@ var game = Game(
             x: x, y: y ))
       chunks,
     chunks_on_xy:initTable[int, Table[int, Chunk]](),
-    units: newSeq[Unit]()))
+    units: newSeq[Unit](),
+    currently_selected_control_groups: newSeq[ControlGroup]()))
 
 game.battle.game = game
 
@@ -73,22 +88,24 @@ for chunk in game.battle.chunks:
     game.battle.chunks_on_xy[chunk.x] = initTable[int, Chunk]()
   game.battle.chunks_on_xy[chunk.x][chunk.y] = chunk
 
-
-## create random units
-#for i in 0..10:
-#  let x = rand(0..WORLD_MAX_X).float
-#  let y = rand(0..WORLD_MAX_Y).float
-#  game.battle.units.add(
-#    block:
-#      var chunk = game.battle.get_chunk_by_xy(x.int,y.int)
-#      let unit = Unit(
-#        shape:Rectangle(x:x,y:y,width:32,height:32),
-#        chunk_i_am_on: chunk)
-#      chunk.units.add(unit)
-#      unit)
-
+game.battle.create_all_unit_positions_for_chunks()
 
 game.log("Start mages demo ... ")
+
+
+discard game.battle.create_control_group(
+  unity_type = game.unit_types["soldier"], 
+  size = 35, 
+  start_pos = Vector2(x:100, y: 100),
+  faction = game.battle.factions["player"])
+
+
+discard game.battle.create_control_group(
+  unity_type = game.unit_types["soldier"], 
+  size = 35, 
+  start_pos = Vector2(x:400, y: 400),
+  faction = game.battle.factions["kekkus"])
+
 
 #-------------------------------------------------------------------------------
 # Init logger and raylib stuff
@@ -97,13 +114,15 @@ setTraceLogLevel(TraceLogLevel.Error)
 initWindow(1900, 1080, "Mages - Demo")
 setWindowMonitor(0)
 
-# toggleFullscreen();
+setTargetFPS(30);  
 
-discard game.battle.create_control_group(unity_type=game.unit_types["soldier"], size=30, start_pos= Vector2(x:100, y: 100))
+#toggleFullscreen();
 
 # load all resources within the block
 # otherwise we get segfault at close window call at the end...
 block:
+
+  var rotation = 0.0
 
   var running = true
   while running:
@@ -114,48 +133,63 @@ block:
     #--------------------------------------------------------------------------#
     # End of game logic handling ...
     #--------------------------------------------------------------------------#
-
+    
     # move the camera
     game.move_camera_with_wasd(delta_time)
     game.move_world_with_mouse_middle_drag(delta_time)
     game.zoom_in_out(delta_time)
     game.recenter_camera_target_on_map()
 
+    ### RASTER UNIT CONTROL EXPERIMENTS
+    #game.battle.draw_rect_raster(get_raster_by_center_and_rotation(
+    #  center=getMousePosition(), rotation=rotation,20, numbers=6 
+    #), 16) 
+
+    if isKeyPressed(KeyboardKey.Left): rotation = rotation + 0.5
+    if isKeyPressed(KeyboardKey.Right): rotation = rotation - 0.5
+
     # mouse clicks/selections -> mutable Options. Can be set to none by the ui if they are
     # consumed by the ui.
-    var selection_rect_or_empty: Option[tuple[screen_relative: Rectangle, world_relative: Rectangle]] = game.get_left_mouse_drag_selection_rect_and_draw_it()
-    var left_click_on_the_screen: Option[tuple[screen_relative: Vector2, world_relative: Vector2]]
+    var selection_rect_or_empty: 
+      Option[tuple[screen_relative: Rectangle, world_relative: Rectangle]] 
+      = game.get_left_mouse_drag_selection_rect_and_draw_it()
+    var left_click_on_the_screen: 
+      Option[tuple[screen_relative: Vector2, world_relative: Vector2]]
       = game.get_click_on_the_screen(MouseButton.Left)
-    discard left_click_on_the_screen  
-    var right_click_on_the_screen: Option[tuple[screen_relative: Vector2, world_relative: Vector2]]
+    var right_click_on_the_screen: 
+      Option[tuple[screen_relative: Vector2, world_relative: Vector2]]
       = game.get_click_on_the_screen(MouseButton.Right)
+    
+    discard left_click_on_the_screen 
 
     if selection_rect_or_empty.isSome:
       game.battle.currently_selected_units = @[]
+      game.battle.currently_selected_control_groups = @[]
       for u in game.battle.units:
         if get_overlap(u.shape, selection_rect_or_empty.get.world_relative).isSome:
-          game.battle.currently_selected_units.add(u)
+          if game.battle.currently_selected_control_groups.find(u.my_control_group) == -1:
+            game.battle.currently_selected_control_groups.add(u.my_control_group)
 
-    if game.battle.currently_selected_units.len != 0:
+
+    # todo: remove this and implement a target selection based on groups
+    if game.battle.currently_selected_control_groups.len != 0:
       if right_click_on_the_screen.isSome:
-        let target = game.battle.get_chunk_by_xy_optional(
+        let target_chunk = game.battle.get_chunk_by_xy_optional(
           x= right_click_on_the_screen.get.world_relative.x.int,
           y= right_click_on_the_screen.get.world_relative.y.int)
-        if target.isSome:
-          for u in game.battle.currently_selected_units:
-            # todo: improve this into a formation ...
-            let delta = game.battle.currently_selected_units.len.float * 32.float
-            let target_x = right_click_on_the_screen.get.world_relative.x# + game.world_sanatize_x(rand( -delta .. delta ))
-            let target_y = right_click_on_the_screen.get.world_relative.y# + game.world_sanatize_y(rand( -delta .. delta ))
+        if target_chunk.isSome:
+          for _, selected_control_group in game.battle.currently_selected_control_groups:
+            # todo: if more control groups selected occupy neighbour 
+            # todo: chunks,except an enemy is on this one
+            for count, u in selected_control_group.units: 
+              let target = target_chunk.get.unit_idle_positions[count]
+              u.move_target = some(Vector2(x:ceil(target.x-16), y:ceil(target.y-16)))
 
-            u.move_target = some(Vector2(
-              x: target_x,
-              y: target_y))
 
 
     game.battle.move_units(dt=delta_time)
-    game.battle.collide_units_with_each_other(dt=delta_time)
-    game.battle.apply_unit_collision_velocity(dt=delta_time)
+    #game.battle.collide_units_with_each_other(dt=delta_time)
+    #game.battle.apply_unit_collision_velocity(dt=delta_time)
 
 
     # --------------------------------------------------------------------------
@@ -163,7 +197,7 @@ block:
     # --------------------------------------------------------------------------
 
     beginDrawing()
-    clearBackground(LIGHT_GRAY)
+    clearBackground(BLACK)
 
     beginMode2D(game.camera);
 
@@ -186,15 +220,15 @@ block:
     when(config.DEBUG):
       let top_bar_height = 40
       let fps = getFPS()
-      drawText(("FPS: " & $fps).cstring, 10, (10+top_bar_height).int32, 20, RED)
-      drawText(("Camera: " & $game.camera.target).cstring, 10, (30+top_bar_height).int32, 20, RED)
-      drawText(("Zoom: " & $game.camera.zoom).cstring, 10, (50+top_bar_height).int32, 20, RED)
+      drawText(("FPS: " & $fps).cstring, 10, (10+top_bar_height).int32, 20, WORLD_COLOR)
+      drawText(("Camera: " & $game.camera.target).cstring, 10, (30+top_bar_height).int32, 20, WORLD_COLOR)
+      drawText(("Zoom: " & $game.camera.zoom).cstring, 10, (50+top_bar_height).int32, 20, WORLD_COLOR)
       let mouse_pos = getMousePosition()
-      drawText(("Mouse: " & $mouse_pos).cstring, 10, (70+top_bar_height).int32, 20, RED)
+      drawText(("Mouse: " & $mouse_pos).cstring, 10, (70+top_bar_height).int32, 20, WORLD_COLOR)
       # cam target
       #drawText("Cam target: " & $game.camera.target.x & " - " & $game.camera.target.y, 10, (90+top_bar_height).int32, 20, RED)
     # zoom level
-      drawText(("Zoom Level: " & $game.zoom_level).cstring, 10, (90+top_bar_height).int32, 20, RED)
+      drawText(("Zoom Level: " & $game.zoom_level).cstring, 10, (90+top_bar_height).int32, 20, WORLD_COLOR)
 
     endDrawing()
     # --------------------------------------------------------------------------
