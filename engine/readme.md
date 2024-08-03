@@ -1,5 +1,3 @@
-- make control groups the element of control
-- dont seklect units, only select control groups
 - if a control group gets a chunk as target
   do not allow this if one of the same faction is there
   if so, chose a border chunk as target position

@@ -5,4 +5,4 @@ nim compile \
   --checks:on \
   --define:release \
   main.nim \
-  && ./main#  #--opt:none \
+  && ./main  #--opt:none \

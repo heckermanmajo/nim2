@@ -56,12 +56,34 @@ type
     texture*: Texture2D
     width*: float
     height*: float
+    attack_range*: float
+    aggro_range*: float
+    speed*:float
+    max_hp*:float
 
   UnitBehaviourMode* = enum
     Idle
     MovingToChunk
     Fighting
     MovingToEnemyUnit
+
+  Unit* = ref object             ## Represents a simple unit.
+    dead*: bool                  ## this marks the unit a dead; Dead units can be re-used
+    type_data*: UnitType         ## Reference to the type
+    shape*: Rectangle            ## the position AND size of the unit
+    rotation*: float             ## no use yet ...
+    collision_velocity*: Vector2 ## used to carry over collision into movement
+    attack_target*: Option[Unit] 
+    move_target*: Option[Vector2]
+    chunk_i_am_on*: Chunk        ## this need to be set all the time; the chunk this unit is on
+    behavior_mode*: UnitBehaviourMode
+    my_control_group*: ControlGroup
+    last_push*: float
+    next_collsion_check*: float
+    next_think*: float
+    last_attack*: float  ## seconds since last attack 
+    hp*: float
+    
 
   Faction* = ref object
     name*: string
@@ -79,22 +101,10 @@ type
     units*: seq[Unit]
     target_chunk*: Option[Chunk]
     center*: Vector2
+    
     current_mode*: ControlGroupMode
     last_group_mode*:ControlGroupMode
-
-  Unit* = ref object             ## Represents a simple unit.
-    dead*: bool                  ## this marks the unit a dead; Dead units can be re-used
-    type_data*: UnitType         ## Reference to the type
-    shape*: Rectangle            ## the position AND size of the unit
-    rotation*: float             ## no use yet ...
-    collision_velocity*: Vector2 ## used to carry over collision into movement
-    attack_target*: Option[Unit] ## not used yet
-    move_target*: Option[Vector2]
-    chunk_i_am_on*: Chunk        ## this need to be set all the time; the chunk this unit is on
-    behavior_mode*: UnitBehaviourMode
-    myControlGroup*: ControlGroup
-    last_push*: float
-    next_collsion_check*: float
+    until_next_idle_check*: float
     
 
   Projectile* = ref object

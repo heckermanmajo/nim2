@@ -1,233 +1,667 @@
 total executions of each stack trace:
-Entry: 1/57 Calls: 283/1044 = 27.11% [sum: 283; 283/1044 = 27.11%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 2/57 Calls: 111/1044 = 10.63% [sum: 394; 394/1044 = 37.74%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: draw_chunk_outline_and_units_in_it 406/1044 = 38.89%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 3/57 Calls: 95/1044 = 9.10% [sum: 489; 489/1044 = 46.84%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1043/1044 = 99.90%
-Entry: 4/57 Calls: 94/1044 = 9.00% [sum: 583; 583/1044 = 55.84%]
-  /home/majo/Desktop/nim2/engine/src/core.nim: given_pos_in_view 94/1044 = 9.00%
-  /home/majo/Desktop/nim2/engine/src/core.nim: draw_chunk_outline_and_units_in_it 406/1044 = 38.89%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 5/57 Calls: 92/1044 = 8.81% [sum: 675; 675/1044 = 64.66%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addChars 95/1044 = 9.10%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addIntImpl 99/1044 = 9.48%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/dollars.nim: $ 194/1044 = 18.58%
-  /home/majo/Desktop/nim2/engine/src/core.nim: draw_chunk_outline_and_units_in_it 406/1044 = 38.89%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 6/57 Calls: 91/1044 = 8.72% [sum: 766; 766/1044 = 73.37%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/dollars.nim: $ 194/1044 = 18.58%
-  /home/majo/Desktop/nim2/engine/src/core.nim: draw_chunk_outline_and_units_in_it 406/1044 = 38.89%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 7/57 Calls: 89/1044 = 8.52% [sum: 855; 855/1044 = 81.90%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 102/1044 = 9.77%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: removeChunkFromMatrix 91/1044 = 8.72%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: freeBigChunk 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawDealloc 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: dealloc 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1043/1044 = 99.90%
-Entry: 8/57 Calls: 25/1044 = 2.39% [sum: 880; 880/1044 = 84.29%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isSome 27/1044 = 2.59%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 9/57 Calls: 17/1044 = 1.63% [sum: 897; 897/1044 = 85.92%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: draw_all_units 17/1044 = 1.63%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 10/57 Calls: 13/1044 = 1.25% [sum: 910; 910/1044 = 87.16%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hiXorLo 21/1044 = 2.01%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 26/1044 = 2.49%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 33/1044 = 3.16%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 49/1044 = 4.69%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 40/1044 = 3.83%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 11/57 Calls: 8/1044 = 0.77% [sum: 918; 918/1044 = 87.93%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hiXorLo 21/1044 = 2.01%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 26/1044 = 2.49%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 33/1044 = 3.16%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 49/1044 = 4.69%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 19/1044 = 1.82%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 12/57 Calls: 8/1044 = 0.77% [sum: 926; 926/1044 = 88.70%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: / 14/1044 = 1.34%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 13/57 Calls: 7/1044 = 0.67% [sum: 933; 933/1044 = 89.37%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 40/1044 = 3.83%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 14/57 Calls: 6/1044 = 0.57% [sum: 939; 939/1044 = 89.94%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 49/1044 = 4.69%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 40/1044 = 3.83%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 15/57 Calls: 6/1044 = 0.57% [sum: 945; 945/1044 = 90.52%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: toFloat 6/1044 = 0.57%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: / 14/1044 = 1.34%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 16/57 Calls: 5/1044 = 0.48% [sum: 950; 950/1044 = 91.00%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 102/1044 = 9.77%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: addChunkToMatrix 11/1044 = 1.05%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: freeBigChunk 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawDealloc 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: dealloc 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: draw_chunk_outline_and_units_in_it 406/1044 = 38.89%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 17/57 Calls: 5/1044 = 0.48% [sum: 955; 955/1044 = 91.48%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 10/1044 = 0.96%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 18/57 Calls: 5/1044 = 0.48% [sum: 960; 960/1044 = 91.95%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: -% 6/1044 = 0.57%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arc.nim: nimDecRefIsLastCyclicStatic 11/1044 = 1.05%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 19/57 Calls: 5/1044 = 0.48% [sum: 965; 965/1044 = 92.43%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 26/1044 = 2.49%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 33/1044 = 3.16%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 49/1044 = 4.69%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 40/1044 = 3.83%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 20/57 Calls: 5/1044 = 0.48% [sum: 970; 970/1044 = 92.91%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: isFilled 6/1044 = 0.57%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 49/1044 = 4.69%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 40/1044 = 3.83%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 21/57 Calls: 4/1044 = 0.38% [sum: 974; 974/1044 = 93.30%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 49/1044 = 4.69%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 19/1044 = 1.82%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 22/57 Calls: 4/1044 = 0.38% [sum: 978; 978/1044 = 93.68%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addIntImpl 99/1044 = 9.48%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/dollars.nim: $ 194/1044 = 18.58%
-  /home/majo/Desktop/nim2/engine/src/core.nim: draw_chunk_outline_and_units_in_it 406/1044 = 38.89%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 23/57 Calls: 4/1044 = 0.38% [sum: 982; 982/1044 = 94.06%]
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 24/57 Calls: 4/1044 = 0.38% [sum: 986; 986/1044 = 94.44%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: none 10/1044 = 0.96%
-  /home/majo/Desktop/nim2/engine/src/core.nim: get_left_mouse_drag_selection_rect_and_draw_it 6/1044 = 0.57%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1043/1044 = 99.90%
-Entry: 25/57 Calls: 4/1044 = 0.38% [sum: 990; 990/1044 = 94.83%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 33/1044 = 3.16%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 49/1044 = 4.69%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 40/1044 = 3.83%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 26/57 Calls: 3/1044 = 0.29% [sum: 993; 993/1044 = 95.11%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 19/1044 = 1.82%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 27/57 Calls: 3/1044 = 0.29% [sum: 996; 996/1044 = 95.40%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 102/1044 = 9.77%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: addChunkToMatrix 11/1044 = 1.05%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: splitChunk 4/1044 = 0.38%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: getBigChunk 4/1044 = 0.38%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: getSmallChunk 4/1044 = 0.38%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawAlloc 4/1044 = 0.38%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: alloc 4/1044 = 0.38%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addChars 95/1044 = 9.10%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addIntImpl 99/1044 = 9.48%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/std/private/digitsutils.nim: addInt 192/1044 = 18.39%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/dollars.nim: $ 194/1044 = 18.58%
-  /home/majo/Desktop/nim2/engine/src/core.nim: draw_chunk_outline_and_units_in_it 406/1044 = 38.89%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 28/57 Calls: 3/1044 = 0.29% [sum: 999; 999/1044 = 95.69%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/orc.nim: nimDecRefIsLastCyclicStatic 11/1044 = 1.05%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 29/57 Calls: 3/1044 = 0.29% [sum: 1002; 1002/1044 = 95.98%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: none 10/1044 = 0.96%
-  /home/majo/Desktop/nim2/engine/src/core.nim: get_click_on_the_screen 3/1044 = 0.29%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1043/1044 = 99.90%
-Entry: 30/57 Calls: 3/1044 = 0.29% [sum: 1005; 1005/1044 = 96.26%]
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 31/57 Calls: 3/1044 = 0.29% [sum: 1008; 1008/1044 = 96.55%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 33/1044 = 3.16%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 49/1044 = 4.69%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 19/1044 = 1.82%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 85/1044 = 8.14%
-  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 407/1044 = 38.98%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 32/57 Calls: 3/1044 = 0.29% [sum: 1011; 1011/1044 = 96.84%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: none 10/1044 = 0.96%
-  /home/majo/Desktop/nim2/engine/src/core.nim: get_overlap 6/1044 = 0.57%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 33/57 Calls: 3/1044 = 0.29% [sum: 1014; 1014/1044 = 97.13%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 102/1044 = 9.77%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: addChunkToMatrix 11/1044 = 1.05%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: freeBigChunk 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawDealloc 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: dealloc 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1043/1044 = 99.90%
-Entry: 34/57 Calls: 2/1044 = 0.19% [sum: 1016; 1016/1044 = 97.32%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isSome 27/1044 = 2.59%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1043/1044 = 99.90%
-Entry: 35/57 Calls: 2/1044 = 0.19% [sum: 1018; 1018/1044 = 97.51%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isNone 3/1044 = 0.29%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 10/1044 = 0.96%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 36/57 Calls: 2/1044 = 0.19% [sum: 1020; 1020/1044 = 97.70%]
-  /home/majo/Desktop/nim2/engine/src/core.nim: get_overlap 6/1044 = 0.57%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 37/57 Calls: 2/1044 = 0.19% [sum: 1022; 1022/1044 = 97.89%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/dollars.nim: $ 194/1044 = 18.58%
-  /home/majo/Desktop/nim2/engine/src/core.nim: draw_chunk_outline_and_units_in_it 406/1044 = 38.89%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 38/57 Calls: 2/1044 = 0.19% [sum: 1024; 1024/1044 = 98.08%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 10/1044 = 0.96%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
-Entry: 39/57 Calls: 2/1044 = 0.19% [sum: 1026; 1026/1044 = 98.28%]
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 102/1044 = 9.77%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: removeChunkFromMatrix 91/1044 = 8.72%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: freeBigChunk 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawDealloc 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: dealloc 100/1044 = 9.58%
-  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: draw_chunk_outline_and_units_in_it 406/1044 = 38.89%
-  /home/majo/Desktop/nim2/engine/main.nim: main 1043/1044 = 99.90%
+Entry: 1/133 Calls: 108/1657 = 6.52% [sum: 108; 108/1657 = 6.52%]
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 2/133 Calls: 94/1657 = 5.67% [sum: 202; 202/1657 = 12.19%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hiXorLo 169/1657 = 10.20%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 260/1657 = 15.69%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 3/133 Calls: 85/1657 = 5.13% [sum: 287; 287/1657 = 17.32%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: toFloat 96/1657 = 5.79%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: / 134/1657 = 8.09%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 4/133 Calls: 66/1657 = 3.98% [sum: 353; 353/1657 = 21.30%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hiXorLo 169/1657 = 10.20%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 260/1657 = 15.69%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 5/133 Calls: 64/1657 = 3.86% [sum: 417; 417/1657 = 25.17%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/Desktop/nim2/engine/main.nim: main 1656/1657 = 99.94%
+Entry: 6/133 Calls: 62/1657 = 3.74% [sum: 479; 479/1657 = 28.91%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 7/133 Calls: 50/1657 = 3.02% [sum: 529; 529/1657 = 31.93%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: isFilled 93/1657 = 5.61%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 8/133 Calls: 49/1657 = 2.96% [sum: 578; 578/1657 = 34.88%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 9/133 Calls: 44/1657 = 2.66% [sum: 622; 622/1657 = 37.54%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 10/133 Calls: 44/1657 = 2.66% [sum: 666; 666/1657 = 40.19%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: some 71/1657 = 4.28%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 11/133 Calls: 44/1657 = 2.66% [sum: 710; 710/1657 = 42.85%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 260/1657 = 15.69%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 12/133 Calls: 43/1657 = 2.60% [sum: 753; 753/1657 = 45.44%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 13/133 Calls: 41/1657 = 2.47% [sum: 794; 794/1657 = 47.92%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 260/1657 = 15.69%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 14/133 Calls: 40/1657 = 2.41% [sum: 834; 834/1657 = 50.33%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 15/133 Calls: 39/1657 = 2.35% [sum: 873; 873/1657 = 52.69%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: isFilled 93/1657 = 5.61%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 16/133 Calls: 37/1657 = 2.23% [sum: 910; 910/1657 = 54.92%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 17/133 Calls: 31/1657 = 1.87% [sum: 941; 941/1657 = 56.79%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 18/133 Calls: 30/1657 = 1.81% [sum: 971; 971/1657 = 58.60%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: / 134/1657 = 8.09%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 19/133 Calls: 29/1657 = 1.75% [sum: 1000; 1000/1657 = 60.35%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 20/133 Calls: 27/1657 = 1.63% [sum: 1027; 1027/1657 = 61.98%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: none 104/1657 = 6.28%
+  /home/majo/Desktop/nim2/engine/src/core.nim: get_click_on_the_screen 33/1657 = 1.99%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 21/133 Calls: 24/1657 = 1.45% [sum: 1051; 1051/1657 = 63.43%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: none 104/1657 = 6.28%
+  /home/majo/Desktop/nim2/engine/src/core.nim: get_left_mouse_drag_selection_rect_and_draw_it 39/1657 = 2.35%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 22/133 Calls: 22/1657 = 1.33% [sum: 1073; 1073/1657 = 64.76%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: none 104/1657 = 6.28%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 23/133 Calls: 20/1657 = 1.21% [sum: 1093; 1093/1657 = 65.96%]
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 24/133 Calls: 20/1657 = 1.21% [sum: 1113; 1113/1657 = 67.17%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: none 104/1657 = 6.28%
+  /home/majo/Desktop/nim2/engine/src/core.nim: get_overlap 41/1657 = 2.47%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: select_control_groups_with_mouse_selection_drag 90/1657 = 5.43%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 25/133 Calls: 18/1657 = 1.09% [sum: 1131; 1131/1657 = 68.26%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isNone 34/1657 = 2.05%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 64/1657 = 3.86%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 26/133 Calls: 17/1657 = 1.03% [sum: 1148; 1148/1657 = 69.28%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/orc.nim: nimDecRefIsLastCyclicStatic 56/1657 = 3.38%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: some 71/1657 = 4.28%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 27/133 Calls: 15/1657 = 0.91% [sum: 1163; 1163/1657 = 70.19%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: select_control_groups_with_mouse_selection_drag 90/1657 = 5.43%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 28/133 Calls: 15/1657 = 0.91% [sum: 1178; 1178/1657 = 71.09%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 64/1657 = 3.86%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 29/133 Calls: 15/1657 = 0.91% [sum: 1193; 1193/1657 = 72.00%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/orc.nim: nimDecRefIsLastCyclicStatic 56/1657 = 3.38%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 30/133 Calls: 14/1657 = 0.84% [sum: 1207; 1207/1657 = 72.84%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isSome 34/1657 = 2.05%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 31/133 Calls: 14/1657 = 0.84% [sum: 1221; 1221/1657 = 73.69%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 53/1657 = 3.20%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: addChunkToMatrix 33/1657 = 1.99%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: freeBigChunk 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawDealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: dealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 32/133 Calls: 14/1657 = 0.84% [sum: 1235; 1235/1657 = 74.53%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: -% 44/1657 = 2.66%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arc.nim: nimIncRefCyclic 63/1657 = 3.80%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 33/133 Calls: 14/1657 = 0.84% [sum: 1249; 1249/1657 = 75.38%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/orc.nim: nimIncRefCyclic 63/1657 = 3.80%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 34/133 Calls: 13/1657 = 0.78% [sum: 1262; 1262/1657 = 76.16%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 53/1657 = 3.20%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: removeChunkFromMatrix 20/1657 = 1.21%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: freeBigChunk 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawDealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: dealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: realloc 34/1657 = 2.05%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 35/133 Calls: 12/1657 = 0.72% [sum: 1274; 1274/1657 = 76.89%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: realloc 34/1657 = 2.05%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 36/133 Calls: 12/1657 = 0.72% [sum: 1286; 1286/1657 = 77.61%]
+  /home/majo/Desktop/nim2/engine/src/core.nim: get_left_mouse_drag_selection_rect_and_draw_it 39/1657 = 2.35%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 37/133 Calls: 12/1657 = 0.72% [sum: 1298; 1298/1657 = 78.33%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: align 12/1657 = 0.72%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 38/133 Calls: 11/1657 = 0.66% [sum: 1309; 1309/1657 = 79.00%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: newSeq 11/1657 = 0.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 39/133 Calls: 11/1657 = 0.66% [sum: 1320; 1320/1657 = 79.66%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 64/1657 = 3.86%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: select_control_groups_with_mouse_selection_drag 90/1657 = 5.43%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 40/133 Calls: 11/1657 = 0.66% [sum: 1331; 1331/1657 = 80.33%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: none 104/1657 = 6.28%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 41/133 Calls: 10/1657 = 0.60% [sum: 1341; 1341/1657 = 80.93%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 53/1657 = 3.20%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: addChunkToMatrix 33/1657 = 1.99%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: splitChunk 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: getBigChunk 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: getSmallChunk 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawAlloc 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: alloc 14/1657 = 0.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 42/133 Calls: 9/1657 = 0.54% [sum: 1350; 1350/1657 = 81.47%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: -% 44/1657 = 2.66%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arc.nim: nimIncRefCyclic 63/1657 = 3.80%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 43/133 Calls: 9/1657 = 0.54% [sum: 1359; 1359/1657 = 82.02%]
+  /home/majo/Desktop/nim2/engine/src/core.nim: collision 9/1657 = 0.54%
+  /home/majo/Desktop/nim2/engine/src/core.nim: get_overlap 41/1657 = 2.47%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: select_control_groups_with_mouse_selection_drag 90/1657 = 5.43%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 44/133 Calls: 9/1657 = 0.54% [sum: 1368; 1368/1657 = 82.56%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: nextTry 12/1657 = 0.72%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 45/133 Calls: 9/1657 = 0.54% [sum: 1377; 1377/1657 = 83.10%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/orc.nim: nimIncRefCyclic 63/1657 = 3.80%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 46/133 Calls: 9/1657 = 0.54% [sum: 1386; 1386/1657 = 83.65%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isNone 34/1657 = 2.05%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 64/1657 = 3.86%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: select_control_groups_with_mouse_selection_drag 90/1657 = 5.43%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 47/133 Calls: 9/1657 = 0.54% [sum: 1395; 1395/1657 = 84.19%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rotl 9/1657 = 0.54%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: next 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 48/133 Calls: 8/1657 = 0.48% [sum: 1403; 1403/1657 = 84.67%]
+  /home/majo/Desktop/nim2/engine/src/core.nim: get_overlap 41/1657 = 2.47%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: select_control_groups_with_mouse_selection_drag 90/1657 = 5.43%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 49/133 Calls: 8/1657 = 0.48% [sum: 1411; 1411/1657 = 85.15%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 53/1657 = 3.20%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: addChunkToMatrix 33/1657 = 1.99%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: freeBigChunk 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawDealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: dealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: realloc 34/1657 = 2.05%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 50/133 Calls: 8/1657 = 0.48% [sum: 1419; 1419/1657 = 85.64%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isSome 34/1657 = 2.05%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: select_control_groups_with_mouse_selection_drag 90/1657 = 5.43%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 51/133 Calls: 8/1657 = 0.48% [sum: 1427; 1427/1657 = 86.12%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/orc.nim: nimIncRefCyclic 63/1657 = 3.80%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 52/133 Calls: 8/1657 = 0.48% [sum: 1435; 1435/1657 = 86.60%]
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: set_move_target_for_control_groups 19/1657 = 1.15%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 53/133 Calls: 8/1657 = 0.48% [sum: 1443; 1443/1657 = 87.09%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isSome 34/1657 = 2.05%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: fight_units 25/1657 = 1.51%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 54/133 Calls: 7/1657 = 0.42% [sum: 1450; 1450/1657 = 87.51%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: fight_units 25/1657 = 1.51%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 55/133 Calls: 7/1657 = 0.42% [sum: 1457; 1457/1657 = 87.93%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 56/133 Calls: 7/1657 = 0.42% [sum: 1464; 1464/1657 = 88.35%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: mappingInsert 53/1657 = 3.20%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: removeChunkFromMatrix 20/1657 = 1.21%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: freeBigChunk 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawDealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: dealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 57/133 Calls: 6/1657 = 0.36% [sum: 1470; 1470/1657 = 88.71%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 58/133 Calls: 6/1657 = 0.36% [sum: 1476; 1476/1657 = 89.08%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: toFloat 96/1657 = 5.79%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: / 134/1657 = 8.09%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 59/133 Calls: 6/1657 = 0.36% [sum: 1482; 1482/1657 = 89.44%]
+  /home/majo/Desktop/nim2/engine/src/core.nim: given_pos_in_view 6/1657 = 0.36%
+  /home/majo/Desktop/nim2/engine/src/core.nim: draw_chunk_outline_and_units_in_it 10/1657 = 0.60%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 60/133 Calls: 6/1657 = 0.36% [sum: 1488; 1488/1657 = 89.80%]
+  /home/majo/Desktop/nim2/engine/src/core.nim: get_click_on_the_screen 33/1657 = 1.99%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 61/133 Calls: 5/1657 = 0.30% [sum: 1493; 1493/1657 = 90.10%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: +% 9/1657 = 0.54%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: freeBigChunk 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawDealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: dealloc 48/1657 = 2.90%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 62/133 Calls: 5/1657 = 0.30% [sum: 1498; 1498/1657 = 90.40%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hiXorLo 169/1657 = 10.20%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 260/1657 = 15.69%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 63/133 Calls: 5/1657 = 0.30% [sum: 1503; 1503/1657 = 90.71%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: toFloat 96/1657 = 5.79%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: / 134/1657 = 8.09%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 64/133 Calls: 5/1657 = 0.30% [sum: 1508; 1508/1657 = 91.01%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: -% 44/1657 = 2.66%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arc.nim: nimDecRefIsLastCyclicStatic 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/core.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 65/133 Calls: 5/1657 = 0.30% [sum: 1513; 1513/1657 = 91.31%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: / 134/1657 = 8.09%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 66/133 Calls: 5/1657 = 0.30% [sum: 1518; 1518/1657 = 91.61%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: next 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 67/133 Calls: 5/1657 = 0.30% [sum: 1523; 1523/1657 = 91.91%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: -% 44/1657 = 2.66%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arc.nim: nimIncRefCyclic 63/1657 = 3.80%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 68/133 Calls: 4/1657 = 0.24% [sum: 1527; 1527/1657 = 92.15%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: some 71/1657 = 4.28%
+  /home/majo/Desktop/nim2/engine/src/core.nim: get_overlap 41/1657 = 2.47%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: select_control_groups_with_mouse_selection_drag 90/1657 = 5.43%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 69/133 Calls: 4/1657 = 0.24% [sum: 1531; 1531/1657 = 92.40%]
+  /home/majo/Desktop/nim2/engine/src/core.nim: zoom_in_out 4/1657 = 0.24%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 70/133 Calls: 4/1657 = 0.24% [sum: 1535; 1535/1657 = 92.64%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: .. 4/1657 = 0.24%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 71/133 Calls: 4/1657 = 0.24% [sum: 1539; 1539/1657 = 92.88%]
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 72/133 Calls: 4/1657 = 0.24% [sum: 1543; 1543/1657 = 93.12%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hiXorLo 169/1657 = 10.20%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 260/1657 = 15.69%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 73/133 Calls: 4/1657 = 0.24% [sum: 1547; 1547/1657 = 93.36%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/random.nim: rand 26/1657 = 1.57%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 74/133 Calls: 4/1657 = 0.24% [sum: 1551; 1551/1657 = 93.60%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 260/1657 = 15.69%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 75/133 Calls: 4/1657 = 0.24% [sum: 1555; 1555/1657 = 93.84%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: draw_chunk_outline_and_units_in_it 10/1657 = 0.60%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 76/133 Calls: 4/1657 = 0.24% [sum: 1559; 1559/1657 = 94.09%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/orc.nim: nimDecRefIsLastCyclicStatic 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 77/133 Calls: 4/1657 = 0.24% [sum: 1563; 1563/1657 = 94.33%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: find 4/1657 = 0.24%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: select_control_groups_with_mouse_selection_drag 90/1657 = 5.43%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 78/133 Calls: 3/1657 = 0.18% [sum: 1566; 1566/1657 = 94.51%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 64/1657 = 3.86%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: fight_units 25/1657 = 1.51%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 79/133 Calls: 3/1657 = 0.18% [sum: 1569; 1569/1657 = 94.69%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 80/133 Calls: 3/1657 = 0.18% [sum: 1572; 1572/1657 = 94.87%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: nextTry 12/1657 = 0.72%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy_optional 825/1657 = 49.79%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 81/133 Calls: 3/1657 = 0.18% [sum: 1575; 1575/1657 = 95.05%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: / 134/1657 = 8.09%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 82/133 Calls: 3/1657 = 0.18% [sum: 1578; 1578/1657 = 95.23%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: some 71/1657 = 4.28%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: set_move_target_for_control_groups 19/1657 = 1.15%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 83/133 Calls: 3/1657 = 0.18% [sum: 1581; 1581/1657 = 95.41%]
+  /home/majo/Desktop/nim2/engine/src/core.nim: recenter_camera_target_on_map 3/1657 = 0.18%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 84/133 Calls: 3/1657 = 0.18% [sum: 1584; 1584/1657 = 95.59%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 85/133 Calls: 3/1657 = 0.18% [sum: 1587; 1587/1657 = 95.78%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 64/1657 = 3.86%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 86/133 Calls: 3/1657 = 0.18% [sum: 1590; 1590/1657 = 95.96%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: -% 44/1657 = 2.66%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arc.nim: nimDecRefIsLastCyclicStatic 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 87/133 Calls: 3/1657 = 0.18% [sum: 1593; 1593/1657 = 96.14%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isNone 34/1657 = 2.05%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: get 64/1657 = 3.86%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: fight_units 25/1657 = 1.51%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 88/133 Calls: 3/1657 = 0.18% [sum: 1596; 1596/1657 = 96.32%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: -% 44/1657 = 2.66%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arc.nim: nimDecRefIsLastCyclicStatic 56/1657 = 3.38%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 89/133 Calls: 2/1657 = 0.12% [sum: 1598; 1598/1657 = 96.44%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/iterators.nim: update_control_group_center 2/1657 = 0.12%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: update_control_all_group_centers 2/1657 = 0.12%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 90/133 Calls: 2/1657 = 0.12% [sum: 1600; 1600/1657 = 96.56%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 91/133 Calls: 2/1657 = 0.12% [sum: 1602; 1602/1657 = 96.68%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: [] 337/1657 = 20.34%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 92/133 Calls: 2/1657 = 0.12% [sum: 1604; 1604/1657 = 96.80%]
+  /home/majo/Desktop/nim2/engine/src/core.nim: move_world_with_mouse_middle_drag 2/1657 = 0.12%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 93/133 Calls: 2/1657 = 0.12% [sum: 1606; 1606/1657 = 96.92%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isSome 34/1657 = 2.05%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 94/133 Calls: 2/1657 = 0.12% [sum: 1608; 1608/1657 = 97.04%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hashWangYi1 260/1657 = 15.69%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/hashes.nim: hash 334/1657 = 20.16%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/hashcommon.nim: rawGet 528/1657 = 31.86%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 95/133 Calls: 2/1657 = 0.12% [sum: 1610; 1610/1657 = 97.16%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: -% 44/1657 = 2.66%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arc.nim: nimDecRefIsLastCyclicStatic 56/1657 = 3.38%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: set_move_target_for_control_groups 19/1657 = 1.15%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 96/133 Calls: 2/1657 = 0.12% [sum: 1612; 1612/1657 = 97.28%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isNone 34/1657 = 2.05%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 97/133 Calls: 2/1657 = 0.12% [sum: 1614; 1614/1657 = 97.40%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: isSome 34/1657 = 2.05%
+  /home/majo/Desktop/nim2/engine/src/control_group.nim: set_move_target_for_control_groups 19/1657 = 1.15%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 98/133 Calls: 2/1657 = 0.12% [sum: 1616; 1616/1657 = 97.53%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/arithmetics.nim: +% 9/1657 = 0.54%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: splitChunk2 3/1657 = 0.18%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: splitChunk 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: getBigChunk 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: getSmallChunk 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: rawAlloc 14/1657 = 0.84%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/alloc.nim: alloc 14/1657 = 0.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunks_around_chunk 1073/1657 = 64.76%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 99/133 Calls: 2/1657 = 0.12% [sum: 1618; 1618/1657 = 97.65%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/orc.nim: rememberCycle 3/1657 = 0.18%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system/orc.nim: nimDecRefIsLastCyclicStatic 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_single_unit 1184/1657 = 71.45%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: think_all_units 1266/1657 = 76.40%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 100/133 Calls: 2/1657 = 0.12% [sum: 1620; 1620/1657 = 97.77%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/collections/tables.nim: hasKey 276/1657 = 16.66%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/chunk.nim: get_chunk_by_xy 47/1657 = 2.84%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_unit_torwards_given_target 56/1657 = 3.38%
+  /home/majo/Desktop/nim2/engine/src/unit.nim: move_units 68/1657 = 4.10%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%
+Entry: 101/133 Calls: 2/1657 = 0.12% [sum: 1622; 1622/1657 = 97.89%]
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/pure/options.nim: some 71/1657 = 4.28%
+  /home/majo/Desktop/nim2/engine/src/core.nim: get_left_mouse_drag_selection_rect_and_draw_it 39/1657 = 2.35%
+  /home/majo/.choosenim/toolchains/nim-2.0.4/lib/system.nim: main 1656/1657 = 99.94%

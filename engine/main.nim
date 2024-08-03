@@ -42,9 +42,17 @@ import src/unit
 import src/control_group
 import src/chunk
 
+
+
 var game = Game(
   unit_types: {
-    "soldier": UnitType(width: 32, height: 32),#, texture: loadTexture("./s_blue.png"))
+    "soldier": UnitType(
+      width: 32, 
+      height: 32,
+      aggro_range: 400,
+      attack_range: 36,
+      speed: 100
+    ),#, texture: loadTexture("./s_blue.png"))
   }.toTable,
   camera: Camera2D(
     target: Vector2(x: 0, y: 0),
@@ -56,6 +64,7 @@ var game = Game(
   zoomFactor: 1,
   mouse_middle_drag_speed: 400,
   zoom_level: ZoomLevel.Default,
+  
   battle: Battle(
     factions: {
       "player": Faction(
@@ -103,7 +112,32 @@ discard game.battle.create_control_group(
 discard game.battle.create_control_group(
   unity_type = game.unit_types["soldier"], 
   size = 35, 
-  start_pos = Vector2(x:400, y: 400),
+  start_pos = Vector2(x:300, y: 100),
+  faction = game.battle.factions["player"])
+
+
+discard game.battle.create_control_group(
+  unity_type = game.unit_types["soldier"], 
+  size = 35, 
+  start_pos = Vector2(x:400, y: 100),
+  faction = game.battle.factions["player"])  
+
+discard game.battle.create_control_group(
+  unity_type = game.unit_types["soldier"], 
+  size = 35, 
+  start_pos = Vector2(x:700, y: 700),
+  faction = game.battle.factions["kekkus"])
+
+discard game.battle.create_control_group(
+  unity_type = game.unit_types["soldier"], 
+  size = 35, 
+  start_pos = Vector2(x:700, y: 800),
+  faction = game.battle.factions["kekkus"])
+
+discard game.battle.create_control_group(
+  unity_type = game.unit_types["soldier"], 
+  size = 35, 
+  start_pos = Vector2(x:700, y: 900),
   faction = game.battle.factions["kekkus"])
 
 
@@ -162,34 +196,22 @@ block:
     
     discard left_click_on_the_screen 
 
-    if selection_rect_or_empty.isSome:
-      game.battle.currently_selected_units = @[]
-      game.battle.currently_selected_control_groups = @[]
-      for u in game.battle.units:
-        if get_overlap(u.shape, selection_rect_or_empty.get.world_relative).isSome:
-          if game.battle.currently_selected_control_groups.find(u.my_control_group) == -1:
-            game.battle.currently_selected_control_groups.add(u.my_control_group)
 
-
-    # todo: remove this and implement a target selection based on groups
-    if game.battle.currently_selected_control_groups.len != 0:
-      if right_click_on_the_screen.isSome:
-        let target_chunk = game.battle.get_chunk_by_xy_optional(
-          x= right_click_on_the_screen.get.world_relative.x.int,
-          y= right_click_on_the_screen.get.world_relative.y.int)
-        if target_chunk.isSome:
-          for _, selected_control_group in game.battle.currently_selected_control_groups:
-            # todo: if more control groups selected occupy neighbour 
-            # todo: chunks,except an enemy is on this one
-            for count, u in selected_control_group.units: 
-              let target = target_chunk.get.unit_idle_positions[count]
-              u.move_target = some(Vector2(x:ceil(target.x-16), y:ceil(target.y-16)))
-
-
-
+    game.battle.select_control_groups_with_mouse_selection_drag(selection_rect_or_empty)
+    game.battle.set_move_target_for_control_groups(delta_time, right_click_on_the_screen)
+    
+    game.battle.think_all_units(dt=delta_time)
+    game.battle.fight_units(dt=delta_time)
+    game.battle.join_fight_with_all_units(dt=delta_time)
     game.battle.move_units(dt=delta_time)
-    #game.battle.collide_units_with_each_other(dt=delta_time)
-    #game.battle.apply_unit_collision_velocity(dt=delta_time)
+    game.battle.manage_unit_deaths(dt=delta_time)
+    game.battle.update_control_all_group_centers()
+    game.battle.manage_control_group_deaths()
+
+    game.battle.collide_units_with_each_other(dt=delta_time)
+    game.battle.apply_unit_collision_velocity(dt=delta_time)
+
+    game.battle.check_i_group_can_reset_mode_to_idle_and_if_so_do_it(dt=delta_time)
 
 
     # --------------------------------------------------------------------------
@@ -207,11 +229,17 @@ block:
     game.battle.draw_all_units(delta_time)
     game.battle.draw_rect_around_selected_units(delta_time)
 
+
     endMode2D()
 
     # --------------------------------------------------------------------------
     # end of game drawing logic
     # --------------------------------------------------------------------------
+
+    #  UI
+
+    game.battle.display_selected_group_info()
+
 
     # --------------------------------------------------------------------------
     # Draw some debug information

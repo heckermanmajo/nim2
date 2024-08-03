@@ -9,6 +9,8 @@ import std/tables
 
 import config
 
+
+
 proc get_chunk_by_xy_optional*(self: Battle; x, y: int): Option[Chunk] =
   
   ## Get the chunk by given x and y, can be out of world; if so: returns option
@@ -37,6 +39,7 @@ proc get_chunk_by_xy*(self: Battle; x, y: int ): Chunk =
         "Cannot get chunk (y not found): bad params or bad state." &
         $x & " - " & $y)
   return self.chunks_on_xy[index_x][index_y]
+
 
 
 
@@ -167,6 +170,9 @@ proc get_raster_by_center_and_rotation*(
 
 
 proc create_all_unit_positions_for_chunks*(self: Battle) = 
+
+  ##
+
   for c in self.chunks:
     let half = CHUNK_SIZE_IN_PIXEL / 2
     let size = CHUNK_SIZE_IN_PIXEL.float
