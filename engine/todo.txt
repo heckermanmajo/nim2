@@ -1,0 +1,19 @@
+Wir HABEN schon die Kampangne, nun muss die RTS-seite des Games 
+cool werden.
+
+
+- if a control group is in a fight, all units that have no 
+  other unit in aggro range, will walk towards the center of the 
+  enemy group  
+
+- units retreat during a fight a few steps, this looks bad
+
+- visuelle unterschiede nah und fernkampf-truppen 
+- ich könnte einfach grafiken nehmen
+
+- angriffsgeschwindigkeit in den unit type mit aufnehmen
+
+- if the units fight, then dont move if there are other units i colide with
+  so we got actual fights and not that shitty crazy stuff
+
+

@@ -10,6 +10,9 @@ import std/tables
 import config
 
 
+proc get_pos_as_vec*(self: Chunk): Vector2 = 
+  return Vector2(x: self.x.float, y: self.y.float)
+
 
 proc get_chunk_by_xy_optional*(self: Battle; x, y: int): Option[Chunk] =
   
@@ -61,10 +64,12 @@ proc get_chunk_by_xy*(self: Battle; pos: Rectangle ): Chunk =
 
 
 
-proc get_chunks_around_chunk(
+proc get_chunks_around_chunk*(
   self: Battle, x, y: int, also_diagonal: bool = false): seq[Chunk] {.inline.} =
 
   ## This function returns a list of all neighbour chunks
+  
+  let CHUNK_SIZE_IN_PIXEL = CHUNK_SIZE_IN_PIXEL - 30
   
   var chunks = newSeq[Chunk]()
   let c1 = self.get_chunk_by_xy_optional(x - CHUNK_SIZE_IN_PIXEL, y )
@@ -77,20 +82,20 @@ proc get_chunks_around_chunk(
   if c4.isSome: chunks.add(c4.get)
   if also_diagonal:
     let c5 = self.get_chunk_by_xy_optional(
-      x = x - CHUNK_SIZE_IN_PIXEL, 
-      y = y - CHUNK_SIZE_IN_PIXEL)
+      x - CHUNK_SIZE_IN_PIXEL, 
+      y - CHUNK_SIZE_IN_PIXEL)
     if c5.isSome: chunks.add(c5.get)
     let c6 = self.get_chunk_by_xy_optional(
-      x = x + CHUNK_SIZE_IN_PIXEL, 
-      y = y - CHUNK_SIZE_IN_PIXEL)
+      x + CHUNK_SIZE_IN_PIXEL, 
+      y - CHUNK_SIZE_IN_PIXEL)
     if c6.isSome: chunks.add(c6.get)
     let c7 = self.get_chunk_by_xy_optional(
-      x = x + CHUNK_SIZE_IN_PIXEL, 
-      y = y + CHUNK_SIZE_IN_PIXEL )
+      x + CHUNK_SIZE_IN_PIXEL, 
+      y + CHUNK_SIZE_IN_PIXEL )
     if c7.isSome: chunks.add(c7.get)
     let c8 = self.get_chunk_by_xy_optional(
-      x = x - CHUNK_SIZE_IN_PIXEL, 
-      y = y + CHUNK_SIZE_IN_PIXEL )
+      x - CHUNK_SIZE_IN_PIXEL, 
+      y + CHUNK_SIZE_IN_PIXEL )
     if c8.isSome: chunks.add(c8.get)
   return chunks
 

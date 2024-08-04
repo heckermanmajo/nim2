@@ -37,7 +37,6 @@ import raymath
 import src/config
 import src/types
 import src/core
-import src/battle
 import src/unit
 import src/control_group
 import src/chunk
@@ -51,8 +50,36 @@ var game = Game(
       height: 32,
       aggro_range: 400,
       attack_range: 36,
-      speed: 100
-    ),#, texture: loadTexture("./s_blue.png"))
+      speed: 100,
+      name: "soldier",
+      max_hp: 300,
+      attack_speed: 1,
+      attack_damage: 10
+    ),
+    "tanky_soldier": UnitType(
+      width: 32, 
+      height: 32,
+      aggro_range: 400,
+      attack_range: 36,
+      speed: 100,
+      name: "tanky_soldier",
+      max_hp: 1000,
+      attack_speed: 3,
+      attack_damage: 30
+    ),
+    "distance_soldier": UnitType(
+      width: 32, 
+      height: 32,
+      aggro_range: 400,
+      attack_range: 400,
+      speed: 100,
+      name: "distance_soldier",
+      max_hp: 100,
+      attack_speed: 10,
+      attack_damage: 50
+    )
+    
+    #, texture: loadTexture("./s_blue.png"))
   }.toTable,
   camera: Camera2D(
     target: Vector2(x: 0, y: 0),
@@ -84,6 +111,7 @@ var game = Game(
         for y in 0..chunks_per_side:
           chunks.insert (Chunk(
             units: newSeq[Unit](),
+            control_groups: newSeq[ControlGroup](),
             x: x, y: y ))
       chunks,
     chunks_on_xy:initTable[int, Table[int, Chunk]](),
@@ -135,11 +163,17 @@ discard game.battle.create_control_group(
   faction = game.battle.factions["kekkus"])
 
 discard game.battle.create_control_group(
-  unity_type = game.unit_types["soldier"], 
+  unity_type = game.unit_types["tanky_soldier"], 
   size = 35, 
-  start_pos = Vector2(x:700, y: 900),
+  start_pos = Vector2(x:900, y: 900),
   faction = game.battle.factions["kekkus"])
 
+
+discard game.battle.create_control_group(
+  unity_type = game.unit_types["distance_soldier"], 
+  size = 35, 
+  start_pos = Vector2(x:900, y: 900),
+  faction = game.battle.factions["kekkus"])
 
 #-------------------------------------------------------------------------------
 # Init logger and raylib stuff
@@ -207,6 +241,7 @@ block:
     game.battle.manage_unit_deaths(dt=delta_time)
     game.battle.update_control_all_group_centers()
     game.battle.manage_control_group_deaths()
+    game.battle.disperse_colliding_idle_control_groups(dt=delta_time)
 
     game.battle.collide_units_with_each_other(dt=delta_time)
     game.battle.apply_unit_collision_velocity(dt=delta_time)

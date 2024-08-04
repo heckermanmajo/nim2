@@ -45,12 +45,18 @@ type
 
   Chunk* = ref object
     units*: seq[Unit]
+    control_groups*: seq[ControlGroup]
     x*: int
     y*: int
     unit_idle_positions*: seq[Vector2]
     current_groups_that_have_this_as_target*: seq[ControlGroup]
     ## List of positions default units will align with in case
     ## of idle situations.
+
+  UnitTypeEquipment* = enum 
+    SimpleShield
+    Spear
+    Bow
 
   UnitType* = ref object
     texture*: Texture2D
@@ -60,7 +66,10 @@ type
     aggro_range*: float
     speed*:float
     max_hp*:float
-
+    name*: string
+    attack_speed*: float
+    attack_damage*: float
+    
   UnitBehaviourMode* = enum
     Idle
     MovingToChunk
@@ -104,8 +113,9 @@ type
     
     current_mode*: ControlGroupMode
     last_group_mode*:ControlGroupMode
-    until_next_idle_check*: float
     
+    until_next_idle_check*: float
+    chunk_i_am_on*: Chunk
 
   Projectile* = ref object
     shape*: Rectangle

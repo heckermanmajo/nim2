@@ -8,12 +8,23 @@ import raymath
 
 import types
 import core
-import battle
 import unit
 import chunk
 
 
 import config
+
+proc apply_move_target(self: Battle,cg: ControlGroup, target_pos: Vector2) =
+  let target_chunk = self.get_chunk_by_xy_optional(
+    x= target_pos.x.int,
+    y= target_pos.y.int)
+  if target_chunk.isSome:
+    cg.last_group_mode = cg.current_mode
+    cg.current_mode = ControlGroupMode.Moving
+    self.game.log("add new place")
+    for count, u in cg.units: 
+      let target = target_chunk.get.unit_idle_positions[count]
+      u.move_target = some(Vector2(x:ceil(target.x-16), y:ceil(target.y-16)))
 
 
 
@@ -21,7 +32,7 @@ proc check_i_group_can_reset_mode_to_idle_and_if_so_do_it*(self: Battle, dt: flo
   for cg in self.control_groups:
     cg.until_next_idle_check = cg.until_next_idle_check - dt
     if cg.until_next_idle_check > 0: continue
-    cg.until_next_idle_check = rand(0..500)/1000
+    cg.until_next_idle_check = rand(0..3500)/1000
     case cg.current_mode:
       of ControlGroupMode.Fighting:
         var has_attack_target = false
@@ -29,13 +40,18 @@ proc check_i_group_can_reset_mode_to_idle_and_if_so_do_it*(self: Battle, dt: flo
           if u.attack_target.isSome: (has_attack_target = true; break)
         if not has_attack_target: 
           cg.current_mode = cg.last_group_mode
-          if cg.current_mode == ControlGroupMode.Fighting:
-            cg.current_mode = ControlGroupMode.Idle
-          cg.last_group_mode = ControlGroupMode.Idle 
           # set all units taht are still in fightng  mode to idle
           # important so we dont have "frozen" units
           # since units freeze if they are in fight mode but group is not
           for u in cg.units: u.behavior_mode = UnitBehaviourMode.Idle
+          if cg.current_mode == ControlGroupMode.Fighting:
+            cg.current_mode = ControlGroupMode.Idle
+          cg.last_group_mode = ControlGroupMode.Idle 
+
+          # after a fight we set the center of the group as walk target
+          # this way we re-conzentrate the units back into formation
+          self.apply_move_target(cg, cg.center)
+
       of ControlGroupMode.Moving:
         var has_move_target = false
         for u in cg.units:
@@ -49,24 +65,37 @@ proc check_i_group_can_reset_mode_to_idle_and_if_so_do_it*(self: Battle, dt: flo
 
 
 
-func update_control_group_center*(self: var ControlGroup) {.inline.} = 
+proc update_control_group_center*(self: Battle, cg: var ControlGroup) {.inline.} = 
 
   ## The control group needs to maintain a center-point in the center of all 
   ## its units.
-  
+
+  # todo: dont do this every frame ...  
   var center_x = 0; var center_y = 0
-  if self.units.len == 0: return 
-  for u in self.units: 
+  if cg.units.len == 0: return 
+  for u in cg.units: 
     center_x = center_x + u.shape.x.int
     center_y = center_y + u.shape.y.int
-  self.center = Vector2(
-    x:center_x / self.units.len, 
-    y:center_y / self.units.len) 
+  cg.center = Vector2(
+    x:center_x / cg.units.len, 
+    y:center_y / cg.units.len) 
+  
+  let chunk_i_am_on = self.get_chunk_by_xy(cg.center)
+  let chunk_i_am_registered_on = cg.chunk_i_am_on
+  if chunk_i_am_on != chunk_i_am_registered_on:
+    let index = chunk_i_am_registered_on.control_groups.find(cg)
+    # this is the case if the control group is newly created
+    if index != -1:
+      chunk_i_am_registered_on.control_groups.del(index)
+    else:
+      self.game.log("index is -1")  
+    cg.chunk_i_am_on = chunk_i_am_on
+    cg.chunk_i_am_on.control_groups.add(cg)
 
 
 
-func update_control_all_group_centers*(self: var Battle) {.inline.} =
-  for _, cg in mpairs(self.control_groups): cg.update_control_group_center()
+proc update_control_all_group_centers*(self: var Battle) {.inline.} =
+  for _, cg in mpairs(self.control_groups): self.update_control_group_center(cg)
 
   
 
@@ -125,14 +154,15 @@ proc create_control_group*(
   var chunk_all_units_are_on = self.get_chunk_by_xy(real_start_pos)
 
   for i in 0..size:
+    let position = chunk_all_units_are_on.unit_idle_positions[i]
     units.add(
       Unit(
         dead: false,
         hp: unity_type.max_hp,
         type_data: unity_type,
         shape: Rectangle(
-          x:real_start_pos.x, 
-          y: real_start_pos.y, 
+          x: position.x - unity_type.width / 2, 
+          y: position.y - unity_type.width / 2, 
           width: unity_type.width, 
           height: unity_type.height),
         attack_target: none(Unit),
@@ -145,7 +175,7 @@ proc create_control_group*(
     target_chunk: none(Chunk),
     current_mode: ControlGroupMode.Idle,
     last_group_mode: ControlGroupMode.Idle,
-    faction: faction
+    faction: faction,
   )
 
   for u in units: 
@@ -153,7 +183,10 @@ proc create_control_group*(
     self.units.add(u) # add the units to the global battle list
     u.my_control_group = cg
   
-  cg.update_control_group_center()
+  # we need to set to some chunk, so we set to 00
+  cg.chunk_i_am_on = self.get_chunk_by_xy(Vector2())
+  self.get_chunk_by_xy(Vector2()).control_groups.add(cg)
+  self.update_control_group_center(cg)
   self.control_groups.add(cg)
   
   return cg
@@ -167,10 +200,44 @@ proc manage_control_group_deaths*(self: Battle) =
 
   var remove_ids = newSeq[int]()
   for index, cg in self.control_groups:
-    if cg.units.len == 0: remove_ids.insert(index)
+    # remove dead the control group from the chunk seq
+    if cg.units.len == 0:
+      cg.chunk_i_am_on.control_groups.del(cg.chunk_i_am_on.control_groups.find(cg))
+      remove_ids.insert(index)
   for index in remove_ids:
     self.control_groups.del(index)  
 
+
+
+
+
+
+proc disperse_colliding_idle_control_groups*(self: Battle, dt: float) =
+  for cg in self.control_groups:
+    if cg.current_mode == ControlGroupMode.Idle:
+      let my_chunk = self.get_chunk_by_xy(cg.center)
+      for cg_o in my_chunk.control_groups:
+        if cg_o == cg: continue
+        if cg_o.current_mode == ControlGroupMode.Idle:
+          
+          let chunk: Chunk = block:
+            let random_other_chunks = self.get_chunks_around_chunk(
+              x=cg.center.x.int, y=cg.center.y.int, also_diagonal=true)
+            #self.game.log("len random other chunks " & $random_other_chunks.len)
+            let around = self.get_chunks_around_chunk(
+              x=cg.center.x.int, y=cg.center.y.int, also_diagonal=false).len
+            var chunk = random_other_chunks[rand(0..(around-1)).int] 
+            let rand_to_go_to = rand(0..(random_other_chunks.len-1))
+            #self.game.log("selected" & $rand_to_go_to)
+            if chunk.control_groups.len == 0:
+              chunk
+            else: 
+              random_other_chunks[rand_to_go_to]
+
+          let target_pos = Vector2(x:chunk.x.float * CHUNK_SIZE_IN_PIXEL, y: chunk.x.float* CHUNK_SIZE_IN_PIXEL)
+          self.game.log("target_pos" & $target_pos.x & " - " & $target_pos.y)
+          self.apply_move_target(cg_o,target_pos)
+          cg_o.last_group_mode = ControlGroupMode.Idle
 
 
 
@@ -245,12 +312,7 @@ proc set_move_target_for_control_groups*(
         y= right_click_on_the_screen.get.world_relative.y.int)
       if target_chunk.isSome:
         for _, selected_control_group in self.currently_selected_control_groups:
-          # todo: if more control groups selected occupy neighbour 
-          # todo: chunks,except an enemy is on this one
-          selected_control_group.last_group_mode = selected_control_group.current_mode
-          selected_control_group.current_mode = ControlGroupMode.Moving
-          self.game.log("add new place")
-          for count, u in selected_control_group.units: 
-            let target = target_chunk.get.unit_idle_positions[count]
-            u.move_target = some(Vector2(x:ceil(target.x-16), y:ceil(target.y-16)))
+          self.apply_move_target(selected_control_group, 
+            right_click_on_the_screen.get.world_relative
+          )
       cooldown = 1.0

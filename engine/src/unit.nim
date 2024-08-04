@@ -1,6 +1,5 @@
 import std/random
 import std/options
-import std/math
 
 import raylib
 import raymath
@@ -15,7 +14,7 @@ import chunk
 proc get_position(self: Unit): Vector2 = Vector2(x: self.shape.x, y: self.shape.y)
 
 proc `$`*(self: Unit): string = 
-  return $self.behavior_mode & " - " & $self.attack_target.isSome & " - " & $self.move_target.isSome
+  return $self.behavior_mode & " - " & $self.attack_target.isSome & " - " & $self.move_target.isSome & "-" & $self.shape
 
 
 proc think_single_unit(self: Battle,u: Unit, dt: float) = 
@@ -112,7 +111,7 @@ proc fight_units*(self: Battle, dt: float) =
           
         # wait with the attack until cooldown var is bigger than 1
         u.last_attack = u.last_attack + dt
-        if u.last_attack < 1.0: continue
+        if u.last_attack < u.type_data.attack_speed: continue
         u.last_attack = 0
 
         case u.behavior_mode
@@ -120,8 +119,8 @@ proc fight_units*(self: Battle, dt: float) =
             let other = u.attack_target.get
             let distance = raymath.distance(v1=u.get_position, v2=other.get_position)
             if distance < u.type_data.attack_range:
-              let damage = 10.0
-              other.hp = other.hp - 10
+              let damage = u.type_data.attack_damage
+              other.hp = other.hp - damage
               if other.hp < 0: 
                 other.dead = true
               
@@ -155,6 +154,7 @@ proc manage_unit_deaths*(self: Battle, dt: float) =
       let dead_unit_index_control_group = u.my_control_group.units.find(u)
       to_delete.insert(index)
       u.my_control_group.units.del(dead_unit_index_control_group)
+      u.chunk_i_am_on.units.del(u.chunk_i_am_on.units.find(u))
 
   for index in to_delete: self.units.del(index)
 
@@ -165,7 +165,11 @@ proc draw_all_units*(self: Battle, dt: float) {.inline.} =
   if self.game.zoom_level == ZoomLevel.VerySmall:
 
     for cg in self.control_groups:
+       if cg.units.len == 0: continue
+       let unit_type = cg.units[0].type_data.name
        drawCircle(cg.center.x.int32, cg.center.y.int32,100.float, color= cg.faction.color)
+       if unit_type == "distance_soldier":
+         drawText(("%").cstring, cg.center.x.int32 - 30,cg.center.y.int32-30, 100, WHITE)
 
   else:
 
@@ -183,8 +187,12 @@ proc draw_all_units*(self: Battle, dt: float) {.inline.} =
         let center_y = (uy + u.shape.height / 2).int32
         let color = u.myControlGroup.faction.color
         drawCircle(center_x, center_y, u.shape.width / 2, color)
-
-        drawText(($u.my_control_group.units.find(u)).cstring, center_x - 10, center_y-10, 20, WHITE)
+        drawCircleLines(center_x, center_y, u.shape.width / 2, WHITE)
+        if u.type_data.name == "distance_soldier":
+          #        drawText(($u.my_control_group.units.find(u)).cstring, center_x - 10, center_y-10, 20, WHITE)  
+          drawText(("%").cstring, center_x - 8, center_y-10, 20, WHITE)
+        if u.type_data.name == "tanky_soldier":
+          drawText(("#").cstring, center_x - 8, center_y-10, 20, WHITE)
     
     for u in self.units:
       if u.dead: continue
@@ -198,7 +206,7 @@ proc draw_all_units*(self: Battle, dt: float) {.inline.} =
               drawLine(
                 startPos=u.get_position + u.shape.width / 2, 
                 endPos=u.attack_target.get.get_position + u.attack_target.get.shape.width / 2, 
-                thick=3,
+                thick=4,
                 color= YELLOW)
 
 
@@ -224,6 +232,7 @@ proc update_chunk_position_of_unit*(self: var Battle, unit: var Unit) =
   unit.chunk_i_am_on.units.delete(id)
   unit.chunk_i_am_on = self.get_chunk_by_xy(unit.shape.x.int,unit.shape.y.int)
   unit.chunk_i_am_on.units.add(unit)
+
 
 
 proc move_unit_torwards_given_target(
@@ -360,3 +369,29 @@ proc collide_units_with_each_other*(self: var Battle, dt: float) {.inline.} =
     u.next_collsion_check = rand(0..UNIT_COLLISION_INTERVAL)/UNIT_COLLISION_INTERVAL     
 
 
+
+  ##[  
+                // Circle shapes and lines
+            DrawCircle(screenWidth/5, 120, 35, DARKBLUE);
+            DrawCircleGradient(screenWidth/5, 220, 60, GREEN, SKYBLUE);
+            DrawCircleLines(screenWidth/5, 340, 80, DARKBLUE);
+
+            // Rectangle shapes and lines
+            DrawRectangle(screenWidth/4*2 - 60, 100, 120, 60, RED);
+            DrawRectangleGradientH(screenWidth/4*2 - 90, 170, 180, 130, MAROON, GOLD);
+            DrawRectangleLines(screenWidth/4*2 - 40, 320, 80, 60, ORANGE);  // NOTE: Uses QUADS internally, not lines
+
+            // Triangle shapes and lines
+            DrawTriangle((Vector2){ screenWidth/4.0f *3.0f, 80.0f },
+                         (Vector2){ screenWidth/4.0f *3.0f - 60.0f, 150.0f },
+                         (Vector2){ screenWidth/4.0f *3.0f + 60.0f, 150.0f }, VIOLET);
+
+            DrawTriangleLines((Vector2){ screenWidth/4.0f*3.0f, 160.0f },
+                              (Vector2){ screenWidth/4.0f*3.0f - 20.0f, 230.0f },
+                              (Vector2){ screenWidth/4.0f*3.0f + 20.0f, 230.0f }, DARKBLUE);
+
+            // Polygon shapes and lines
+            DrawPoly((Vector2){ screenWidth/4.0f*3, 330 }, 6, 80, rotation, BROWN);
+            DrawPolyLines((Vector2){ screenWidth/4.0f*3, 330 }, 6, 90, rotation, BROWN);
+            DrawPolyLinesEx((Vector2){ screenWidth/4.0f*3, 330 }, 6, 85, rotation, 6, BEIGE);
+            ]##

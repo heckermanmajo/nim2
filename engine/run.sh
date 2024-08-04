@@ -5,4 +5,8 @@ nim compile \
   --opt:none \
   --profiler:on \
   main.nim \
-  && ./main
+  && ./main \
+  && rm main  \
+  && rm log.txt \
+  && rm profile_results.txt \
+

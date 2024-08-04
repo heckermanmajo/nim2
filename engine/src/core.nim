@@ -21,7 +21,10 @@ func collision*(r1, r2: Rectangle): bool =
 
 
 func collision*(p: Vector2, r: Rectangle): bool =
-  return (p.x >= r.x) and (p.x <= r.x + r.width) and (p.y >= r.y) and (p.y <= r.y + r.height)
+  return (p.x >= r.x) and 
+    (p.x <= r.x + r.width) and 
+    (p.y >= r.y) and 
+    (p.y <= r.y + r.height)
 
 
 
@@ -67,6 +70,7 @@ proc move_world_with_mouse_middle_drag*(self: var Game, dt: float) =
     let padding = 1200.0 
     if self.camera.target.x < - padding: self.camera.target.x = - padding
     if self.camera.target.y < - padding: self.camera.target.y = - padding
+
 
 
 proc zoom_in_out*(self: var Game, dt: float) =
@@ -132,8 +136,8 @@ proc draw_chunk_outline_and_units_in_it*(self: Game) =
   for chunk in self.battle.chunks:
     let real_chunk_x = (chunk.x*CHUNK_SIZE_IN_PIXEL).float
     let real_chunk_y = (chunk.y*CHUNK_SIZE_IN_PIXEL).float
-    let not_in_view
-      = not self.given_pos_in_view(real_chunk_x, real_chunk_y, CHUNK_SIZE_IN_PIXEL.float,CHUNK_SIZE_IN_PIXEL.float)
+    let not_in_view = not self.given_pos_in_view(
+      real_chunk_x, real_chunk_y, CHUNK_SIZE_IN_PIXEL.float,CHUNK_SIZE_IN_PIXEL.float)
     if not_in_view: continue
     drawRectangleLines(
       Rectangle(
@@ -145,9 +149,12 @@ proc draw_chunk_outline_and_units_in_it*(self: Game) =
     WORLD_COLOR)
     if self.zoom_level == ZoomLevel.VerySmall or self.zoom_level == ZoomLevel.Small:continue
     let number_of_units_in_chunk = chunk.units.len
+    let number_of_control_groups_in_chunk = chunk.control_groups.len
     let top_left_chunk_corner_x = real_chunk_x + 10
     let top_left_chunk_corner_y = real_chunk_y + 10
     drawText(($number_of_units_in_chunk).cstring, top_left_chunk_corner_x.int32, top_left_chunk_corner_y.int32, 20, WORLD_COLOR)
+    drawText(($number_of_control_groups_in_chunk).cstring, top_left_chunk_corner_x.int32 + 30, top_left_chunk_corner_y.int32, 20, WORLD_COLOR)
+
 
 
 
