@@ -293,6 +293,7 @@ block:
     # zoom level
       drawText(("Zoom Level: " & $game.zoom_level).cstring, 10, (90+top_bar_height).int32, 20, WORLD_COLOR)
 
+
     endDrawing()
     # --------------------------------------------------------------------------
     # end of the game loop

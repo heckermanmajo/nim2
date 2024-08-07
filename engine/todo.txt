@@ -2,6 +2,9 @@ Wir HABEN schon die Kampangne, nun muss die RTS-seite des Games
 cool werden.
 
 
+- ich muss alle battle aspekte aus dem game nehmen und dem 
+  game ein camp und ein menu elemten hizufügen
+
 - if a control group is in a fight, all units that have no 
   other unit in aggro range, will walk towards the center of the 
   enemy group  

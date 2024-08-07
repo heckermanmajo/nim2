@@ -1,13 +1,13 @@
 {
     "editor.bracketPairColorization.enabled": true,
     "workbench.colorCustomizations": {
-        "editorBracketHighlight.foreground1": "#ff5c5c",
-        "editorBracketHighlight.foreground2": "#ff5c5c",
-        "editorBracketHighlight.foreground3": "#ff5c5c",
-        "editorBracketHighlight.foreground4": "#ff5c5c",
-        "editorBracketHighlight.foreground5": "#ff5c5c",
-        "editorBracketHighlight.foreground6": "#ff5c5c",
-        "editorBracketHighlight.unexpectedBracket.foreground": "#ff5c5c"
+        "editorBracketHighlight.foreground1": "#0084ff",
+        "editorBracketHighlight.foreground2": "#0084ff",
+        "editorBracketHighlight.foreground3": "#0084ff",
+        "editorBracketHighlight.foreground4": "#0084ff",
+        "editorBracketHighlight.foreground5": "#0084ff",
+        "editorBracketHighlight.foreground6": "#0084ff",
+        "editorBracketHighlight.unexpectedBracket.foreground": "#0084ff"
     },
     "editor.rulers": [80],
     "editor.fontLigatures": true,
@@ -103,7 +103,7 @@
                     "storage.type.generic.nim"
                 ],
                 "settings": {
-                    "foreground": "#ff5c5c",
+                    "foreground": "#0084ff",
                     "fontStyle": "bold"
                 }
             },                    
@@ -117,7 +117,7 @@
                     "support.type",
                 ],
                 "settings": {
-                    "foreground": "#ff5c5c" // Adjust this color to fit your theme
+                    "foreground": "#0084ff" // Adjust this color to fit your theme
                 }
             },
             {
@@ -125,7 +125,7 @@
                     "support.type",
                 ],
                 "settings": {
-                    "foreground": "#ff9f9f" // Adjust this color to fit your theme
+                    "foreground": "#0088ff" // Adjust this color to fit your theme
                 }
             },
             {
@@ -135,7 +135,7 @@
                     "keyword.type.float"
                 ],
                 "settings": {
-                    "foreground": "#ff5c5c", // Adjust color to your preference
+                    "foreground": "#42a7ff", // Adjust color to your preference
                     "fontStyle": "italic" // Optional: apply italic if desired
                 }
             },
