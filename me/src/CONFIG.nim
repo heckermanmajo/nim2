@@ -1,0 +1,15 @@
+import raylib
+
+const   
+
+  DEBUG* = true
+
+  TILE_SIZE* = 32
+  TILE_GRID* = true
+  CHUNK_SIZE_IN_TILES* = 10
+  CHUNK_SIZE_IN_PIXELS* = CHUNK_SIZE_IN_TILES * TILE_SIZE
+  TOP_BAR_HEIGHT* = 90
+
+  WORLD_COLOR* = WHITE
+  
+  WORLD_COLOR_TRANSPARENT* = Color(a: 123)

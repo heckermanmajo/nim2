@@ -1,7 +1,6 @@
 Wir HABEN schon die Kampangne, nun muss die RTS-seite des Games 
 cool werden.
 
-
 - ich muss alle battle aspekte aus dem game nehmen und dem 
   game ein camp und ein menu elemten hizufügen
 

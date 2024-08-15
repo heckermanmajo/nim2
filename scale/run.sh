@@ -4,7 +4,8 @@ nim compile \
   --checks:on \
   --opt:none \
   --profiler:on \
-  main.nim \
+  --experimental \
+  ./src/main.nim \
   && ./main \
   && rm main  \
   && rm -f log.txt \

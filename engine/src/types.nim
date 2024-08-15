@@ -74,7 +74,7 @@ type
     Idle
     MovingToChunk
     Fighting
-    MovingToEnemyUnit
+    MovingToEnemyUnit 
 
   Unit* = ref object             ## Represents a simple unit.
     dead*: bool                  ## this marks the unit a dead; Dead units can be re-used
@@ -123,3 +123,11 @@ type
 
   BadGameState* = object of Defect
 
+
+###
+###
+### Put all methods here ...
+### Methods are functions that are centered around one datatype and 
+### Dont touch a lot of other types -> no "system" like kollision system
+###
+###

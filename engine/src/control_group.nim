@@ -210,8 +210,6 @@ proc manage_control_group_deaths*(self: Battle) =
 
 
 
-
-
 proc disperse_colliding_idle_control_groups*(self: Battle, dt: float) =
   for cg in self.control_groups:
     if cg.current_mode == ControlGroupMode.Idle:

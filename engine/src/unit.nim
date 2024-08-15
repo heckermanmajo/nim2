@@ -7,14 +7,17 @@ import raymath
 import config
 import types
 import core
-#import battle
 import chunk
 
 
-proc get_position(self: Unit): Vector2 = Vector2(x: self.shape.x, y: self.shape.y)
+
+proc get_position*(self: Unit): Vector2 = Vector2(x: self.shape.x, y: self.shape.y)
 
 proc `$`*(self: Unit): string = 
-  return $self.behavior_mode & " - " & $self.attack_target.isSome & " - " & $self.move_target.isSome & "-" & $self.shape
+  return $self.behavior_mode & " - " &
+    $self.attack_target.isSome & " - " & 
+    $self.move_target.isSome & "-" & 
+    $self.shape
 
 
 proc think_single_unit(self: Battle,u: Unit, dt: float) = 

@@ -29,3 +29,7 @@ https://www.mapforge-software.com/product/isometric-realm-medieval/
 
 
 # https://fsymbols.com/generators/carty/
+
+
+ NEXT TASK
+ - make wall creation work if you click

@@ -5,9 +5,8 @@
 # --d: release\
 nim compile \
   --checks:on \
-  --opt:none \
+  --d: release \
   --profiler:on \
-  --threads:off \
   --out:./ \
   src/main.nim \
   && ./main \

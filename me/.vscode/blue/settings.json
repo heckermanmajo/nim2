@@ -1,15 +1,15 @@
 {
-  "workbench.tree.indent": 25,
   "editor.bracketPairColorization.enabled": true,
   "workbench.colorCustomizations": {
-      "editorBracketHighlight.foreground1": "#ff059f",
-      "editorBracketHighlight.foreground2": "#ff059f",
-      "editorBracketHighlight.foreground3": "#ff059f",
-      "editorBracketHighlight.foreground4": "#ff059f",
-      "editorBracketHighlight.foreground5": "#ff059f",
-      "editorBracketHighlight.foreground6": "#ff059f",
-      "editorBracketHighlight.unexpectedBracket.foreground": "#ff059f"
+      "editorBracketHighlight.foreground1": "#0084ff",
+      "editorBracketHighlight.foreground2": "#0084ff",
+      "editorBracketHighlight.foreground3": "#0084ff",
+      "editorBracketHighlight.foreground4": "#0084ff",
+      "editorBracketHighlight.foreground5": "#0084ff",
+      "editorBracketHighlight.foreground6": "#0084ff",
+      "editorBracketHighlight.unexpectedBracket.foreground": "#0084ff"
   },
+  "workbench.tree.indent": 10,
   "editor.rulers": [80],
   "editor.fontLigatures": true,
   "editor.mouseWheelZoom": true,
@@ -25,7 +25,7 @@
                   "punctuation.definition.comment.nim"
               ],
               "settings": {
-                  "foreground": "#9df158",
+                  "foreground": "#31dba8",
                    "fontStyle": "italic"
               }
           },
@@ -34,7 +34,7 @@
                   "comment.line.number-sign.doc-comment.nim"
               ],
               "settings": {
-                  "foreground": "#9df158",
+                  "foreground": "#31dba8",
                    "fontStyle": "italic bold"
               }
           },
@@ -104,7 +104,7 @@
                   "storage.type.generic.nim"
               ],
               "settings": {
-                  "foreground": "#ff059f",
+                  "foreground": "#0084ff",
                   "fontStyle": "bold"
               }
           },                    
@@ -118,7 +118,7 @@
                   "support.type",
               ],
               "settings": {
-                  "foreground": "#ff059f" // Adjust this color to fit your theme
+                  "foreground": "#0084ff" // Adjust this color to fit your theme
               }
           },
           {
@@ -126,7 +126,7 @@
                   "support.type",
               ],
               "settings": {
-                  "foreground": "#ff059f" // Adjust this color to fit your theme
+                  "foreground": "#0088ff" // Adjust this color to fit your theme
               }
           },
           {
@@ -136,7 +136,7 @@
                   "keyword.type.float"
               ],
               "settings": {
-                  "foreground": "#ff059f", // Adjust color to your preference
+                  "foreground": "#42a7ff", // Adjust color to your preference
                   "fontStyle": "italic" // Optional: apply italic if desired
               }
           },
@@ -189,7 +189,7 @@
                   "markup.other"
               ],
               "settings": {
-                  "foreground": "#ff059f"  
+                  "foreground": "#f3f3f3"  
               }
           }
       ]
