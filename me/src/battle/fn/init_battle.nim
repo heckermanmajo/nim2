@@ -5,7 +5,8 @@ import ../methods/battle_methods
 import ../methods/chunk_methods
 import ../methods/btile_methods
 
-proc init*(me: Battle, chunk_per_side = 20) = 
+
+proc init*(me: Battle, chunk_per_side = 1) = 
   ## Initialize the battle based on the given parameters.
   ## Will also clean up all previous initialized battle memory.
   
@@ -16,6 +17,7 @@ proc init*(me: Battle, chunk_per_side = 20) =
   me.tile_as_grid = @[]
   me.SCREEN_W_AS_FLOAT = getScreenWidth().float
   me.SCREEN_H_AS_FLOAT = getScreenHeight().float
+  me.user_control_mode = UserControlMode.NORMIE_MODE
 
   # instanciate the tiles based on chunks
 

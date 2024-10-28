@@ -2,10 +2,12 @@ import std/options
 
 import raylib
 
-import ../../CONFIG
-import ../battle_types
+import CONFIG
+import battle/battle_types
 
-import ../fn/place_nmob
+import battle/fn/place_nmob
+import battle/fn/select_tile
+import battle/fn/select_chunk
 
 # forward definition, it is defined at the end of the file
 # since it will not change a lot
@@ -14,6 +16,7 @@ proc get_left_mouse_drag_selection_rect_and_draw_it(self: Battle):
 
 proc get_click_on_the_screen(game: Battle; button: MouseButton): 
   Option[tuple[screen_relative: Vector2, world_relative: Vector2]]
+
 
 
 
@@ -30,7 +33,10 @@ proc handle_mouse_click_and_drag*(me: Battle, dt: float) =
     if left_click_on_screen_option.is_some():
       let left_click_on_screen = left_click_on_screen_option.get()
       # todo: use the click here 
-      place_nmob(me, left_click_on_screen.world_relative)
+      if me.user_control_mode == UserControlMode.MAP_EDITOR_MODE:
+        place_nmob(me, left_click_on_screen.world_relative)
+        selected_tile(me, left_click_on_screen.world_relative)
+        selected_chunk(me, left_click_on_screen.world_relative)
 
   block:
     let right_click_on_screen_option = me.get_click_on_the_screen(MouseButton.Right)

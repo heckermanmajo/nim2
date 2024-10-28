@@ -1,7 +1,7 @@
 import raylib
 
-import ../battle_types
-import ../methods/battle_methods
+import battle/battle_types
+import battle/methods/battle_methods
 
 proc move_battle_cam*(me: Battle,dt: float) =
 

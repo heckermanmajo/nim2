@@ -12,19 +12,14 @@ battle variable, which contains the only battle instance of the whole engine.
 ]]##
 
 
-# for the big comments
-# https://fsymbols.com/generators/carty/
-
-
-
 import std/tables
 import std/options
 import std/hashes
 
 import raylib
-import ../lib/astar
 
-import ../CONFIG
+import lib/astar
+import CONFIG
 
 type GridPoint* = tuple[x, y: int]
 
@@ -117,6 +112,12 @@ type
     Default
     Big
 
+  UserControlMode* = enum
+    MAP_EDITOR_MODE # for creating maps
+    GOD_PLAYER_MODE # for debugging the ai and gameplay; look into ai
+    PATHFINDER_MODE # for debugging the pathfinding
+    NORMIE_MODE     # normal gameplay
+
   Battle* = ref object
     # battle has also battle-ui-state
     units*: seq[Unit]
@@ -135,6 +136,8 @@ type
     SCREEN_H_AS_FLOAT*: float
     render_texture_of_tile_grid*: RenderTexture
     world_size_in_chunk*: int
+    selected_tile*: Option[BTile]
+    user_control_mode*: UserControlMode
 
 var p_battle = Battle(
   units: new_seq[Unit](),

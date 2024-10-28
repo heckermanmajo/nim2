@@ -1,14 +1,15 @@
 ##[[
+
+# install the raylib wrapper
+nimble install naylib
+
+# then run this:
 nim compile \
-  --define:lerman \
   --define:debug \
   --checks:on \
   --opt:none \
   main.nim \
   && ./main
-]]##
-
-##[[
 
 Mages-Engine
 
@@ -18,16 +19,33 @@ multiple game modes, f.e. medival, fantasy, sci-fi, etc.
 You create or load a scenario, which then can be played
 in campaign mode.
 
+Architechture: You got main-menu and campaign in this file. Then wou get another 
+file for the real time battles. Also each mod is added at compile-time via 
+a mods/<name>/load.nim file. Also we might have a ai file for the campaign, since 
+ai is hard...
+-> The rule: If it is dumb: merge it very dense into one file 
+             If it is complex: give it a own file and do it more sparse with lots 
+             of comments
+
+Camp-Game-Play: 
+  - You can only move armies: merge, occupy, fight
+  - you can upgrade armies tech-wise or recruite new units
+  - mineral patches are more valuable
+
+
 Pathfinging-via Threads
 https://nim-by-example.github.io/channels/
+Prob not needed, since we can just make a "slow" battle, so the player can 
+actually have an impact on the battle itself.
 
 TODOS:
+- [ ] First create all campaign ui elements...
+- [ ] Add the faction money
+- [ ] Move the world with drag and drop -> this would make army movment nice
 - [ ] resources
 - [ ] factories
 - [ ] movement with arrow keys on enemy and own, also merge
 - [ ] astar
-- [ ] next-round button
-- [ ] prgress to next round
 - [ ] Do the movment based on a queue of movement-commands
 - [ ] faction-relation view
 - [ ] all buttons/ui mockups
@@ -39,21 +57,17 @@ TODOS:
 import std/[sequtils, math, random, strutils,tables, hashes,options,oids,os,files,deques]
 import raylib
 import raymath
-include ui/Button
 
-const TileSizePixel = 124
-const WorldWidth_in_tiles = 10
-const WorldHeight_in_tiles = 10
-const WorldWidth_in_pixels = WorldWidth_in_tiles * TileSizePixel
-const WorldHeight_in_pixels = WorldHeight_in_tiles * TileSizePixel
+import ui/Button # include my own button function
+
+const TileSizePixel = 124;
+const WorldWidth_in_tiles = 20; const WorldHeight_in_tiles = 20
+const WorldWidth_in_pixels = WorldWidth_in_tiles * TileSizePixel; const WorldHeight_in_pixels = WorldHeight_in_tiles * TileSizePixel
 
 type
 
-  FactionRelationState = enum
+  FactionRelationState = enum Peace, Alliance, War
     ## Factions are related to each other. The relation has always a state.
-    Peace
-    Alliance
-    War
 
   FactionRelationEvent = ref object
     ## different events on the campaign map can change the relation between
@@ -98,22 +112,13 @@ type
       : Table[int, tuple[faction_index: int, relation_state: FactionRelationState]]
     faction_relation_events: seq[FactionRelationEvent]
 
-  GameMode = enum
-    Menu
-    Camp
-    Battle ## not yet implemented
+  GameMode = enum Menu, Camp, Battle ## Battle not yet implemented
 
-  CampDisplayMode = enum
-    Default
+  CampDisplayMode = enum Default, Diplomacy
 
-  ZoomLevel = enum
+  ZoomLevel = enum Mini, VerySmall, Small, Default, Big
     ## Zoomlevel of the campaign map; The zoom changes the way of displaying
     ## the map and the armies on the map.
-    Mini
-    VerySmall
-    Small
-    Default
-    Big
 
   Game = ref object
     ## The global state of the game and its "engine"- Contains also all the state
@@ -126,10 +131,7 @@ type
     ai_army_movement_tasks: Deque[ArmyMovementTask]
     player_movement_task: Option[ArmyMovementTask]
 
-  TileType = enum
-    Land
-    Water
-    Mountain
+  TileType = enum Land, Water, Mountain, Minerals
 
   Tile = ref object
     ## One tile on the campaign map.
@@ -158,8 +160,6 @@ type
     ## Logging object provided to functions that need to log.
     file: File
 
-  MissingDataFromMod = object of Defect
-
 # -----------------------------------------------------------------------------
 # Helper functions
 # -----------------------------------------------------------------------------
@@ -175,11 +175,7 @@ func is_in_world(self: Scenario, x: int, y: int): bool =
   return x >= 0 and x < WorldWidth_in_pixels and y >= 0 and y < WorldHeight_in_pixels
 
 func create_Faction*(
-  name: string,
-  is_player_faction: bool,
-  description: string,
-  color: Color,
-  s: Scenario
+  name: string, is_player_faction: bool, description: string, color: Color, s: Scenario 
 ): Faction =
   var faction = Faction()
   faction.name = name
@@ -205,36 +201,78 @@ func get_relation(self: Scenario, faction_one: int, faction_two: int): int =
 #-------------------------------------------------------------------------------
 # Init logger and raylib stuff
 #-------------------------------------------------------------------------------
-const logfile_name = "log.txt"
-if fileExists(logfile_name): removeFile(logfile_name)
-var logger = Logger(file: open(logfile_name, fmAppend))
-setTraceLogLevel(TraceLogLevel.Error)
-initWindow(1900, 1080, "example")
-setWindowMonitor(0)
-var camera = Camera2D(
-  target: Vector2(x: 0, y: 0),
-  offset: Vector2(x: 0, y: 0),
-  rotation: 0,
-  zoom: 1)
-logger.log("Start")
-
+const logfile_name = "log.txt"; if fileExists(logfile_name): removeFile(logfile_name)
+var logger = Logger(file: open(logfile_name, fmAppend)); logger.log("Start Mages Engine")
+setTraceLogLevel(TraceLogLevel.Error);initWindow(1900, 1080, "example"); setWindowMonitor(0)
+var camera = Camera2D(target: Vector2(x: 0, y: 0), offset: Vector2(x: 0, y: 0), rotation: 0, zoom: 1)
+setTargetFPS(60)
 # todo: this makes trouble??
 # toggleFullscreen();
-
 
 # load all resources within the block
 # otherwise we get segfault at close window call at the end...
 block:
 
-  # Load the mod, with which this code should be compiled
-  when defined(lerman): include mods/lerman/load
-  else: {. error: "no mod is loaded" .}
+  let ModImages = (
+    flat:loadTexture("./mods/lerman/res/flat_0.png"),
+    minerals:loadTexture("./mods/lerman/res/minerals_0.png"),
+    mountain: loadTexture("./mods/lerman/res/mountain_0.png"),
+    water:loadTexture("./mods/lerman/res/water_0.png"),
+    menu_background: loadTexture("./mods/lerman/res/background.png")
+  )
 
-  # Load the images from the mod; check that mod creates the needed map
-  func need(name: string) =
-    raise MissingDataFromMod.newException(
-       "'" & name & "' not declared in current mod")
-  when not declared(ModImages): need("ModImages")
+  let MENU_TEXTURE = loadTexture("./mods/lerman/res/menu.png")
+  let MENU_BACKGROUND = (73,81,200,200)
+
+  proc draw_from_menu_atlas(x, y, width, height, rotation: float, src: (int,int,int,int)) =
+    let source_x = src[0].float; let source_y = src[1].float
+    let source_w = src[2].float - source_x; let source_h = src[3].float - source_y
+    let source_rect = Rectangle(x: source_x, y: source_y, width: source_w, height: source_h)
+    let dest_rect = Rectangle(x: x, y: y, width: width, height: height)
+    let origin = Vector2(x: 0, y: 0)
+    drawTexture(MENU_TEXTURE, source_rect, dest_rect, origin, rotation, WHITE)
+
+  proc populate_scenario(self: var Scenario, L: Logger) =
+    for data in [
+      ("Player", true, "some desc", Color(r:0,g:255,b:0,a:255)),
+      ("Dörr", false, "some desc", Color(r:0,g:0,b:255,a:255)),
+      ("Wusel", false, "some desc", Color(r:255,g:255,b:0,a:255)),
+      ("Woki", false, "some desc", Color(r:64,g:224,b:208,a:255)),
+      ("Schnubbel", false, "some desc", Color(r:64,g:44,b:44,a:255)),
+      ("Kek", false, "some desc", Color(r:255,g:0,b:0,a:255))]:
+      discard create_Faction(
+        name=data[0], is_player_faction=data[1], description=data[2],color=data[3],self)
+   
+    for x in 0..WorldWidth_in_tiles-1: # generate a random scenario
+      var tab = initTable[int, Tile](); self.tiles_map[x] = tab
+      for y in 0..WorldHeight_in_tiles-1:
+        var tile = Tile()
+        tile.pos = Vector2(x:x.float * TileSizePixel, y:y.float * TileSizePixel)
+        self.tiles_map[x][y] = tile; self.tiles.add(tile)
+        tile.category
+          = case rand(0..99)
+            of 0..65: TileType.Land
+            of 66..70: TileType.Minerals
+            of 81..90: TileType.Water
+            of 91..99: TileType.Mountain
+            else: TileType.Land
+        if tile.category == TileType.Land:
+          tile.faction = case rand(0..20)
+            of 0: some(self.factions[0])
+            of 1: some(self.factions[1])
+            of 2: some(self.factions[2])
+            of 3: some(self.factions[3])
+            of 4: some(self.factions[4])
+            of 5: some(self.factions[5])
+            else: none(Faction)
+        if tile.faction.is_some:
+          tile.army = some(
+            Army(
+              faction:tile.faction.get,
+              tile_i_am_on: tile,
+              command_points: rand(100..3800),
+              level: 1))
+
 
   var game = Game()
   game.mode = GameMode.Menu
@@ -245,33 +283,31 @@ block:
 
   while running:
 
-    if windowShouldClose(): running = false
-    let delta_time = getFrameTime()
+    let delta_time = getFrameTime(); if windowShouldClose(): running = false
 
     # update here the game state
     case game.mode:
 
       of GameMode.Menu:
-        # handle button clicks ...
-        if button_click_event != "":
+        if button_click_event != "": # handle button clicks ...
           case button_click_event:
             of "start_new_game":
               game.scenario.populate_scenario(logger)
               game.mode = GameMode.Camp
             of "exit": running = false
             of "": discard
-            else:
-              logger.log("[IGNORED] unknown menu button event: " & button_click_event)
+            else: logger.log("[IGNORED] unknown menu button event: " & button_click_event)
           button_click_event = ""
       #------------------------------------------------------------------------#
       # Default campaign mode handle code.
       #------------------------------------------------------------------------#
       of GameMode.Camp:
 
-        # handle all button clicks
-        if button_click_event != "":
+        if button_click_event != "": # handle all button clicks
           case button_click_event:
-            of "next_round":logger.log("next round")
+            of "next_round":  # handle all the computation if a new round is started
+              game.scenario.turn += 1  # update to the next turn (resets the movment of the armies)
+              logger.log("next round")
             of "": discard
             else: logger.log("[IGNORED] unknown camp button event: " & button_click_event)
           button_click_event = ""
@@ -294,15 +330,11 @@ block:
         # handle the zoom with the mouse wheel
         let moved = getMouseWheelMove()
         if moved != 0:
-          let zoom_delta = moved * 0.1
-          let old_zoom = camera.zoom
-          camera.zoom += zoom_delta
-          if camera.zoom < 0.1: camera.zoom = 0.1
+          let zoom_delta = moved * 0.1; let old_zoom = camera.zoom
+          camera.zoom += zoom_delta; if camera.zoom < 0.1: camera.zoom = 0.1
           let new_zoom = camera.zoom
           # Adjust the camera target to keep the center position the same
-          let screen_center = Vector2(
-            x: getScreenWidth().float / 2.0,
-            y: getScreenHeight().float / 2.0)
+          let screen_center = Vector2(x: getScreenWidth().float / 2.0, y: getScreenHeight().float / 2.0)
           let world_center_before = Vector2(
             x: (screen_center.x - camera.offset.x) / old_zoom + camera.target.x,
             y: (screen_center.y - camera.offset.y) / old_zoom + camera.target.y)
@@ -323,15 +355,10 @@ block:
           if mouse_pos.x.int < getScreenWidth() - right_padding and mouse_pos.y.int > top_padding:
             if tile.isSome: game.selected_tile = tile
             else: game.selected_tile = none(Tile)
-          else: discard # dont do anything if we are in the ui, since we want to
-            # click ui buttons there ...
-        if isMouseButtonPressed(MouseButton.Right):
-          game.selected_tile = none(Tile)
+          else: discard # dont do anything if we are in the ui, since we want to click ui buttons there ...
+        if isMouseButtonPressed(MouseButton.Right): game.selected_tile = none(Tile)
         if isMouseButtonDown(MouseButton.Middle):
-          let delta = getMouseDelta()
-          camera.target.x -= delta.x * zoom_factor
-          camera.target.y -= delta.y * zoom_factor
-
+          let delta = getMouseDelta();camera.target.x -= delta.x * zoom_factor; camera.target.y -= delta.y * zoom_factor
         #-----------------------------------------------------------------------
         # handle movement of armies by player: Create movement task
         #-----------------------------------------------------------------------
@@ -356,9 +383,7 @@ block:
                 # there could be a valid tile to move an army to ...
                 if move_to.is_some() and move_to.get.category == TileType.Land:
                   game.player_movement_task = some(
-                    ArmyMovementTask(
-                      army: tile.army.get,
-                      target_tile: move_to.get))
+                    ArmyMovementTask(army: tile.army.get,target_tile: move_to.get))
 
         # Get the player task or the one task from the list of ai tasks and
         # place this task into a task-option variable to be handled further down
@@ -412,89 +437,44 @@ block:
       of GameMode.Menu:
         block:
           drawTexture(ModImages.menu_background, 0, 0, WHITE)
-          let text = "Lerman".cstring
-          drawText(text, 350, 10, 70, WHITE);
-          if Button(
-            text= "Start",
-            pos= Vector2(x: 100, y: 100),
-            width= 100,
-            height= 50): button_click_event = "start_new_game"
-          if Button(
-            text= "Exit",
-            pos= Vector2(x: 100, y: 200),
-            width= 100,
-            height= 50 ): button_click_event = "exit"
+          drawText("Lerman", 350, 10, 70, WHITE);
+          if Button(text= "Start", pos= Vector2(x: 100, y: 100), width= 100,height= 50): button_click_event = "start_new_game"
+          if Button(text= "Exit",pos= Vector2(x: 100, y: 200),width= 100,height= 50 ): button_click_event = "exit"
 
       of GameMode.Camp:
         block:
-          beginMode2D(camera);
-          let screen_w = getScreenWidth()
-          let screen_h = getScreenHeight()
+          beginMode2D(camera); let screen_w = getScreenWidth(); let screen_h = getScreenHeight()
           for tile in game.scenario.tiles:
             let in_view = checkCollisionRecs(
-              Rectangle(
-                x: camera.target.x * camera.zoom,
-                y: camera.target.y * camera.zoom,
-                width: screen_w.float,
-                height: screen_h.float),
-              Rectangle(
-                x: tile.pos.x * camera.zoom,
-                y: tile.pos.y * camera.zoom,
-                width: TileSizePixel * camera.zoom,
-                height: TileSizePixel * camera.zoom))
+              Rectangle(x: camera.target.x * camera.zoom, y: camera.target.y * camera.zoom, width: screen_w.float, height: screen_h.float),
+              Rectangle(x: tile.pos.x * camera.zoom, y: tile.pos.y * camera.zoom, width: TileSizePixel * camera.zoom, height: TileSizePixel * camera.zoom))
             if not in_view: continue
-            # draw textures of the tiles
-            case tile.category
-              of TileType.Land:drawTexture(ModImages.flat[0],tile.pos,WHITE)
-              of TileType.Water:drawTexture(ModImages.water[0],tile.pos,WHITE)
-              of TileType.Mountain: drawTexture(ModImages.mountain[0],tile.pos,WHITE)
+            case tile.category # draw textures of the tiles
+              of TileType.Land: drawTexture(ModImages.flat,tile.pos,WHITE)
+              of TileType.Water: drawTexture(ModImages.water,tile.pos,WHITE)
+              of TileType.Mountain: drawTexture(ModImages.mountain,tile.pos,WHITE)
+              of TileType.Minerals: drawTexture(ModImages.minerals,tile.pos,WHITE)
 
             # draw a faction colored border around the tile
             if tile.faction.isSome:
-              let faction = tile.faction.get
-              let color = faction.color
+              let faction = tile.faction.get; let color = faction.color
               if game.zoom_level == ZoomLevel.Mini:
-                drawRectangle(
-                  Rectangle(
-                    x: tile.pos.x,
-                    y: tile.pos.y,
-                    width: TileSizePixel,
-                    height: TileSizePixel),
-                  color)
+                drawRectangle( Rectangle(x: tile.pos.x,y: tile.pos.y, width: TileSizePixel, height: TileSizePixel), color)
               else:
-                drawRectangleLines(
-                  Rectangle(
-                    x: tile.pos.x,
-                    y: tile.pos.y,
-                    width: TileSizePixel,
-                    height: TileSizePixel),
-                  3,
-                  color)
-                # draw a rect with some alpha
-                drawRectangle(
-                  Rectangle(
-                    x: tile.pos.x,
-                    y: tile.pos.y,
-                    width: TileSizePixel,
-                    height: TileSizePixel),
-                  fade(color, 0.15))
+                # outline in the color of the owning faction
+                drawRectangleLines(Rectangle(x: tile.pos.x,y: tile.pos.y,width: TileSizePixel,height: TileSizePixel), 3, color)
+                # draw a rect with some alpha in the color of the owning faction
+                drawRectangle(Rectangle(x: tile.pos.x,y: tile.pos.y,width: TileSizePixel,height: TileSizePixel),fade(color, 0.15))
 
             # draw armies on the tile if not zoomed out to far
             if tile.army.isSome and game.zoom_level != ZoomLevel.Mini:
-              assert tile.faction.isSome
-              let army = tile.army.get
+              assert tile.faction.isSome; let army = tile.army.get
               var visibilitiy_blocks = (army.command_points / 100).ceil.int
-              # echo "blocks:" , visibilitiy_blocks
               let square_numbers = visibilitiy_blocks.float.sqrt().ceil
-              # echo square_numbers
-              let square_size = 4f
-              let space_between = 2
-              let space_around = 2f
+              let square_size = 4f; let space_between = 2; let space_around = 2f
               let witdh = square_numbers * square_size + (square_numbers + 1) * space_between.float + space_around * 2
-              let extra_space = (TileSizePixel - witdh) / 2
-              var drawn_blocks = 0
-              let x_rect_start = tile.pos.x + extra_space
-              let y_rext_start = tile.pos.y + extra_space
+              let extra_space = (TileSizePixel - witdh) / 2; var drawn_blocks = 0
+              let x_rect_start = tile.pos.x + extra_space; let y_rext_start = tile.pos.y + extra_space
               block outer_loop:
                 for row in 0..square_numbers.int - 1:
                   for col in 0..square_numbers.int - 1:
@@ -508,15 +488,19 @@ block:
                     drawRectangle(rect, color)
 
               # draw rect directly around the army; 2 lines thick
-              let rect = Rectangle(
-                x: x_rect_start - space_around,
-                y: y_rext_start - space_around,
-                width: witdh,
-                height: witdh)
-              drawRectangleLines(rect, 2,
-                if tile.army.get.last_moved_at_turn == game.scenario.turn: WHITE
-                else: tile.faction.get.color
-              )
+              drawRectangleLines(
+                Rectangle( x: x_rect_start - space_around, y: y_rext_start - space_around, width: witdh, height: witdh), 
+                2,
+                # if this army is moved this turn, make white border
+                if tile.army.get.last_moved_at_turn == game.scenario.turn: WHITE else: tile.faction.get.color)
+
+              # draw the strenght of the army in the top-left tile corner
+              let command_points = army.command_points
+              let level = army.level
+              let display_string = $command_points & " - " & $level
+              drawText(display_string, (tile.pos.x + 4).int32, (tile.pos.y + 4).int32, 20, WHITE)
+
+
           # --------------------------------------------------------------------
           # end of tile drawing
           # --------------------------------------------------------------------
@@ -524,16 +508,9 @@ block:
           # draw outline around selected tile
           if game.selected_tile.isSome:
             let selected = game.selected_tile.get
-            let rect = Rectangle(
-              x: selected.pos.x,
-              y: selected.pos.y,
-              width: TileSizePixel,
-              height: TileSizePixel)
             drawRectangleLines(
-              rect,
-              2,
-              raylib.WHITE)
-
+              Rectangle(x: selected.pos.x,y: selected.pos.y,width: TileSizePixel,height: TileSizePixel),
+              2, raylib.WHITE)
 
           endMode2D()
           # end the camera : this means here comes the ui
@@ -546,40 +523,26 @@ block:
           let top_bar_width = getScreenWidth().float # - menu_width
 
           # draw the top bar
-          draw_from_atlas(
-              x=0, y=0, width=top_bar_width, height=top_bar_height, rotation=0f,
-              src=MENU_BACKGROUND)
+          draw_from_menu_atlas(x=0, y=0, width=top_bar_width, height=top_bar_height, rotation=0f,src=MENU_BACKGROUND)
 
           # draw the next round button
-          if Button(
-            text= "Next Round",
-            pos= Vector2(x: 10, y: 10),
-            width= 100,
-            height= 20): button_click_event = "next_round"
-
-          # if some tile is selcted, draw the data of the tile
-          if game.selected_tile.isSome:
-            draw_from_atlas(
-              menu_start,
-              top_bar_height,
-              menu_width,
-              menu_height,
-              rotation= 0f,
-              src=MENU_BACKGROUND)
+          if Button(text= "Next Round",pos= Vector2(x: 10, y: 10),width= 100,height= 20): button_click_event = "next_round"
+ 
+          if game.selected_tile.isSome: # if some tile is selected, draw the data of the tile
+            draw_from_menu_atlas(menu_start, top_bar_height, menu_width, menu_height, rotation=0f, src=MENU_BACKGROUND)
             let tile_data = game.selected_tile.get
-            drawText(("Tile: " & $tile_data.category).cstring, (menu_start + 10).int32, (10+top_bar_height).int32, 20, BLACK)
-            drawText(("Pos: " & $tile_data.pos).cstring, (menu_start + 10).int32, (30+top_bar_height).int32, 20, BLACK)
+            drawText(("Tile: " & $tile_data.category), (menu_start + 10).int32, (10+top_bar_height).int32, 20, BLACK)
+            drawText(("Pos: " & $tile_data.pos), (menu_start + 10).int32, (30+top_bar_height).int32, 20, BLACK)
             if tile_data.faction.isSome:
               let faction = tile_data.faction.get
-              drawText(("Faction-Owner: " & $faction.name).cstring, (menu_start + 10).int32, (50+top_bar_height).int32, 20, faction.color)
+              drawText(("Faction-Owner: " & $faction.name), (menu_start + 10).int32, (50+top_bar_height).int32, 20, faction.color)
             else:
-              drawText("No Faction".cstring, (menu_start + 10).int32, (50+top_bar_height).int32, 20, BLACK)
-              drawText(("Type: " & $tile_data.category).cstring, (menu_start + 10).int32, (70+top_bar_height).int32, 20, BLACK)
+              drawText("No Faction", (menu_start + 10).int32, (50+top_bar_height).int32, 20, BLACK)
+              drawText(("Type: " & $tile_data.category), (menu_start + 10).int32, (70+top_bar_height).int32, 20, BLACK)
             if tile_data.army.isSome:
-              let army = tile_data.army.get
-              drawText(("Army - Command Points: " & $army.command_points).cstring, (menu_start + 10).int32, (90+top_bar_height).int32, 20, BLACK)
-            else:
-              drawText("No Army".cstring, (menu_start + 10).int32, (90+top_bar_height).int32, 20, BLACK)
+              drawText(("Army - Command Points: " & $tile_data.army.get.command_points), (menu_start + 10).int32, (90+top_bar_height).int32, 20, BLACK)
+            else: drawText("No Army", (menu_start + 10).int32, (90+top_bar_height).int32, 20, BLACK)
+      
       # end of campaign drawing
 
       else: discard # no other game mode exists yet
@@ -595,15 +558,13 @@ block:
     # Draw some debug information
     # --------------------------------------------------------------------------
     when defined(debug):
-      let top_bar_height = 40
-      let fps = getFPS()
-      drawText("FPS: " & $fps, 10, (10+top_bar_height).int32, 20, RED)
-      drawText("Camera: " & $camera.target, 10, (30+top_bar_height).int32, 20, RED)
-      drawText("Zoom: " & $camera.zoom, 10, (50+top_bar_height).int32, 20, RED)
-      let mouse_pos = getMousePosition()
-      drawText("Mouse: " & $mouse_pos, 10, (70+top_bar_height).int32, 20, RED)
-      # zoom level
-      drawText("Zoom Level: " & $game.zoom_level, 10, (90+top_bar_height).int32, 20, RED)
+      if game.mode == GameMode.Camp:
+        let top_bar_height = 40; let fps = getFPS(); let mouse_pos = getMousePosition()
+        drawText("FPS: " & $fps, 10, (10+top_bar_height).int32, 20, RED)
+        drawText("Camera: " & $camera.target, 10, (30+top_bar_height).int32, 20, RED)
+        drawText("Zoom: " & $camera.zoom, 10, (50+top_bar_height).int32, 20, RED)
+        drawText("Mouse: " & $mouse_pos, 10, (70+top_bar_height).int32, 20, RED)
+        drawText("Zoom Level: " & $game.zoom_level, 10, (90+top_bar_height).int32, 20, RED)
 
     endDrawing()
     # --------------------------------------------------------------------------

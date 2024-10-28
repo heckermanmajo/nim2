@@ -1,6 +1,10 @@
+## Methods for 
+##
+##
+import std/options
 import raylib
-import ../../CONFIG
-import ../battle_types
+import CONFIG
+import battle/battle_types
 
 proc absolute_postion*(me: BTile): Vector2 = 
   return Vector2(
@@ -12,7 +16,10 @@ proc get_movment_cost*(me: BTile): float =
 
 proc get_point*(me: BTile): GridPoint = me.num_pos
 
-proc init*(me: BTile,x,y: float) = 
+proc is_passable*(me: BTile): bool = 
+  me.nmob.isNone() 
+
+proc init*(me: BTile,x: float,y: float) = 
   me.real_pos =  Vector2(x:x, y:y)
   me.absolute_postion_as_rect = Rectangle(
     x: x, 
@@ -20,3 +27,5 @@ proc init*(me: BTile,x,y: float) =
     width: CONFIG.TILE_SIZE, 
     height: CONFIG.TILE_SIZE)
 
+proc `$`*(me: BTile): string = 
+  "BTILE: numpos: " & $me.num_pos & "real_pos: " & $me.real_pos

@@ -21,15 +21,7 @@
 -> man kann land erwerben, wie bei stronghold
 -> man kann seine burg managen
 
-https://www.mapforge-software.com/product/isometric-realm-medieval/
+# Next big task:
 
--> isometrisch
--> tile-based 
--> diplomacy
-
-
-# https://fsymbols.com/generators/carty/
-
-
- NEXT TASK
- - make wall creation work if you click
+Wir brauchen eine funktionierende Weggfindung und eine funtionierende 
+navigation der einheiten.

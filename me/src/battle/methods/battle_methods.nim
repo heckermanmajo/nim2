@@ -3,11 +3,11 @@ import std/math
 
 import raylib
 
-import ../../lib/astar
+import lib/astar
 
-import ../../CONFIG
+import CONFIG
 
-import ../battle_types
+import battle/battle_types
 import chunk_methods
 import btile_methods
 
@@ -17,6 +17,7 @@ proc world_size_in_pixel_f*(me: Battle): float = (me.world_size_in_tiles * CONFI
 
 proc delete*(me: Battle) = 
   ## Deletes all battle memory.
+  ## todo
   discard 
 
 proc given_pos_in_view*(me: Battle; x, y, width, height: float): bool =
@@ -38,11 +39,17 @@ proc given_pos_in_view*(me: Battle; x, y, width, height: float): bool =
 template given_pos_in_view*(me: Battle; rect: Rectangle): bool  =
   me.given_pos_in_view( rect.x, rect.y, rect.width, rect.height)
 
-proc world_sanatize_value*(me: Battle, x_or_y: int): int  
-  = (if x_or_y < 0: return 0; if x_or_y > me.world_size_in_pixel(): return me.world_size_in_pixel(); return x_or_y)
+proc world_sanatize_value*(me: Battle, x_or_y: int): int = 
+  if x_or_y < 0: return 0
+  if x_or_y > me.world_size_in_pixel(): 
+    return me.world_size_in_pixel()
+  return x_or_y
 
-proc world_sanatize_value*(me: Battle, x_or_y: float): float 
-  = (if x_or_y < 0: return 0; if x_or_y > me.world_size_in_pixel_f(): return me.world_size_in_pixel_f(); return x_or_y)
+proc world_sanatize_value*(me: Battle, x_or_y: float): float = 
+  if x_or_y < 0: return 0 
+  if x_or_y > me.world_size_in_pixel_f(): 
+    return me.world_size_in_pixel_f()
+  return x_or_y
 
 proc given_pos_in_world*(me: Battle, pos: Vector2): bool = 
   if pos.x < 0: return false

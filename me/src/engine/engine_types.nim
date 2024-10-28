@@ -3,11 +3,11 @@ import std/options
 
 import raylib
 
-import ../CONFIG
+import CONFIG
 
-import ../battle/battle_types
-import ../camp/camp_types
-import ../menu/menu_types
+import battle/battle_types
+import camp/camp_types
+import menu/menu_types
 
 # engine_types.nim
 type 

@@ -1,12 +1,18 @@
+# Pathfinding -> astar lib usage
+# todo; we can mostly use straight lines, chunk based approximations, etc.
+# todo; apply astar on chunks and then within the chunk
+
 import ../battle_types
 import ../methods/btile_methods
 import ../methods/battle_methods
 import ../../lib/astar
 
-# Pathfinding -> astar lib usage
-#[[██████████████████████████████████████████████████████████████████████████]]#
 
-# todo; we can mostly use straight lines, chunk based approximations, etc.
+#proc get_path_finding_path*(me: Battle, start: Vector2, goal: Vector2): seq[] = 
+
+
+
+
 
 type BattleGrid = seq[seq[BTile]]
 
@@ -23,12 +29,13 @@ iterator neighbors*( grid: BattleGrid, point: GridPoint ): GridPoint =
 proc cost*(grid: BattleGrid, a, b: GridPoint): float = grid[a.y][a.x].get_movment_cost()
 proc heuristic*( grid: BattleGrid, node, goal: GridPoint ): float = asTheCrowFlies(node, goal)
 
-let battle_grid = battle().tile_as_grid
-let battle_start: GridPoint = (x: 0, y: 3)
-let battle_goal: GridPoint = (x: 4, y: 3)
+when false:
+  let battle_grid = battle().tile_as_grid
+  let battle_start: GridPoint = (x: 0, y: 3)
+  let battle_goal: GridPoint = (x: 4, y: 3)
 
-# Pass in the start and end points and iterate over the results.
-for point in path[BattleGrid, GridPoint, float](battle_grid, battle_start, battle_goal):
+  # Pass in the start and end points and iterate over the results.
+  for point in path[BattleGrid, GridPoint, float](battle_grid, battle_start, battle_goal):
     echo point
 
 proc get_path*(me: Battle, start: BTile, goal: BTile): seq[BTile] = 

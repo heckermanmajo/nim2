@@ -56,33 +56,26 @@
 ]]#
 
 # all imports are always in the following order:
-
 # 1. std-lib imports
 import std/tables
 import std/options
 # Profiling support for Nim. This is an embedded profiler that
 # requires --profiler:on. You only need to import this module to
 # get a profiling report at program exit.
-import std/nimprof
-
+when not defined(release):
+  import std/nimprof
 # 2. vendor-lib imports (raylib)
 import raylib
-
 # 3. Config file (its nim, but only contains CONSTANTS)
 import CONFIG
-
 # 4. Utils and shared game systems
 import diplomacy
 import ui
 import utils
-
 # 5. The 4 "Game-meta-modules"
-
 import camp/camp_types
 import menu/menu_types
 import engine/engine_types
-
-
 import battle/battle_types
 import battle/fn/init_battle
 import battle/fn/get_path
@@ -92,101 +85,8 @@ import battle/methods/btile_methods
 import battle/systems/draw_battle
 import battle/systems/move_battle_cam
 import battle/systems/handle_mouse_click_and_drag
-
-
+import battle/systems/game_mode_change_on_keypress
 log("Engine started")
-
-#include battle_systems/pathfinder
-
-###########################################
-#############################################
-############################################
-
-###########################################
-#############################################
-############################################
-
-# todo; for optimization, we can use a bigger grid for less fine grained navigation
-# how to use astar in our system:
-# the cost of walking is determined by how many other want to walk this tile
-# a negative cost determines if it is passable or not  
-
-#[[
-import lib/astar, hashes
-
-type
-    Grid = seq[seq[int]]
-        ## A matrix of nodes. Each cell is the cost of moving to that node
-
-    #Point = tuple[x, y: int]
-    ## A point within that grid
-
-template yieldIfExists( grid: Grid, point: Point ) =
-    ## Checks if a point exists within a grid, then calls yield it if it does
-    let exists =
-        point.y >= 0 and point.y < grid.len and
-        point.x >= 0 and point.x < grid[point.y].len
-    if exists:
-        yield point
-
-iterator neighbors*( grid: Grid, point: Point ): Point =
-    ## An iterator that yields the neighbors of a given point
-    yieldIfExists( grid, (x: point.x - 1, y: point.y) )
-    yieldIfExists( grid, (x: point.x + 1, y: point.y) )
-    yieldIfExists( grid, (x: point.x, y: point.y - 1) )
-    yieldIfExists( grid, (x: point.x, y: point.y + 1) )
-
-proc cost*(grid: Grid, a, b: Point): float =
-    ## Returns the cost of moving from point `a` to point `b`
-    float(grid[a.y][a.x])
-
-proc heuristic*( grid: Grid, node, goal: Point ): float =
-    ## Returns the priority of inspecting the given node
-    asTheCrowFlies(node, goal)
-
-# A sample grid. Each number represents the cost of moving to that space
-let grid = @[
-    @[ 0, 0, 0, 0, 0 ],
-    @[ 0, 3, 3, 3, 0 ],
-    @[ 0, 3, 5, 3, 0 ],
-    @[ 0, 3, 3, 3, 0 ],
-    @[ 0, 0, 0, 0, 0 ]
-]
-
-let start: Point = (x: 0, y: 3)
-let goal: Point = (x: 4, y: 3)
-
-# Pass in the start and end points and iterate over the results.
-#for point in path[Grid, Point, float](grid, start, goal):
-#    echo point
-]]#
-
-###########################################
-#############################################
-############################################
-
-###########################################
-#############################################
-############################################
-
-
-proc draw_battle*() = 
-  #beginMode2D(game.camera);
-  #endMode2D()
-  discard
-proc debug_information*() = discard
-proc select_units*() = discard
-proc move_units*() = discard
-proc do_needed_pathfinding*() = discard
-proc ai_thinking*() = discard
-proc unit_thinking*() = discard
-proc fight_units*() = discard
-proc work_units*() = discard
-proc produce_buildings*() = discard
-proc draw_camp*() = discard
-
-
-
 
 #-------------------------------------------------------------------------------
 # Init logger and raylib stuff
@@ -206,17 +106,12 @@ let battle = battle()
 let camp = camp()
 let menu = menu()
 
-
-
-
-
 # load all raylib-dependent resources within the block
 # this means all images, sounds, etc.
 # otherwise we get segfault at close window call at the end...
 block:
 
   engine.load_all_extern_media()
-
 
   # todo: make this dependent on the start mode passed in by params
   battle.init()
@@ -234,6 +129,7 @@ block:
       of EM_Battle:
         # call all battle systems here -> folder: battle_systems
         battle.move_battle_cam(dt=delta_time)
+        battle.game_mode_change_on_keypress(dt=delta_time)
       of EM_Camp: discard
       of EM_Menu: discard
 
@@ -243,10 +139,6 @@ block:
 
     beginDrawing()
     clearBackground(BLACK)
-
-    drawTexture(engine.atlas1.get, 0,0, WHITE)
-    drawTexture(engine.atlas1.get, Rectangle(x: 32, y: (32*11).float, width:32,height:32), Vector2(x: 500, y:500),WHITE)
-
     
     case engine.mode:
       of EM_Battle: 
@@ -254,8 +146,6 @@ block:
         battle.handle_mouse_click_and_drag(dt=delta_time)
       of EM_Camp: discard
       of EM_Menu: discard
-
-    engine.draw_wall(Vector2(x: 500, y: 500))   
 
     endDrawing()
     # --------------------------------------------------------------------------

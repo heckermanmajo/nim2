@@ -3,24 +3,14 @@ import std/math
 
 import raylib
 
-import ../../CONFIG
+import CONFIG
 
-import ../../engine/engine_types
-import ../battle_types
-import btile_methods
-
-when false:
-  type
-    Chunk* = ref object
-      ## we use chunk to improve performance 
-      tiles*: seq[BTile] 
-      render_texture*: RenderTexture
-      ## we render the background tiles at the start of a battle into this 
-      ## render_texture, so we dont need to loop over all tiles.
-      shape*: Rectangle
+import engine/engine_types
+import battle/battle_types
+import battle/methods/btile_methods
 
 
-proc create_render_texture(me: Chunk)
+proc update_render_texture*(me: Chunk)
 proc populate_chunk_with_tiles(me: Chunk)
 
 proc init*(me: Chunk, x,y: int) =
@@ -31,17 +21,18 @@ proc init*(me: Chunk, x,y: int) =
     height: CONFIG.CHUNK_SIZE_IN_PIXELS.float)  
   me.populate_chunk_with_tiles()
   me.render_texture = loadRenderTexture(CONFIG.CHUNK_SIZE_IN_PIXELS,CONFIG.CHUNK_SIZE_IN_PIXELS).some
-  me.create_render_texture()
+  me.update_render_texture()
 
 
-proc create_render_texture(me: Chunk) = 
+proc update_render_texture*(me: Chunk) = 
   beginTextureMode(me.render_texture.get)
   let e = engine();clearBackground(GREEN)
-  for tile in me.tiles: 
-    e.draw_gras(
-      Vector2( # minus shape, otherwise they will be rendered outside the tmp texture
-        x: tile.real_pos.x - me.shape.x, 
-        y: tile.real_pos.y - me.shape.y)) 
+  for tile in me.tiles:
+    let pos = Vector2( # minus shape, otherwise they will be rendered outside the tmp texture
+      x: tile.real_pos.x - me.shape.x, 
+      y: tile.real_pos.y - me.shape.y) 
+    e.draw_gras(pos) 
+    if tile.nmob.isSome: e.draw_wall(pos)
   endTextureMode()  
 
 proc populate_chunk_with_tiles(me: Chunk) = 
@@ -62,4 +53,7 @@ proc get_tile_by_absolute_position*(me: Chunk, pos: Vector2): BTile =
   let x = ((pos.x - me.shape.x) / TILE_SIZE).floor
   let y = ((pos.y - me.shape.y) / TILE_SIZE).floor
   let index = (x * CHUNK_SIZE_IN_TILES + y).int
-  return me.tiles[index]  
+  return me.tiles[index]
+
+proc `$`*(me: Chunk): string = 
+  "CHUNK: shape: " & $me.shape

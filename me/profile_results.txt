@@ -1,2 +1,243 @@
 total executions of each stack trace:
-Entry: 1/1 Calls: 9009/9009 = 100.00% [sum: 9009; 9009/9009 = 100.00%]
+Entry: 1/48 Calls: 350/1494 = 23.43% [sum: 350; 350/1494 = 23.43%]
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 2/48 Calls: 180/1494 = 12.05% [sum: 530; 530/1494 = 35.48%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/miscdollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 3/48 Calls: 135/1494 = 9.04% [sum: 665; 665/1494 = 44.51%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/iterators_1.nim: writeFloatToBufferSprintf 173/1494 = 11.58%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloatSprintf 438/1494 = 29.32%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/dollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 4/48 Calls: 133/1494 = 8.90% [sum: 798; 798/1494 = 53.41%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addCstringN 213/1494 = 14.26%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloatSprintf 438/1494 = 29.32%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/dollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 5/48 Calls: 64/1494 = 4.28% [sum: 862; 862/1494 = 57.70%]
+  /home/majo/.nimble/pkgs2/naylib-24.41-14ddf84cbfb248aabc7c9ff1cf1be35d32469937/raylib.nim: drawText 64/1494 = 4.28%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 6/48 Calls: 63/1494 = 4.22% [sum: 925; 925/1494 = 61.91%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addCstringN 213/1494 = 14.26%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloatSprintf 438/1494 = 29.32%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: addQuoted 182/1494 = 12.18%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/miscdollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 7/48 Calls: 47/1494 = 3.15% [sum: 972; 972/1494 = 65.06%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addChars 47/1494 = 3.15%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addIntImpl 60/1494 = 4.02%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/dollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 8/48 Calls: 39/1494 = 2.61% [sum: 1011; 1011/1494 = 67.67%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/pure/options.nim: none 75/1494 = 5.02%
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: get_left_mouse_drag_selection_rect_and_draw_it 71/1494 = 4.75%
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: handle_mouse_click_and_drag 182/1494 = 12.18%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 9/48 Calls: 38/1494 = 2.54% [sum: 1049; 1049/1494 = 70.21%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/iterators_1.nim: writeFloatToBufferSprintf 173/1494 = 11.58%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloatSprintf 438/1494 = 29.32%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: addQuoted 182/1494 = 12.18%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/miscdollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 10/48 Calls: 36/1494 = 2.41% [sum: 1085; 1085/1494 = 72.62%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/pure/options.nim: none 75/1494 = 5.02%
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: get_click_on_the_screen 65/1494 = 4.35%
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: handle_mouse_click_and_drag 182/1494 = 12.18%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 11/48 Calls: 29/1494 = 1.94% [sum: 1114; 1114/1494 = 74.56%]
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: get_click_on_the_screen 65/1494 = 4.35%
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: handle_mouse_click_and_drag 182/1494 = 12.18%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 12/48 Calls: 28/1494 = 1.87% [sum: 1142; 1142/1494 = 76.44%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloatSprintf 438/1494 = 29.32%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: addQuoted 182/1494 = 12.18%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/miscdollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 13/48 Calls: 27/1494 = 1.81% [sum: 1169; 1169/1494 = 78.25%]
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: get_left_mouse_drag_selection_rect_and_draw_it 71/1494 = 4.75%
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: handle_mouse_click_and_drag 182/1494 = 12.18%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 14/48 Calls: 24/1494 = 1.61% [sum: 1193; 1193/1494 = 79.85%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/pure/options.nim: isSome 24/1494 = 1.61%
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: handle_mouse_click_and_drag 182/1494 = 12.18%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 15/48 Calls: 24/1494 = 1.61% [sum: 1217; 1217/1494 = 81.46%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloatSprintf 438/1494 = 29.32%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/dollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 16/48 Calls: 20/1494 = 1.34% [sum: 1237; 1237/1494 = 82.80%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: realloc 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/miscdollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 17/48 Calls: 20/1494 = 1.34% [sum: 1257; 1257/1494 = 84.14%]
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: handle_mouse_click_and_drag 182/1494 = 12.18%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 18/48 Calls: 19/1494 = 1.27% [sum: 1276; 1276/1494 = 85.41%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: addQuoted 182/1494 = 12.18%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/miscdollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 19/48 Calls: 17/1494 = 1.14% [sum: 1293; 1293/1494 = 86.55%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: addQuoted 182/1494 = 12.18%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/miscdollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 20/48 Calls: 17/1494 = 1.14% [sum: 1310; 1310/1494 = 87.68%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/dollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 21/48 Calls: 15/1494 = 1.00% [sum: 1325; 1325/1494 = 88.69%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: mappingInsert 35/1494 = 2.34%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: addChunkToMatrix 22/1494 = 1.47%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: freeBigChunk 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: rawDealloc 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: dealloc 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 22/48 Calls: 14/1494 = 0.94% [sum: 1339; 1339/1494 = 89.63%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/dollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 23/48 Calls: 14/1494 = 0.94% [sum: 1353; 1353/1494 = 90.56%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: realloc 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addCstringN 213/1494 = 14.26%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloatSprintf 438/1494 = 29.32%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: addQuoted 182/1494 = 12.18%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/miscdollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 24/48 Calls: 13/1494 = 0.87% [sum: 1366; 1366/1494 = 91.43%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: mappingInsert 35/1494 = 2.34%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: removeChunkFromMatrix 13/1494 = 0.87%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: freeBigChunk 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: rawDealloc 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: dealloc 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 25/48 Calls: 13/1494 = 0.87% [sum: 1379; 1379/1494 = 92.30%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addIntImpl 60/1494 = 4.02%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/dollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 26/48 Calls: 12/1494 = 0.80% [sum: 1391; 1391/1494 = 93.11%]
+  /home/majo/nim2/me/src/battle/methods/battle_methods.nim: given_pos_in_view 12/1494 = 0.80%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 27/48 Calls: 11/1494 = 0.74% [sum: 1402; 1402/1494 = 93.84%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/arithmetics.nim: +% 34/1494 = 2.28%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: updatePrevSize 11/1494 = 0.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: splitChunk2 19/1494 = 1.27%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: splitChunk 26/1494 = 1.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: getBigChunk 26/1494 = 1.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: getSmallChunk 26/1494 = 1.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: rawAlloc 32/1494 = 2.14%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: alloc 32/1494 = 2.14%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 28/48 Calls: 10/1494 = 0.67% [sum: 1412; 1412/1494 = 94.51%]
+  /home/majo/nim2/me/src/battle/systems/move_battle_cam.nim: move_battle_cam 11/1494 = 0.74%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 29/48 Calls: 10/1494 = 0.67% [sum: 1422; 1422/1494 = 95.18%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/pure/options.nim: isNone 13/1494 = 0.87%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/pure/options.nim: get 21/1494 = 1.41%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 30/48 Calls: 9/1494 = 0.60% [sum: 1431; 1431/1494 = 95.78%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/arithmetics.nim: +% 34/1494 = 2.28%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: freeBigChunk 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: rawDealloc 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: dealloc 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 31/48 Calls: 9/1494 = 0.60% [sum: 1440; 1440/1494 = 96.39%]
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 32/48 Calls: 8/1494 = 0.54% [sum: 1448; 1448/1494 = 96.92%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/pure/options.nim: get 21/1494 = 1.41%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 33/48 Calls: 8/1494 = 0.54% [sum: 1456; 1456/1494 = 97.46%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/arithmetics.nim: +% 34/1494 = 2.28%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: splitChunk2 19/1494 = 1.27%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: splitChunk 26/1494 = 1.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: getBigChunk 26/1494 = 1.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: getSmallChunk 26/1494 = 1.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: rawAlloc 32/1494 = 2.14%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: alloc 32/1494 = 2.14%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 34/48 Calls: 7/1494 = 0.47% [sum: 1463; 1463/1494 = 97.93%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: mappingInsert 35/1494 = 2.34%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: addChunkToMatrix 22/1494 = 1.47%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: splitChunk 26/1494 = 1.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: getBigChunk 26/1494 = 1.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: getSmallChunk 26/1494 = 1.74%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: rawAlloc 32/1494 = 2.14%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: alloc 32/1494 = 2.14%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 35/48 Calls: 6/1494 = 0.40% [sum: 1469; 1469/1494 = 98.33%]
+  /home/majo/nim2/me/src/battle/systems/game_mode_change_on_keypress.nim: game_mode_change_on_keypress 6/1494 = 0.40%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 36/48 Calls: 6/1494 = 0.40% [sum: 1475; 1475/1494 = 98.73%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/dollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 37/48 Calls: 3/1494 = 0.20% [sum: 1478; 1478/1494 = 98.93%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/pure/options.nim: some 3/1494 = 0.20%
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: get_left_mouse_drag_selection_rect_and_draw_it 71/1494 = 4.75%
+  /home/majo/nim2/me/src/battle/systems/handle_mouse_click_and_drag.nim: handle_mouse_click_and_drag 182/1494 = 12.18%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 38/48 Calls: 3/1494 = 0.20% [sum: 1481; 1481/1494 = 99.13%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/arithmetics.nim: +% 34/1494 = 2.28%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: rawAlloc 32/1494 = 2.14%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: alloc 32/1494 = 2.14%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 39/48 Calls: 3/1494 = 0.20% [sum: 1484; 1484/1494 = 99.33%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/arithmetics.nim: +% 34/1494 = 2.28%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: rawAlloc 32/1494 = 2.14%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: alloc 32/1494 = 2.14%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/alloc.nim: realloc 37/1494 = 2.48%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addCstringN 213/1494 = 14.26%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloatSprintf 438/1494 = 29.32%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/formatfloat.nim: addFloat 472/1494 = 31.59%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system.nim: addQuoted 182/1494 = 12.18%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/miscdollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
+Entry: 40/48 Calls: 2/1494 = 0.13% [sum: 1486; 1486/1494 = 99.46%]
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/std/private/digitsutils.nim: addInt 82/1494 = 5.49%
+  /home/majo/.choosenim/toolchains/nim-2.2.0/lib/system/dollars.nim: $ 773/1494 = 51.74%
+  /home/majo/nim2/me/src/battle/systems/draw_battle.nim: draw 1283/1494 = 85.88%
+  /home/majo/nim2/me/src/main.nim: main 1493/1494 = 99.93%
