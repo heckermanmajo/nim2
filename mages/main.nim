@@ -64,6 +64,7 @@ const TileSizePixel = 124;
 const WorldWidth_in_tiles = 20; const WorldHeight_in_tiles = 20
 const WorldWidth_in_pixels = WorldWidth_in_tiles * TileSizePixel; const WorldHeight_in_pixels = WorldHeight_in_tiles * TileSizePixel
 
+#region type-definitions
 type
 
   FactionRelationState = enum Peace, Alliance, War
@@ -94,6 +95,7 @@ type
       ## So factions are never deleted from memory or from the save files !!!
       ## Ids are persistent.
     color: Color
+    money: int
 
   Scenario = ref object
     ## You can load a scenario as part of a campaign, but you can also
@@ -160,6 +162,8 @@ type
     ## Logging object provided to functions that need to log.
     file: File
 
+
+#region FN-Helper
 # -----------------------------------------------------------------------------
 # Helper functions
 # -----------------------------------------------------------------------------
@@ -198,6 +202,7 @@ func get_relation(self: Scenario, faction_one: int, faction_two: int): int =
       base_relation += event.relation_change; counter += 1
   return floor(base_relation / counter).int
 
+#region init raylib
 #-------------------------------------------------------------------------------
 # Init logger and raylib stuff
 #-------------------------------------------------------------------------------
@@ -209,9 +214,13 @@ setTargetFPS(60)
 # todo: this makes trouble??
 # toggleFullscreen();
 
+
+
 # load all resources within the block
 # otherwise we get segfault at close window call at the end...
 block:
+  #region init-mod
+  var enter_next_round_cool_down: float = 0
 
   let ModImages = (
     flat:loadTexture("./mods/lerman/res/flat_0.png"),
@@ -281,13 +290,19 @@ block:
   var running = true
   var button_click_event: string = ""
 
-  while running:
+
+  # directly start with a rng game to get the basic game loop working, remove this later
+  game.scenario.populate_scenario(logger)
+  game.mode = GameMode.Camp
+  #region game-loop
+  while running: 
 
     let delta_time = getFrameTime(); if windowShouldClose(): running = false
+    update_button_cooldown(delta_time) # see ui/Button.nim
 
     # update here the game state
     case game.mode:
-
+      #region menu
       of GameMode.Menu:
         if button_click_event != "": # handle button clicks ...
           case button_click_event:
@@ -302,12 +317,24 @@ block:
       # Default campaign mode handle code.
       #------------------------------------------------------------------------#
       of GameMode.Camp:
+        #region camp
 
         if button_click_event != "": # handle all button clicks
+          #region NEXT-ROUND
           case button_click_event:
             of "next_round":  # handle all the computation if a new round is started
               game.scenario.turn += 1  # update to the next turn (resets the movment of the armies)
               logger.log("next round")
+              # todo: apply all the income
+              for t in game.scenario.tiles:
+                if t.faction.isSome:
+                  let f = t.faction.get
+                  let income = case t.category:
+                    of TileType.Land: 10
+                    of TileType.Minerals: 100
+                    else: 0
+                  f.money += income  
+              # todo: call the ai-processing
             of "": discard
             else: logger.log("[IGNORED] unknown camp button event: " & button_click_event)
           button_click_event = ""
@@ -359,6 +386,7 @@ block:
         if isMouseButtonPressed(MouseButton.Right): game.selected_tile = none(Tile)
         if isMouseButtonDown(MouseButton.Middle):
           let delta = getMouseDelta();camera.target.x -= delta.x * zoom_factor; camera.target.y -= delta.y * zoom_factor
+        #region army-movement  
         #-----------------------------------------------------------------------
         # handle movement of armies by player: Create movement task
         #-----------------------------------------------------------------------
@@ -420,6 +448,7 @@ block:
           if movment_success: target_tile.army.get.last_moved_at_turn = game.scenario.turn
 
       of GameMode.Battle:
+        #region battle
         discard # not yet implemented
     #--------------------------------------------------------------------------#
     # End of game logic handling ...
@@ -428,12 +457,9 @@ block:
     beginDrawing()
     clearBackground(RAYWHITE)
 
-
     case game.mode:
 
-      # ------------------------------------------------------------------------
-      # draw the menu
-      # ------------------------------------------------------------------------
+      #region Draw Menu
       of GameMode.Menu:
         block:
           drawTexture(ModImages.menu_background, 0, 0, WHITE)
@@ -441,8 +467,10 @@ block:
           if Button(text= "Start", pos= Vector2(x: 100, y: 100), width= 100,height= 50): button_click_event = "start_new_game"
           if Button(text= "Exit",pos= Vector2(x: 100, y: 200),width= 100,height= 50 ): button_click_event = "exit"
 
+
       of GameMode.Camp:
         block:
+          #region draw camp-world
           beginMode2D(camera); let screen_w = getScreenWidth(); let screen_h = getScreenHeight()
           for tile in game.scenario.tiles:
             let in_view = checkCollisionRecs(
@@ -515,7 +543,7 @@ block:
           endMode2D()
           # end the camera : this means here comes the ui
           # this means all drawing, that is not affected by zooming and scrolling
-
+          #region draw camp UI
           let menu_width = 400f
           let menu_start = getScreenWidth().float - menu_width
           let top_bar_height = 40f
@@ -525,8 +553,15 @@ block:
           # draw the top bar
           draw_from_menu_atlas(x=0, y=0, width=top_bar_width, height=top_bar_height, rotation=0f,src=MENU_BACKGROUND)
 
-          # draw the next round button
-          if Button(text= "Next Round",pos= Vector2(x: 10, y: 10),width= 100,height= 20): button_click_event = "next_round"
+          # draw the next round button; handle enter click 
+          if Button(text= "Next Round",pos= Vector2(x: 10, y: 10),width= 100,height= 20) or isKeyPressed(KeyboardKey.Enter) and 
+            enter_next_round_cool_down < 0: button_click_event = "next_round"; enter_next_round_cool_down = 1.0
+          enter_next_round_cool_down = enter_next_round_cool_down - delta_time
+
+          # draw the amount of player money
+          for f in game.scenario.factions:
+            if f.is_player_faction: 
+              drawText(( $f.money & "$"), (130).int32, (10).int32, 20, BLACK)
  
           if game.selected_tile.isSome: # if some tile is selected, draw the data of the tile
             draw_from_menu_atlas(menu_start, top_bar_height, menu_width, menu_height, rotation=0f, src=MENU_BACKGROUND)
@@ -536,6 +571,12 @@ block:
             if tile_data.faction.isSome:
               let faction = tile_data.faction.get
               drawText(("Faction-Owner: " & $faction.name), (menu_start + 10).int32, (50+top_bar_height).int32, 20, faction.color)
+              if faction.is_player_faction == false:
+                # todo: draw the relation state in the color of the relation: enemy: red, ally: green, neutral black
+                drawText("RELARTION-STATE XXX", (menu_start + 10).int32, (120+top_bar_height).int32, 20, BLACK)
+                # todo: draw the relation number on a color spctrum from green to red
+                drawText("RELARTION-NUMBER XXX", (menu_start + 10).int32, (140+top_bar_height).int32, 20, BLACK)
+                # todo: display some debug information here about the faction....
             else:
               drawText("No Faction", (menu_start + 10).int32, (50+top_bar_height).int32, 20, BLACK)
               drawText(("Type: " & $tile_data.category), (menu_start + 10).int32, (70+top_bar_height).int32, 20, BLACK)
@@ -554,6 +595,7 @@ block:
     # draw ret circlertin the middle of the screen
     # drawCircle(Vector2(x:getScreenWidth() / 2-10, y: getScreenHeight() / 2)-10, 20, RED)
 
+    #region debug info
     # --------------------------------------------------------------------------
     # Draw some debug information
     # --------------------------------------------------------------------------
