@@ -9,7 +9,7 @@
         "editorBracketHighlight.foreground6": "#0084ff",
         "editorBracketHighlight.unexpectedBracket.foreground": "#0084ff"
     },
-    "editor.rulers": [80],
+    "editor.rulers": [150],
     "editor.fontLigatures": true,
     "editor.mouseWheelZoom": true,
     "editor.fontFamily": "'jetbrains mono','ubuntu mono'",
@@ -239,5 +239,5 @@
             "bold": false,
             "italic": false
         }
-    ]
+    ],
 }

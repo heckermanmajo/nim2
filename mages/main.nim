@@ -54,7 +54,7 @@ TODOS:
 - [ ] basic enemy army movement
 
 ]]##
-import std/[sequtils, math, random, strutils,tables, hashes,options,oids,os,files,deques]
+import std/[sequtils,tables, math, random, strutils,tables, hashes,options,oids,os,files,deques]
 import raylib
 import raymath
 
@@ -96,6 +96,7 @@ type
       ## Ids are persistent.
     color: Color
     money: int
+    units: Table[int, seq[UnitType]]
 
   Scenario = ref object
     ## You can load a scenario as part of a campaign, but you can also
@@ -132,6 +133,75 @@ type
     zoom_level: ZoomLevel
     ai_army_movement_tasks: Deque[ArmyMovementTask]
     player_movement_task: Option[ArmyMovementTask]
+    current_battle: Option[BattleData]
+    battle_graphics: Table[string, tuple[x: int, y: int, w: int, h:int, atlas: string]]
+    atlases: Table[string, Texture]
+
+  #region Battle-TYPES
+  #################################################################
+  # Battle Types
+  #################################################################
+  BattleObjectType = enum Sandbad, Wall, Tree
+  BattleObject = ref object # passive objects: can block projectiles, offer other boni, or hurt like barbed wire
+    object_type: string
+    pos: Vector2
+    waypoints_around_me: tuple[a: Vector2, b: Vector2,c: Vector2, d: Vector2]
+  BattleSprites = ref object #  holes of exploisions, blood stains, etc. Stuff that does NOT interact with logic
+    sprite_name: string
+    pos: Vector2
+  BattleParticle = ref object # fire, vehicle-parts, body-parts, dead bodies, etc.; passive stuff that interacts only on the visual side
+  UnitCategory = enum Soldier, Pioneer, LightVehicle, MediumVehicle, LightTank, MediumTank, Tank, SlowGun 
+  UnitType = ref object #  defines what it can do, etc.
+    can_place: seq[BattleObject]
+    competency_level: int
+  Unit = ref object
+    pos: Vector2
+    unittype: UnitType
+    target_unit: Option[Unit]
+    move_target: Option[Vector2]
+    move_waypoint_list: seq[Vector2] # if a unit encounters an bostacle on the way, it gets waypoints to walk around it; the wayints are in the object
+    health: int
+    panic: int
+    target_chunk: BattleChunk #  the chunk this unit wants to hold
+    faction: Faction
+    costs: int #  if units surrives 4/5 will be returned to the campaign map
+    rotation: float
+  CommandGroup = ref object
+    units: seq[Unit]  
+  BattleTile = ref object
+    pos: Vector2
+    units: seq[Unit]
+    battle_object: Option[BattleObject] 
+  BattleChunk = ref object
+    pos: Vector2
+    units_on_chunk: seq[Unit]
+    tiles: seq[BattleTile]
+    battle_objects: seq[BattleObject]
+  BulletSize = enum Pistol, Mp, Tank #  etc....
+  Shot = object 
+    start: Vector2
+    target: Vector2
+    thickness: float
+    explosion_radius: int
+    damage: int
+    bullet_size: BulletSize
+    duration: float  
+    distance_in_pixel: float
+  BattleDisplayMode = enum Tactic, Strategic,     
+  BattleData = ref object
+    chunks: seq[BattleChunk]
+    units: seq[Unit]
+    camera: Camera2D
+    shots: seq[Shot]
+    command_groups: seq[CommandGroup]
+    currently_selected_units: seq[Unit]
+    currently_selected_command_groups: seq[CommandGroup]
+    display_mode: BattleDisplayMode
+    display_hire_overlay: bool 
+    battlefield_width: int
+    battlefield_height: int 
+    chunk_size_in_tiles: int
+  ##################################################################
 
   TileType = enum Land, Water, Mountain, Minerals
 
@@ -162,6 +232,143 @@ type
     ## Logging object provided to functions that need to log.
     file: File
 
+proc draw_from_atlas(src: (int,int,int,int, string), game: Game,  x: float, y: float, width: float = 0, height: float = 0, rotation: float = 0) =
+  let source_x = src[0].float; let source_y = src[1].float
+  let source_w = src[2].float; let source_h = src[3].float
+  let source_rect = Rectangle(x: source_x, y: source_y, width: source_w, height: source_h)
+  let dest_rect = Rectangle(x: x, y: y, width: (if width == 0: source_w else: width), height: (if height == 0: source_h else: height))
+  let origin = Vector2(x: width/2, y: height/2)
+  drawTexture(game.atlases[src[4]], source_rect, dest_rect, origin, rotation, WHITE)    
+
+#region BATTLE-START
+proc init_battle(g:var Game, #[more args here that describe the battle params]#) =
+  g.mode = GameMode.Battle
+  g.current_battle = some(BattleData()); var battle = g.current_battle.get
+  battle.battlefield_width = 800
+  battle.battlefield_height = 600; let tile_size_in_pixels = 64
+  battle.chunk_size_in_tiles = 10; let chunk_size_pixel = tile_size_in_pixels*battle.chunk_size_in_tiles
+  battle.chunks = @[]
+  # create battle field tiles ...
+  for x in 0..(battle.battlefield_width/chunk_size_pixel).int: 
+    for y in 0..(battle.battlefield_height/chunk_size_pixel).int:
+      var chunk = BattleChunk()
+      chunk.pos = Vector2(x: (x * chunk_size_pixel).float, y: (y * chunk_size_pixel).float)
+      battle.chunks.add(chunk)
+      chunk.tiles = @[]
+      chunk.units_on_chunk = @[]
+      chunk.battle_objects = @[]
+      for tile_x in 0..(battle.chunk_size_in_tiles):
+        for tile_y in 0..(battle.chunk_size_in_tiles):
+          var tile = BattleTile()
+          tile.pos = Vector2(x: (x * chunk_size_pixel + tile_x * tile_size_in_pixels).float, y: (y * chunk_size_pixel + tile_y * tile_size_in_pixels).float)
+          tile.units = @[]
+          tile.battle_object = none(BattleObject)
+          chunk.tiles.add(tile)
+
+  # todo; create all chunks here ...
+  # todo; create all tiles here ...
+  # todo: add the args so we know what to set in the battle -> what game play flags...
+  for i in 0..2: 
+    battle.units.add(Unit(pos: Vector2(x: rand(100..700).float, y: rand(100..800).float)))
+  battle.camera = Camera2D(target: Vector2(x: 0, y: 0), offset: Vector2(x: 0, y: 0), rotation: 0, zoom: 1)
+
+proc apply_battle_outcome(g:var Game #[more args here that describe the battle outcome]#) =
+  # couns all the existing units
+  g.mode = GameMode.Camp
+
+proc unit_die_and_remove(self: var Unit, battle: var BattleData) = discard # remove from contextn etc.
+proc get_center(self: Unit): seq[Vector2] = discard #  the tile on which i stand
+proc get_tile_and_chunk_by_vec(self: BattleData, vec: Vector2): tuple[tile:BattleTile,chunk: BattleChunk] = discard
+
+proc battle_logic(g:var Game, delta_time: float): void = 
+  if isKeyPressed(KeyboardKey.L): apply_battle_outcome(g)
+  var battle = g.current_battle.get
+  
+  # update unit-tile, the ubnit stands on
+  var unit_batch_state {.global.} = 0 # this can be used to keep the batch-state between proc calls
+  for unit in battle.units: # todo: dont iterate over all units each step ... 
+    if unit.move_target.isSome: discard #  move towards this position, walk around obstacles
+    if unit.target_unit.isSome: discard #  check if I am near enough if so shoot, else walk towards
+    block: discard # check if i am on target chunk, and if not try to move towards
+
+  for chunk in battle.chunks: discard
+    # check how many unist are in this chunk
+    # loop over them and check if they collide on a tile  
+    # collision of units: push out of each other: use tiles for this
+
+  for shot in battle.shots: discard # apply at then end and remove
+
+  for command_group in battle.command_groups: discard # ? -> was machen die?
+  
+  # handle the zoom with the mouse wheel
+  let moved = getMouseWheelMove()
+  if moved != 0:
+    let zoom_delta = moved * 0.1; let old_zoom = battle.camera.zoom
+    battle.camera.zoom += zoom_delta; if battle.camera.zoom < 0.1: battle.camera.zoom = 0.1
+    let new_zoom = battle.camera.zoom
+    # Adjust the camera target to keep the center position the same
+    let screen_center = Vector2(x: getScreenWidth().float / 2.0, y: getScreenHeight().float / 2.0)
+    let world_center_before = Vector2(
+      x: (screen_center.x - battle.camera.offset.x) / old_zoom + battle.camera.target.x,
+      y: (screen_center.y - battle.camera.offset.y) / old_zoom + battle.camera.target.y)
+    let world_center_after = Vector2(
+      x: (screen_center.x - battle.camera.offset.x) / new_zoom + battle.camera.target.x,
+      y: (screen_center.y - battle.camera.offset.y) / new_zoom + battle.camera.target.y)
+    battle.camera.target.x -= world_center_after.x - world_center_before.x
+    battle.camera.target.y -= world_center_after.y - world_center_before.y
+
+  if isMouseButtonDown(MouseButton.Middle):
+    let delta = getMouseDelta();battle.camera.target.x -= delta.x; battle.camera.target.y -= delta.y
+  if isKeyDown(KeyboardKey.D): battle.camera.target.x += 10
+  if isKeyDown(KeyboardKey.A): battle.camera.target.x -= 10
+  if isKeyDown(KeyboardKey.W): battle.camera.target.y -= 10
+  if isKeyDown(KeyboardKey.S): battle.camera.target.y += 10
+
+
+proc battle_display(g:var Game): void = 
+
+  var rotation {.global.}=0.0
+
+  var battle = g.current_battle.get
+  beginMode2D(battle.camera); let screen_w = getScreenWidth(); let screen_h = getScreenHeight()
+  let res = g.battle_graphics
+  
+  # select stuff and draw select-rect
+  
+  case battle.display_mode:
+    of BattleDisplayMode.Tactic:
+      for chunk in battle.chunks:
+        for tile in chunk.tiles:
+            draw_from_atlas(res["gras"], g, tile.pos.x, tile.pos.y)
+
+
+      draw_from_atlas(g.battle_graphics["soldier_1_color_1"], g, 100, 100)
+      draw_from_atlas(g.battle_graphics["tank_1_color_1"], g, 200, 200, 250, 250, rotation=rotation)
+      rotation = rotation + 0.1
+
+      for unit in battle.units: 
+        
+        #draw_from_atlas(g.battle_graphics["tank_1_color_1"], g, unit.pos.x, unit.pos.y, 300, 300)
+
+
+        draw_from_atlas(g.battle_graphics["soldier_1_color_1"], g, unit.pos.x, unit.pos.y)
+        
+
+        # display different if selected
+      for shot in battle.shots: discard # display
+    of BattleDisplayMode.Strategic:
+      discard #  display the minimap, conrtrol command groups, etc.
+      for command_group in battle.command_groups: discard # display
+
+  endMode2D()
+
+  # display small infocard for selected units
+
+  if battle.display_hire_overlay: discard #  display the "hire units screen"
+
+  drawText("BATTLE ", 10, 10, 20, WHITE)
+
+#region BATTLE-END
 
 #region FN-Helper
 # -----------------------------------------------------------------------------
@@ -219,6 +426,21 @@ setTargetFPS(60)
 # load all resources within the block
 # otherwise we get segfault at close window call at the end...
 block:
+  
+  var game = Game(); var running = true; var button_click_event: string = ""
+  game.mode = GameMode.Menu; game.scenario = Scenario(); game.scenario.turn = 1
+
+  game.atlases = initTable[string, Texture]()
+  game.atlases["BATTLE_TILES"] = loadTexture("./bim/Tileset.png")
+  game.atlases["TANK_COLOR_1"] = loadTexture("./bim/tank_atlas_color_1.png")
+  game.atlases["SOLDIERS_COLOR_1"] = loadTexture("./bim/soldiers_color1.png")
+
+  #region load Battle res
+  game.battle_graphics = initTable[string, (int, int, int, int, string)]()
+  game.battle_graphics["gras"] = (1225,127,64,64, "BATTLE_TILES")
+  game.battle_graphics["tank_1_color_1"] = (0, 0, 124,124, "TANK_COLOR_1") 
+  game.battle_graphics["soldier_1_color_1"] = (6*124, 2*64, 124, 124, "SOLDIERS_COLOR_1")
+  
   #region init-mod
   var enter_next_round_cool_down: float = 0
 
@@ -275,25 +497,13 @@ block:
             of 5: some(self.factions[5])
             else: none(Faction)
         if tile.faction.is_some:
-          tile.army = some(
-            Army(
-              faction:tile.faction.get,
-              tile_i_am_on: tile,
-              command_points: rand(100..3800),
-              level: 1))
+          tile.army = some(Army(faction:tile.faction.get, tile_i_am_on: tile, command_points: rand(100..3800), level: 1))
 
 
-  var game = Game()
-  game.mode = GameMode.Menu
-  game.scenario = Scenario()
-  game.scenario.turn = 1
-  var running = true
-  var button_click_event: string = ""
 
 
   # directly start with a rng game to get the basic game loop working, remove this later
-  game.scenario.populate_scenario(logger)
-  game.mode = GameMode.Camp
+  game.scenario.populate_scenario(logger); game.mode = GameMode.Camp
   #region game-loop
   while running: 
 
@@ -304,7 +514,7 @@ block:
     case game.mode:
       #region menu
       of GameMode.Menu:
-        if button_click_event != "": # handle button clicks ...
+        if button_click_event != "": 
           case button_click_event:
             of "start_new_game":
               game.scenario.populate_scenario(logger)
@@ -318,7 +528,6 @@ block:
       #------------------------------------------------------------------------#
       of GameMode.Camp:
         #region camp
-
         if button_click_event != "": # handle all button clicks
           #region NEXT-ROUND
           case button_click_event:
@@ -444,18 +653,17 @@ block:
               discard # just go there
           else:
              # attack (only on war)
-             discard
+             init_battle(game)
           if movment_success: target_tile.army.get.last_moved_at_turn = game.scenario.turn
 
-      of GameMode.Battle:
-        #region battle
-        discard # not yet implemented
+      of GameMode.Battle: battle_logic(game, delta_time)
+        
     #--------------------------------------------------------------------------#
     # End of game logic handling ...
     #--------------------------------------------------------------------------#
 
     beginDrawing()
-    clearBackground(RAYWHITE)
+    clearBackground(BLACK)
 
     case game.mode:
 
@@ -585,8 +793,7 @@ block:
             else: drawText("No Army", (menu_start + 10).int32, (90+top_bar_height).int32, 20, BLACK)
       
       # end of campaign drawing
-
-      else: discard # no other game mode exists yet
+      of GameMode.Battle: battle_display(game)
 
     # --------------------------------------------------------------------------
     # end of game drawing logic
