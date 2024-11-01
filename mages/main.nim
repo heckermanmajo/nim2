@@ -163,9 +163,18 @@ type
     health: int
     panic: int
     target_chunk: BattleChunk #  the chunk this unit wants to hold
-    faction: Faction
+    team: int
     costs: int #  if units surrives 4/5 will be returned to the campaign map
     rotation: float
+    needed_rotation: float
+    rotation_speed_per_second: float
+    speed_per_second: float
+    weapon_range: float
+    width: float
+    height: float
+    shoot_cooldown: float
+    shoots_per_minute: int
+    look_around_check_in: float
   CommandGroup = ref object
     units: seq[Unit]  
   BattleTile = ref object
@@ -178,7 +187,7 @@ type
     tiles: seq[BattleTile]
     battle_objects: seq[BattleObject]
   BulletSize = enum Pistol, Mp, Tank #  etc....
-  Shot = object 
+  Shot = ref object 
     start: Vector2
     target: Vector2
     thickness: float
@@ -186,6 +195,7 @@ type
     damage: int
     bullet_size: BulletSize
     duration: float  
+
     distance_in_pixel: float
   BattleDisplayMode = enum Tactic, Strategic,     
   BattleData = ref object
@@ -201,6 +211,7 @@ type
     battlefield_width: int
     battlefield_height: int 
     chunk_size_in_tiles: int
+    selected_unit: Option[Unit]
   ##################################################################
 
   TileType = enum Land, Water, Mountain, Minerals
@@ -244,21 +255,20 @@ proc draw_from_atlas(src: (int,int,int,int, string), game: Game,  x: float, y: f
 proc init_battle(g:var Game, #[more args here that describe the battle params]#) =
   g.mode = GameMode.Battle
   g.current_battle = some(BattleData()); var battle = g.current_battle.get
-  battle.battlefield_width = 800
-  battle.battlefield_height = 600; let tile_size_in_pixels = 64
+  let tile_size_in_pixels = 64
   battle.chunk_size_in_tiles = 10; let chunk_size_pixel = tile_size_in_pixels*battle.chunk_size_in_tiles
   battle.chunks = @[]
   # create battle field tiles ...
-  for x in 0..(battle.battlefield_width/chunk_size_pixel).int: 
-    for y in 0..(battle.battlefield_height/chunk_size_pixel).int:
+  for x in 0..4: 
+    for y in 0..4:
       var chunk = BattleChunk()
       chunk.pos = Vector2(x: (x * chunk_size_pixel).float, y: (y * chunk_size_pixel).float)
       battle.chunks.add(chunk)
       chunk.tiles = @[]
       chunk.units_on_chunk = @[]
       chunk.battle_objects = @[]
-      for tile_x in 0..(battle.chunk_size_in_tiles):
-        for tile_y in 0..(battle.chunk_size_in_tiles):
+      for tile_x in 0..(battle.chunk_size_in_tiles)-1:
+        for tile_y in 0..(battle.chunk_size_in_tiles)-1:
           var tile = BattleTile()
           tile.pos = Vector2(x: (x * chunk_size_pixel + tile_x * tile_size_in_pixels).float, y: (y * chunk_size_pixel + tile_y * tile_size_in_pixels).float)
           tile.units = @[]
@@ -268,8 +278,17 @@ proc init_battle(g:var Game, #[more args here that describe the battle params]#)
   # todo; create all chunks here ...
   # todo; create all tiles here ...
   # todo: add the args so we know what to set in the battle -> what game play flags...
-  for i in 0..2: 
-    battle.units.add(Unit(pos: Vector2(x: rand(100..700).float, y: rand(100..800).float)))
+  for i in 0..5: 
+    var unit = Unit(pos: Vector2(x: rand(100..700).float, y: rand(100..800).float))
+    unit.move_target = some(Vector2(x: rand(100..700).float, y: rand(100..800).float))
+    unit.speed_per_second = 40
+    unit.rotation_speed_per_second = 50
+    unit.weapon_range = 300
+    unit.width = 64
+    unit.height = 64
+    unit.team = rand(2..3)
+    unit.shoots_per_minute = 20
+    battle.units.add(unit)
   battle.camera = Camera2D(target: Vector2(x: 0, y: 0), offset: Vector2(x: 0, y: 0), rotation: 0, zoom: 1)
 
 proc apply_battle_outcome(g:var Game #[more args here that describe the battle outcome]#) =
@@ -279,6 +298,15 @@ proc apply_battle_outcome(g:var Game #[more args here that describe the battle o
 proc unit_die_and_remove(self: var Unit, battle: var BattleData) = discard # remove from contextn etc.
 proc get_center(self: Unit): seq[Vector2] = discard #  the tile on which i stand
 proc get_tile_and_chunk_by_vec(self: BattleData, vec: Vector2): tuple[tile:BattleTile,chunk: BattleChunk] = discard
+proc normalize_angle(angle: float): float = 
+  let wrapped = angle mod 360.0; return (if wrapped < 0.0: wrapped + 360.0 else: wrapped)
+
+# Function to calculate the angle between two Vector2 points in degrees (0 - 360)
+proc angleBetween(p1, p2: Vector2): float =
+  let deltaX = p2.x - p1.x; let deltaY = p2.y - p1.y
+  let angleRad = arctan2(deltaY, deltaX)
+  let angleDeg = angleRad * (180.0 / PI)
+  if angleDeg < 0: return angleDeg + 360 else: return angleDeg
 
 proc battle_logic(g:var Game, delta_time: float): void = 
   if isKeyPressed(KeyboardKey.L): apply_battle_outcome(g)
@@ -287,8 +315,41 @@ proc battle_logic(g:var Game, delta_time: float): void =
   # update unit-tile, the ubnit stands on
   var unit_batch_state {.global.} = 0 # this can be used to keep the batch-state between proc calls
   for unit in battle.units: # todo: dont iterate over all units each step ... 
-    if unit.move_target.isSome: discard #  move towards this position, walk around obstacles
-    if unit.target_unit.isSome: discard #  check if I am near enough if so shoot, else walk towards
+
+    var can_move = true           
+    if unit.target_unit.isSome:
+      let target_in_reach = distance(unit.pos, unit.target_unit.get.pos) < unit.weapon_range        
+      if target_in_reach: can_move = false
+      unit.rotation = angleBetween(unit.pos, unit.target_unit.get.pos)
+    
+    if unit.target_unit.isSome and unit.shoot_cooldown < 0: 
+      let target_in_reach = distance(unit.pos, unit.target_unit.get.pos) < unit.weapon_range
+      if target_in_reach and unit.shoot_cooldown < 0:
+        # todo: create shot here
+        unit.shoot_cooldown = 60 / unit.shoots_per_minute
+        battle.shots.add(Shot(start: unit.pos, target: unit.target_unit.get.pos, duration: 0.2))
+
+    else: # scan for units in vicinity if i have not target
+      if unit.look_around_check_in < 0:
+        for other_unit in battle.units:
+          if (unit.team < 3 and other_unit.team > 2) or (unit.team > 2 and other_unit.team < 3):
+            let in_reach = distance(unit.pos, other_unit.pos) < unit.weapon_range + (unit.weapon_range * 0.3)
+            if in_reach: unit.target_unit = some(other_unit); break
+    
+    if unit.move_target.isSome and can_move: # move towards this position, walk around obstacles
+      # todo: check here oif i am bnear eniugh to my targte oif i have one
+      unit.rotation = angleBetween(unit.pos, unit.move_target.get)
+      unit.pos = moveTowards(unit.pos, unit.move_target.get, unit.speed_per_second * delta_time)
+      if abs(distance(unit.pos, unit.move_target.get)) < unit.speed_per_second * delta_time:
+        unit.pos = unit.move_target.get
+        unit.move_target = none(Vector2)    
+    
+    
+    unit.shoot_cooldown = unit.shoot_cooldown - delta_time  
+    unit.look_around_check_in = unit.look_around_check_in - delta_time
+      
+
+    
     block: discard # check if i am on target chunk, and if not try to move towards
 
   for chunk in battle.chunks: discard
@@ -324,10 +385,10 @@ proc battle_logic(g:var Game, delta_time: float): void =
   if isKeyDown(KeyboardKey.W): battle.camera.target.y -= 10
   if isKeyDown(KeyboardKey.S): battle.camera.target.y += 10
 
+#region BATTLE-DISPLAY
+proc battle_display(g:var Game, delta_time: float): void = 
 
-proc battle_display(g:var Game): void = 
-
-  var rotation {.global.}=0.0
+  var rotation {.global.} = 0.0
 
   var battle = g.current_battle.get
   beginMode2D(battle.camera); let screen_w = getScreenWidth(); let screen_h = getScreenHeight()
@@ -340,34 +401,77 @@ proc battle_display(g:var Game): void =
       for chunk in battle.chunks:
         for tile in chunk.tiles:
             draw_from_atlas(res["gras"], g, tile.pos.x, tile.pos.y)
+      for chunk in battle.chunks:
+        drawRectangleLines(Rectangle(x:chunk.pos.x, y:chunk.pos.y, width:10*64, height:10*64), 2, BLUE)
 
-
-      draw_from_atlas(g.battle_graphics["soldier_1_color_1"], g, 100, 100)
-      draw_from_atlas(g.battle_graphics["tank_1_color_1"], g, 200, 200, 250, 250, rotation=rotation)
-      rotation = rotation + 0.1
-
+      #draw_from_atlas(g.battle_graphics["soldier_1_color_1"], g, 100, 100)
+      #draw_from_atlas(g.battle_graphics["tank_1_color_1"], g, 200, 200, 250, 250, rotation=rotation)
+      #rotation = rotation + 0.1
+      for unit in battle.currently_selected_units:
+        drawCircleLines(Vector2(x:unit.pos.x, y:unit.pos.y), unit.weapon_range, RED)
+        drawRectangleLines(Rectangle(x:unit.pos.x - 32, y:unit.pos.y-32, width:64, height:64), 2, RED)  
+        if unit.move_target.isSome: drawLine(unit.pos, unit.move_target.get, RED)
       for unit in battle.units: 
-        
         #draw_from_atlas(g.battle_graphics["tank_1_color_1"], g, unit.pos.x, unit.pos.y, 300, 300)
-
-
-        draw_from_atlas(g.battle_graphics["soldier_1_color_1"], g, unit.pos.x, unit.pos.y)
-        
+        if unit.team == 1 or unit.team == 2:
+          draw_from_atlas(g.battle_graphics["mp_soldier_color_2"], g, unit.pos.x, unit.pos.y, 64, 64, rotation=unit.rotation)
+        elif unit.team == 3 or unit.team == 4:   
+          draw_from_atlas(g.battle_graphics["mp_soldier_color_1"], g, unit.pos.x, unit.pos.y, 64, 64, rotation=unit.rotation)
 
         # display different if selected
-      for shot in battle.shots: discard # display
+      for shot in battle.shots: 
+        drawLine(shot.start, shot.target, WHITE)
+        shot.duration = shot.duration - delta_time
+      
+      var shot_index  = 0
+      while shot_index < battle.shots.len:
+        var shot = battle.shots[shot_index]
+        drawLine(shot.start, shot.target, WHITE)
+        shot.duration = shot.duration - delta_time
+        if shot.duration < 0: battle.shots.del shot_index else: shot_index += 1
+
     of BattleDisplayMode.Strategic:
       discard #  display the minimap, conrtrol command groups, etc.
       for command_group in battle.command_groups: discard # display
 
   endMode2D()
 
+  var is_dragging {.global.} = false      
+  var selection_rect {.global.} = Rectangle()
+  if isMouseButtonPressed(MouseButton.Left):
+    isDragging = true
+    let mousePos = getMousePosition()
+    selectionRect.x = mousePos.x
+    selectionRect.y = mousePos.y
+    selectionRect.width = 0
+    selectionRect.height = 0
+  if isDragging:
+    let currentMousePos = getMousePosition()
+    selectionRect.width = currentMousePos.x - selectionRect.x
+    selectionRect.height = currentMousePos.y - selectionRect.y
+    if selection_rect.width > 0 and selection_rect.height > 0: drawRectangleLines(selectionRect, 2, WHITE)
+  if isMouseButtonReleased(MouseButton.Left):
+    isDragging = false
+    battle.currently_selected_units = @[]
+    for unit in battle.units:
+      let point = getScreenToWorld2D(Vector2(x:  selection_rect.x - 32, y: selection_rect.y - 32), battle.camera)
+      if checkCollisionRecs(Rectangle(x: point.x, y: point.y, width:selection_rect.width, height:selection_rect.height), Rectangle(x:unit.pos.x, y: unit.pos.y, width:unit.width, height:unit.height)):
+        battle.currently_selected_units.add(unit)
+  if isMouseButtonPressed(MouseButton.Right):
+    if battle.currently_selected_units.len != 0:
+      let tpos = getScreenToWorld2D(getMousePosition(), battle.camera)
+      for unit in battle.currently_selected_units:
+        unit.move_target = some(Vector2(x: tpos.x + rand(-100..100).float, y: tpos.y + rand(-100..100).float))      
+
   # display small infocard for selected units
 
   if battle.display_hire_overlay: discard #  display the "hire units screen"
 
-  drawText("BATTLE ", 10, 10, 20, WHITE)
-
+  if battle.selected_unit.isSome:
+    let unit = battle.selected_unit.get
+    drawText("Unit: rotation: " & $unit.rotation , 10, 10, 20, WHITE)
+    #drawText("Unit: needed_rotation: " & $unit.needed_rotation , 10, 30, 20, WHITE)
+  drawText("Units selected: " & $battle.currently_selected_units.len , 10, 10, 20, WHITE)
 #region BATTLE-END
 
 #region FN-Helper
@@ -426,7 +530,7 @@ setTargetFPS(60)
 # load all resources within the block
 # otherwise we get segfault at close window call at the end...
 block:
-  
+  #region loadBATTLE-RES
   var game = Game(); var running = true; var button_click_event: string = ""
   game.mode = GameMode.Menu; game.scenario = Scenario(); game.scenario.turn = 1
 
@@ -434,12 +538,17 @@ block:
   game.atlases["BATTLE_TILES"] = loadTexture("./bim/Tileset.png")
   game.atlases["TANK_COLOR_1"] = loadTexture("./bim/tank_atlas_color_1.png")
   game.atlases["SOLDIERS_COLOR_1"] = loadTexture("./bim/soldiers_color1.png")
+  game.atlases["SIMPLE_SOLDIERS_COLOR_1"] = loadTexture("./bim/simple-soldiers_color1.png")
+  game.atlases["SIMPLE_SOLDIERS_COLOR_2"] = loadTexture("./bim/simple-soldiers_color2.png")
 
   #region load Battle res
   game.battle_graphics = initTable[string, (int, int, int, int, string)]()
   game.battle_graphics["gras"] = (1225,127,64,64, "BATTLE_TILES")
   game.battle_graphics["tank_1_color_1"] = (0, 0, 124,124, "TANK_COLOR_1") 
   game.battle_graphics["soldier_1_color_1"] = (6*124, 2*64, 124, 124, "SOLDIERS_COLOR_1")
+
+  game.battle_graphics["mp_soldier_color_1"] = (0, 0, 64, 64, "SIMPLE_SOLDIERS_COLOR_1")
+  game.battle_graphics["mp_soldier_color_2"] = (0, 0, 64, 64, "SIMPLE_SOLDIERS_COLOR_2")
   
   #region init-mod
   var enter_next_round_cool_down: float = 0
@@ -793,7 +902,7 @@ block:
             else: drawText("No Army", (menu_start + 10).int32, (90+top_bar_height).int32, 20, BLACK)
       
       # end of campaign drawing
-      of GameMode.Battle: battle_display(game)
+      of GameMode.Battle: battle_display(game, delta_time)
 
     # --------------------------------------------------------------------------
     # end of game drawing logic

@@ -1,0 +1,10 @@
+
+
+
+- Einheiten stoppen wenn sie beschossen werden, es hägt von der einheit ab, wie stark das geschoss sein muss 
+  - soldaten stoppen sofort
+  - leichte fahrzeuge etwas später 
+  - panzer nur bei sehr schwerem feuer
+
+- alle einheiten bewegen sich: unterschiedliche Geschwindigkeit
+- alle einheiten suchen ein ziel: manche haben prios: panzer abwehr auf fahrzeuge usw.  

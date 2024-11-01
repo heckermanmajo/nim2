@@ -1,6 +1,6 @@
 
 Als erstes einzelne Atlases für panzer und soldaten machen.
--> erstmal keine soldaten animationen, etc
+-> erstmal keine soldaten animationen, etc.
 
 
 Sound and Ambiente
@@ -76,3 +76,7 @@ Battle-Mechanic
   this button will open the spawn overlay, where you can select a unit to spawn
 - spawning in takes some time: you have a queue of not yet spawned units at the top
 - you also see if the enemy spawns in stuff, but you dont see what  
+
+Motorised Infantry
+- eine infmatrie Controll gruppe kann mit einem transporter assoziiert sein
+  dann ausgeladen werden und wenn sie weit weg geschickt wird wieder aufsteigen
