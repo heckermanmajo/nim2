@@ -80,3 +80,46 @@ Battle-Mechanic
 Motorised Infantry
 - eine infmatrie Controll gruppe kann mit einem transporter assoziiert sein
   dann ausgeladen werden und wenn sie weit weg geschickt wird wieder aufsteigen
+
+
+- Einheiten stoppen wenn sie beschossen werden, es hägt von der einheit ab, wie stark das geschoss sein muss 
+- soldaten stoppen sofort
+- leichte fahrzeuge etwas später 
+- panzer nur bei sehr schwerem feuer
+
+- alle einheiten bewegen sich: unterschiedliche Geschwindigkeit
+- alle einheiten suchen ein ziel: manche haben prios: panzer abwehr auf fahrzeuge usw.
+
+
+Wie kann man factions zusammen bauen? -> sie entwickelt sich mit der zeit... 
+
+
+Die Ai factions schließen sich gegen den stärksten zusammen.
+
+
+Supply-truck
+- artellerie hat nur wenig schuss 
+- man bruacht einen supply truck zum aufmunitionieren
+- der hat kisten drauf 
+- eine kiste einmal aufmunitionieren 
+- der supply truck kann auch kisten in starke befestigungen verwandeln
+- der supply truck kann auch panzer mit einer kiste reparieren
+
+
+Man callt keine einzelnen einheiten into battle, sondern Truppen.
+
+- Truppe: Kleiner 2 Fahrzeuge + Infantrie
+
+- Platoon: 
+
+
+
+Tech1:
+
+
+
+Tech2: 
+
+
+
+Tech3:

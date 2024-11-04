@@ -1,68 +1,70 @@
-##[[
+##[[nimble install naylib && nim compile main.nim && ./main 
 
-# install the raylib wrapper
-nimble install naylib
-
-# then run this:
-nim compile \
-  --define:debug \
-  --checks:on \
-  --opt:none \
-  main.nim \
-  && ./main
-
-Mages-Engine
-
-A 2d-Rts game engine with a round based campaign map and
-multiple game modes, f.e. medival, fantasy, sci-fi, etc.
-
-You create or load a scenario, which then can be played
-in campaign mode.
-
-Architechture: You got main-menu and campaign in this file. Then wou get another 
-file for the real time battles. Also each mod is added at compile-time via 
-a mods/<name>/load.nim file. Also we might have a ai file for the campaign, since 
-ai is hard...
--> The rule: If it is dumb: merge it very dense into one file 
-             If it is complex: give it a own file and do it more sparse with lots 
-             of comments
-
-Camp-Game-Play: 
-  - You can only move armies: merge, occupy, fight
-  - you can upgrade armies tech-wise or recruite new units
-  - mineral patches are more valuable
+DONT PUBLISH A BETA: PUBLSIH AN ALPHA and then a SIGMA.
+Can we keep the game under 5000 lines to release?
 
 
-Pathfinging-via Threads
-https://nim-by-example.github.io/channels/
-Prob not needed, since we can just make a "slow" battle, so the player can 
-actually have an impact on the battle itself.
+- debug battles
 
-TODOS:
-- [ ] First create all campaign ui elements...
-- [ ] Add the faction money
-- [ ] Move the world with drag and drop -> this would make army movment nice
-- [ ] resources
-- [ ] factories
-- [ ] movement with arrow keys on enemy and own, also merge
-- [ ] astar
-- [ ] Do the movment based on a queue of movement-commands
-- [ ] faction-relation view
-- [ ] all buttons/ui mockups
-- [ ] save and load
-- [ ] basic diplomacy
-- [ ] basic enemy army movement
+- BUG FIX: Security delete all dead units, some dead units still attack and exists
+  - create a function that checks for correct state each frame, so we detect this immediately
+
+- RE-LOAD UNits in the vicinity into transports via "L" - key
+   - all units in 300 pixel radius are loaded into the transport until is full
+
+- double click on unit to select all units of the same type in the current view
+
+- Zoomlevel
+  - move faster ober the map, based on the zoomlevel
+
+- dont show range if multiple units are selected
+
+- SPAWN-QUEUE
+  - add simple ui with buttons to spawn units and to show the current command points
+  - ai: spawn units: add spawn-qeue
+
+- command points: spawn units based on command points of faction
+- end battle-condition
+- ownership of chunks; display at a certain zoom-level; track on what chunk a unit is
+- render all units and vehicles as dots and rects at a certain zoom-level
+- add explosions and hit markers(smoke, etc.)
+- add crators
+- add dead soldiers(based on what weapon killed them)
+- add fire for destroyed vehicles
+- fog of war
+
+Perforamnce:
+- only draw what is in the view
+- only collide with units in same chunk: Chunk tracking...
+
 
 ]]##
+
 import std/[sequtils,tables, math, random, strutils,tables, hashes,options,oids,os,files,deques]
 import raylib
 import raymath
 
-import ui/Button # include my own button function
+var click_cooldown: float = 0
+proc update_button_cooldown(dt: float) = click_cooldown = click_cooldown - dt
+proc Button(text: string,pos: Vector2,width: float,height: float,): bool =
+  let is_hovered = checkCollisionPointRec(getMousePosition(),Rectangle(x: pos.x,y: pos.y,width: width,height: height))
+  let rect_color = if is_hovered: DARKGRAY else: GRAY
+  let text_color = if is_hovered: LIGHTGRAY else: WHITE
+  draw_rectangle(pos,raylib.Vector2(x: width,y: height),rect_color)
+  let witdh_text = measureText(text, 20).float
+  let text_pos = Vector2(x: pos.x + (width - witdh_text) / 2,y: pos.y + (height - 20) / 2)
+  draw_text(text, text_pos.x.int32, text_pos.y.int32, 20, text_color)
+  let clicked = is_hovered and isMouseButtonPressed(MouseButton.Left) and click_cooldown < 0
+  if clicked: click_cooldown = 0.2
+  return clicked
 
 const TileSizePixel = 124;
 const WorldWidth_in_tiles = 20; const WorldHeight_in_tiles = 20
 const WorldWidth_in_pixels = WorldWidth_in_tiles * TileSizePixel; const WorldHeight_in_pixels = WorldHeight_in_tiles * TileSizePixel
+const CHUNK_SIZE_IN_TILES = 10
+const TILE_SIZE = 64
+const CHUNK_SIZE_IN_PIXELS = CHUNK_SIZE_IN_TILES * TILE_SIZE
+const WORLD_IN_CHUNKS = 10
 
 #region type-definitions
 type
@@ -96,7 +98,7 @@ type
       ## Ids are persistent.
     color: Color
     money: int
-    units: Table[int, seq[UnitType]]
+    units: Table[int, seq[Unit]]
 
   Scenario = ref object
     ## You can load a scenario as part of a campaign, but you can also
@@ -136,6 +138,7 @@ type
     current_battle: Option[BattleData]
     battle_graphics: Table[string, tuple[x: int, y: int, w: int, h:int, atlas: string]]
     atlases: Table[string, Texture]
+    sounds: Table[string, Sound]
 
   #region Battle-TYPES
   #################################################################
@@ -146,35 +149,52 @@ type
     object_type: string
     pos: Vector2
     waypoints_around_me: tuple[a: Vector2, b: Vector2,c: Vector2, d: Vector2]
-  BattleSprites = ref object #  holes of exploisions, blood stains, etc. Stuff that does NOT interact with logic
+  BattleSprite = ref object #  holes of exploisions, blood stains, etc. Stuff that does NOT interact with logic
     sprite_name: string
+    rotation: float
     pos: Vector2
+    is_vehicle: bool
+  ExplosionType = enum Default  
+  ExplosionSize = enum Femto, Mini, Small, Medium, Large 
+  BattleExplosion = ref object
+    explosion_type: ExplosionType 
+    pos: Vector2
+    size: ExplosionSize
+    active_since: float
   BattleParticle = ref object # fire, vehicle-parts, body-parts, dead bodies, etc.; passive stuff that interacts only on the visual side
   UnitCategory = enum Soldier, Pioneer, LightVehicle, MediumVehicle, LightTank, MediumTank, Tank, SlowGun 
-  UnitType = ref object #  defines what it can do, etc.
-    can_place: seq[BattleObject]
-    competency_level: int
+  UnitSpeedLevel = enum Slow, Normal, Fast, VeryFast  
+  WeaponRange = enum SuperShort, Short, Medium, Long, VeryLong, CrazyLong
   Unit = ref object
     pos: Vector2
-    unittype: UnitType
     target_unit: Option[Unit]
     move_target: Option[Vector2]
     move_waypoint_list: seq[Vector2] # if a unit encounters an bostacle on the way, it gets waypoints to walk around it; the wayints are in the object
     health: int
-    panic: int
+    is_soldier: bool
+    in_vehicle: bool
     target_chunk: BattleChunk #  the chunk this unit wants to hold
     team: int
-    costs: int #  if units surrives 4/5 will be returned to the campaign map
     rotation: float
     needed_rotation: float
     rotation_speed_per_second: float
-    speed_per_second: float
-    weapon_range: float
+    speed: UnitSpeedLevel
+    weapon_range: WeaponRange
+    weapon_system: BulletSize
+    explosion_radius: int    
     width: float
     height: float
     shoot_cooldown: float
     shoots_per_minute: int
     look_around_check_in: float
+    texture_name: string
+    texture_w: float
+    texture_h: float
+    capacity_for_soldiers: int
+    cannot_be_hit_by: seq[BulletSize]
+    units_on_board: seq[Unit]
+    can_fight: bool
+    max_health: int
   CommandGroup = ref object
     units: seq[Unit]  
   BattleTile = ref object
@@ -186,7 +206,9 @@ type
     units_on_chunk: seq[Unit]
     tiles: seq[BattleTile]
     battle_objects: seq[BattleObject]
-  BulletSize = enum Pistol, Mp, Tank #  etc....
+    owner: int
+  BulletSize = enum Rifle, HeavyRifle, Bazooka, LightTank, 
+    MediumTank, HeavyTank, Mortar, Artillery, AntiTankGun
   Shot = ref object 
     start: Vector2
     target: Vector2
@@ -195,7 +217,6 @@ type
     damage: int
     bullet_size: BulletSize
     duration: float  
-
     distance_in_pixel: float
   BattleDisplayMode = enum Tactic, Strategic,     
   BattleData = ref object
@@ -212,6 +233,9 @@ type
     battlefield_height: int 
     chunk_size_in_tiles: int
     selected_unit: Option[Unit]
+    selected_chunk: Option[BattleChunk]
+    sprites: seq[BattleSprite]
+    explosions: seq[BattleExplosion]
   ##################################################################
 
   TileType = enum Land, Water, Mountain, Minerals
@@ -251,6 +275,448 @@ proc draw_from_atlas(src: (int,int,int,int, string), game: Game,  x: float, y: f
   let origin = Vector2(x: width/2, y: height/2)
   drawTexture(game.atlases[src[4]], source_rect, dest_rect, origin, rotation, WHITE)    
 
+#region UNIT-DEFINTIONS
+
+proc init_unit_in_world(g: Game, unit: Unit) = 
+  g.current_battle.get.units.add(unit)
+
+proc create_storm_soldier(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit =
+    var unit = Unit()
+    unit.pos = Vector2(x: x, y: y)
+    unit.health = 250
+    unit.max_health = unit.health
+    unit.is_soldier = true
+    unit.team = team
+    unit.speed = UnitSpeedLevel.Slow
+    unit.weapon_range = WeaponRange.Short 
+    unit.weapon_system = BulletSize.HeavyRifle
+    unit.explosion_radius = 0    
+    unit.width = 64
+    unit.height = 64
+    unit.shoots_per_minute = 120
+    unit.texture_name = if team == 1: "storm_soldier_gray" else: "storm_soldier_green"
+    unit.texture_w = 64
+    unit.texture_h = 64
+    unit.capacity_for_soldiers = 0
+    unit.cannot_be_hit_by = @[]
+    unit.target_chunk = target_chunk
+    unit.can_fight = true
+    g.init_unit_in_world(unit)
+    return unit
+
+proc create_support_soldier(g: Game, x: float, y: float,target_chunk: BattleChunk,  team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 100
+  unit.max_health = unit.health
+  unit.is_soldier = true
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Slow
+  unit.weapon_range = WeaponRange.SuperShort
+  unit.weapon_system = BulletSize.Rifle
+  unit.explosion_radius = 0
+  unit.width = 64
+  unit.height = 64
+  unit.shoots_per_minute = 20
+  unit.texture_name = if team == 1: "support_soldier_gray" else: "support_soldier_green"
+  unit.texture_w = 64
+  unit.texture_h = 64
+  unit.capacity_for_soldiers = 0
+  unit.cannot_be_hit_by = @[]
+  unit.target_chunk = target_chunk
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+proc create_rifle_soldier(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int) : Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 150
+  unit.max_health = unit.health
+  unit.is_soldier = true
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Slow
+  unit.weapon_range = WeaponRange.Short
+  unit.weapon_system = BulletSize.Rifle
+  unit.explosion_radius = 0
+  unit.width = 64
+  unit.height = 64
+  unit.shoots_per_minute = 40
+  unit.texture_name = if team == 1: "rifle_soldier_gray" else: "rifle_soldier_green"
+  unit.texture_w = 64
+  unit.texture_h = 64
+  unit.capacity_for_soldiers = 0
+  unit.cannot_be_hit_by = @[]
+  unit.target_chunk = target_chunk  
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+proc create_bazooka_soldier(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 100
+  unit.max_health = unit.health
+  unit.is_soldier = true
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Slow
+  unit.weapon_range = WeaponRange.Short
+  unit.weapon_system = BulletSize.Bazooka
+  unit.explosion_radius = 1
+  unit.width = 64
+  unit.height = 64
+  unit.shoots_per_minute = 10
+  unit.texture_name = if team == 1: "bazooka_soldier_gray" else: "bazooka_soldier_green"
+  unit.texture_w = 64
+  unit.texture_h = 64
+  unit.capacity_for_soldiers = 0
+  unit.cannot_be_hit_by = @[]
+  unit.target_chunk = target_chunk
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+proc create_humvee(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 500
+  unit.max_health = unit.health
+  unit.is_soldier = false
+  unit.team = team
+  unit.speed = UnitSpeedLevel.VeryFast
+  unit.weapon_range = WeaponRange.Short
+  unit.weapon_system = BulletSize.Rifle
+  unit.explosion_radius = 0
+  unit.width = 256
+  unit.height = 256
+  unit.shoots_per_minute = 120
+  unit.texture_name = if team == 1: "humvee_gray" else: "humvee_green"
+  unit.texture_w = 256
+  unit.texture_h = 256
+  unit.capacity_for_soldiers = 4
+  unit.cannot_be_hit_by = @[]
+  unit.units_on_board = @[
+    create_rifle_soldier(g, x, y, target_chunk, team),
+    create_rifle_soldier(g, x, y, target_chunk, team),
+    create_bazooka_soldier(g, x, y, target_chunk, team),
+    create_support_soldier(g, x, y, target_chunk, team),
+  ]
+  for u in unit.units_on_board: u.in_vehicle = true    
+  unit.target_chunk = target_chunk
+  unit.can_fight = true
+  # todo: add units on board
+  g.init_unit_in_world(unit)
+  return unit
+
+proc create_truck(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 500
+  unit.max_health = unit.health
+  unit.is_soldier = false
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Fast
+  unit.weapon_range = WeaponRange.Short
+  unit.weapon_system = BulletSize.Rifle
+  unit.explosion_radius = 0
+  unit.width = 256
+  unit.height = 256
+  unit.shoots_per_minute = 0
+  unit.texture_name = if team == 1: "truck_gray" else: "truck_green"
+  unit.texture_w = 256
+  unit.texture_h = 256
+  unit.capacity_for_soldiers = 8
+  unit.cannot_be_hit_by = @[]
+  unit.units_on_board = @[
+    create_rifle_soldier(g, x, y, target_chunk, team),    
+    create_rifle_soldier(g, x, y, target_chunk, team),
+    create_rifle_soldier(g, x, y, target_chunk, team),    
+    create_rifle_soldier(g, x, y, target_chunk, team),
+    create_rifle_soldier(g, x, y, target_chunk, team),
+    create_bazooka_soldier(g, x, y, target_chunk, team),
+    create_support_soldier(g, x, y, target_chunk, team),
+    create_support_soldier(g, x, y, target_chunk, team),
+  ]
+  for u in unit.units_on_board: u.in_vehicle = true  
+  unit.target_chunk = target_chunk
+  unit.can_fight = false
+  # todo: add units on board
+  g.init_unit_in_world(unit)
+  return unit
+
+
+proc create_heavy_transport(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit =
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 6000
+  unit.max_health = unit.health
+  unit.is_soldier = false
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Normal
+  unit.weapon_range = WeaponRange.Medium
+  unit.weapon_system = BulletSize.LightTank
+  unit.explosion_radius = 0
+  unit.width = 256
+  unit.height = 256
+  unit.shoots_per_minute = 20
+  unit.texture_name = if team == 1: "heavy_transport_gray" else: "heavy_transport_green"
+  unit.texture_w = 256
+  unit.texture_h = 256
+  unit.capacity_for_soldiers = 16
+  unit.cannot_be_hit_by = @[
+    BulletSize.Rifle, BulletSize.HeavyRifle, BulletSize.Mortar, LightTank
+  ]
+  unit.units_on_board = @[
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+    
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+    create_storm_soldier(g, x, y, target_chunk, team),
+  ]
+  for u in unit.units_on_board: u.in_vehicle = true
+  unit.target_chunk = target_chunk
+  # todo: add units on board
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+proc create_light_tank(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 1500
+  unit.max_health = unit.health
+  unit.is_soldier = false
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Fast
+  unit.weapon_range = WeaponRange.Medium
+  unit.weapon_system = BulletSize.LightTank
+  unit.explosion_radius = 1
+  unit.width = 256
+  unit.height = 256
+  unit.shoots_per_minute = 20
+  unit.texture_name = if team == 1: "light_tank_gray" else: "light_tank_green"
+  unit.texture_w = 256
+  unit.texture_h = 256
+  unit.capacity_for_soldiers = 0
+  unit.cannot_be_hit_by = @[BulletSize.Rifle, BulletSize.HeavyRifle]
+  unit.target_chunk = target_chunk
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+proc create_medium_tank(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 3000
+  unit.max_health = unit.health
+  unit.is_soldier = false
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Normal
+  unit.weapon_range = WeaponRange.Medium
+  unit.weapon_system = BulletSize.MediumTank
+  unit.explosion_radius = 1
+  unit.width = 256
+  unit.height = 256
+  unit.shoots_per_minute = 10
+  unit.texture_name = if team == 1: "medium_tank_gray" else: "medium_tank_green"
+  unit.texture_w = 256
+  unit.texture_h = 256
+  unit.capacity_for_soldiers = 0
+  unit.cannot_be_hit_by = @[BulletSize.Rifle, BulletSize.HeavyRifle]
+  unit.target_chunk = target_chunk
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+proc create_heavy_tank(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 6000
+  unit.max_health = unit.health
+  unit.is_soldier = false
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Normal
+  unit.weapon_range = WeaponRange.Long
+  unit.weapon_system = BulletSize.HeavyTank
+  unit.explosion_radius = 1
+  unit.width = 256
+  unit.height = 256
+  unit.shoots_per_minute = 5
+  unit.texture_name = if team == 1: "heavy_tank_gray" else: "heavy_tank_green"
+  unit.texture_w = 256
+  unit.texture_h = 256
+  unit.capacity_for_soldiers = 0
+  unit.cannot_be_hit_by = @[BulletSize.Rifle, BulletSize.HeavyRifle, BulletSize.LightTank]
+  unit.target_chunk = target_chunk
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+proc mobile_anti_tank_gun(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 3000
+  unit.max_health = unit.health
+  unit.is_soldier = false
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Slow
+  unit.weapon_range = WeaponRange.Medium
+  unit.weapon_system = BulletSize.AntiTankGun
+  unit.explosion_radius = 1
+  unit.width = 256
+  unit.height = 256
+  unit.shoots_per_minute = 15
+  unit.texture_name = if team == 1: "anti_tank_gun_gray" else: "anti_tank_gun_green"
+  unit.texture_w = 256
+  unit.texture_h = 256
+  unit.capacity_for_soldiers = 0
+  unit.cannot_be_hit_by = @[BulletSize.Rifle, BulletSize.HeavyRifle, BulletSize.LightTank]
+  unit.target_chunk = target_chunk
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+
+proc mobile_mortar(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 500
+  unit.max_health = unit.health
+  unit.is_soldier = false
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Slow
+  unit.weapon_range = WeaponRange.VeryLong
+  unit.weapon_system = BulletSize.Mortar
+  unit.explosion_radius = 1
+  unit.width = 256
+  unit.height = 256
+  unit.shoots_per_minute = 5
+  unit.texture_name = if team == 1: "mortar_gray" else: "mortar_green"
+  unit.texture_w = 256
+  unit.texture_h = 256
+  unit.capacity_for_soldiers = 0
+  unit.cannot_be_hit_by = @[]
+  unit.target_chunk = target_chunk
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+
+proc mobile_artillery(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
+  var unit = Unit()
+  unit.pos = Vector2(x: x, y: y)
+  unit.health = 1000
+  unit.max_health = unit.health
+  unit.is_soldier = false
+  unit.team = team
+  unit.speed = UnitSpeedLevel.Slow
+  unit.weapon_range = WeaponRange.CrazyLong
+  unit.weapon_system = BulletSize.Artillery
+  unit.explosion_radius = 1
+  unit.width = 256
+  unit.height = 256
+  unit.shoots_per_minute = 5
+  unit.texture_name = if team == 1: "artillery_gray" else: "artillery_green"
+  unit.texture_w = 256
+  unit.texture_h = 256
+  unit.capacity_for_soldiers = 0
+  unit.cannot_be_hit_by = @[]
+  unit.target_chunk = target_chunk
+  unit.can_fight = true
+  g.init_unit_in_world(unit)
+  return unit
+
+proc can_afford(g: Game, cost: int): bool = g.scenario.factions[0].money >= cost
+proc apply_cost(g: Game, cost: int): void = g.scenario.factions[0].money -= cost
+
+# we can spawn 4 types of platoons: scout, control, attack, defense  
+proc spawn_scout_platoon(g: Game, target_chunk: BattleChunk, origin_chunk: BattleChunk, team: int) = 
+  # 4 humvees, cost 10
+  discard create_humvee( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_humvee( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_humvee( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_humvee( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+
+proc spawn_map_control_platoon(g: Game, target_chunk: BattleChunk, origin_chunk: BattleChunk, team: int) = 
+  # 1 light tank, two(3?) trucks; cost 10
+  discard create_light_tank( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_light_tank( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_light_tank( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_truck( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_truck( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_truck( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+
+
+proc spawn_attack_platoon(g: Game, target_chunk: BattleChunk, origin_chunk: BattleChunk, team: int) = 
+  # 2 medium tanks, 1 heavy tank, 1 heavy transport; cost 50
+  discard create_medium_tank( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_medium_tank( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_heavy_tank( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard create_heavy_transport( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+
+proc spawn_defense_platoon(g: Game, target_chunk: BattleChunk, origin_chunk: BattleChunk, team: int) = 
+  # 2 anti tank gun, 1 mortar, 1 artillery, rifleman and support-soldiers; cost 35
+  discard mobile_anti_tank_gun( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard mobile_anti_tank_gun( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard mobile_mortar( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard mobile_mortar( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  discard mobile_artillery( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  #for i in 0..20:
+  #  discard create_support_soldier( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+  #  discard create_rifle_soldier( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+
+proc unload_units_from_vehicle(g: Game, vehicle: Unit) = 
+  for u in vehicle.units_on_board:
+    u.pos = Vector2(x: vehicle.pos.x + rand(-50..50).float, y: vehicle.pos.y + rand(-50..50).float)
+    u.in_vehicle = false
+    g.current_battle.get.units.add(u)
+  vehicle.units_on_board = @[]
+
+proc get_range_in_pixels(range: WeaponRange): float = 
+  return case range
+    of WeaponRange.SuperShort: 350
+    of WeaponRange.Short: 512
+    of WeaponRange.Medium: 900
+    of WeaponRange.Long: 1300
+    of WeaponRange.VeryLong: 1500
+    of WeaponRange.CrazyLong: 2300
+
+proc get_damage_in_pixels(damage: BulletSize): int = 
+  return case damage
+    of BulletSize.Rifle: 10
+    of BulletSize.HeavyRifle: 20
+    of BulletSize.Bazooka: 50
+    of BulletSize.LightTank: 100
+    of BulletSize.MediumTank: 200
+    of BulletSize.HeavyTank: 400
+    of BulletSize.Mortar: 100
+    of BulletSize.Artillery: 400
+    of BulletSize.AntiTankGun: 200 
+
+proc get_speed_in_pixels(speed: UnitSpeedLevel): float = 
+  return case speed
+    of UnitSpeedLevel.Slow: 30
+    of UnitSpeedLevel.Normal: 90
+    of UnitSpeedLevel.Fast: 140
+    of UnitSpeedLevel.VeryFast: 230       
+
+proc get_start_chunk_of_player(g: Game): BattleChunk = return g.current_battle.get.chunks[0]
+proc get_start_chunk_of_ai(g: Game): BattleChunk = return g.current_battle.get.chunks[g.current_battle.get.chunks.len-1]
+
 #region BATTLE-START
 proc init_battle(g:var Game, #[more args here that describe the battle params]#) =
   g.mode = GameMode.Battle
@@ -259,8 +725,8 @@ proc init_battle(g:var Game, #[more args here that describe the battle params]#)
   battle.chunk_size_in_tiles = 10; let chunk_size_pixel = tile_size_in_pixels*battle.chunk_size_in_tiles
   battle.chunks = @[]
   # create battle field tiles ...
-  for x in 0..4: 
-    for y in 0..4:
+  for x in 0..WORLD_IN_CHUNKS-1: 
+    for y in 0..WORLD_IN_CHUNKS-1:
       var chunk = BattleChunk()
       chunk.pos = Vector2(x: (x * chunk_size_pixel).float, y: (y * chunk_size_pixel).float)
       battle.chunks.add(chunk)
@@ -278,17 +744,6 @@ proc init_battle(g:var Game, #[more args here that describe the battle params]#)
   # todo; create all chunks here ...
   # todo; create all tiles here ...
   # todo: add the args so we know what to set in the battle -> what game play flags...
-  for i in 0..5: 
-    var unit = Unit(pos: Vector2(x: rand(100..700).float, y: rand(100..800).float))
-    unit.move_target = some(Vector2(x: rand(100..700).float, y: rand(100..800).float))
-    unit.speed_per_second = 40
-    unit.rotation_speed_per_second = 50
-    unit.weapon_range = 300
-    unit.width = 64
-    unit.height = 64
-    unit.team = rand(2..3)
-    unit.shoots_per_minute = 20
-    battle.units.add(unit)
   battle.camera = Camera2D(target: Vector2(x: 0, y: 0), offset: Vector2(x: 0, y: 0), rotation: 0, zoom: 1)
 
 proc apply_battle_outcome(g:var Game #[more args here that describe the battle outcome]#) =
@@ -296,10 +751,14 @@ proc apply_battle_outcome(g:var Game #[more args here that describe the battle o
   g.mode = GameMode.Camp
 
 proc unit_die_and_remove(self: var Unit, battle: var BattleData) = discard # remove from contextn etc.
+#proc 
 proc get_center(self: Unit): seq[Vector2] = discard #  the tile on which i stand
-proc get_tile_and_chunk_by_vec(self: BattleData, vec: Vector2): tuple[tile:BattleTile,chunk: BattleChunk] = discard
+proc get_tile_and_chunk_by_vec(self: BattleData, vec: Vector2): tuple[tile:BattleTile,chunk: BattleChunk] =
+  let chunk_index_x = (vec.x / CHUNK_SIZE_IN_PIXELS).floor
+  let chunk_index_y = (vec.y / CHUNK_SIZE_IN_PIXELS).floor
+
 proc normalize_angle(angle: float): float = 
-  let wrapped = angle mod 360.0; return (if wrapped < 0.0: wrapped + 360.0 else: wrapped)
+  let wrapped = angle mod 360.0; return (if wrapped < 0.0: wrapped + 360.0 else: wrapped)  
 
 # Function to calculate the angle between two Vector2 points in degrees (0 - 360)
 proc angleBetween(p1, p2: Vector2): float =
@@ -315,40 +774,54 @@ proc battle_logic(g:var Game, delta_time: float): void =
   # update unit-tile, the ubnit stands on
   var unit_batch_state {.global.} = 0 # this can be used to keep the batch-state between proc calls
   for unit in battle.units: # todo: dont iterate over all units each step ... 
-
+    if unit.in_vehicle: continue
     var can_move = true           
     if unit.target_unit.isSome:
-      let target_in_reach = distance(unit.pos, unit.target_unit.get.pos) < unit.weapon_range        
+
+      if unit.target_unit.get.health <= 0: unit.target_unit = none(Unit); continue
+      if unit.target_unit.get.in_vehicle: unit.target_unit = none(Unit); continue
+
+      let target_in_reach = distance(unit.pos, unit.target_unit.get.pos) < unit.weapon_range.get_range_in_pixels        
       if target_in_reach: can_move = false
       unit.rotation = angleBetween(unit.pos, unit.target_unit.get.pos)
     
-    if unit.target_unit.isSome and unit.shoot_cooldown < 0: 
-      let target_in_reach = distance(unit.pos, unit.target_unit.get.pos) < unit.weapon_range
+    if unit.target_unit.isSome and unit.shoot_cooldown < 0 and unit.can_fight: 
+      let target_in_reach = distance(unit.pos, unit.target_unit.get.pos) < unit.weapon_range.get_range_in_pixels
       if target_in_reach and unit.shoot_cooldown < 0:
         # todo: create shot here
         unit.shoot_cooldown = 60 / unit.shoots_per_minute
-        battle.shots.add(Shot(start: unit.pos, target: unit.target_unit.get.pos, duration: 0.2))
+        battle.shots.add(
+          Shot(
+            start: unit.pos, 
+            target: unit.target_unit.get.pos, 
+            duration: 0.2, 
+            damage: unit.weapon_system.get_damage_in_pixels,
+            bullet_size: unit.weapon_system))
+        battle.sprites.add(
+          BattleSprite(pos: Vector2(x: unit.pos.x + rand(-20..20).float, y: unit.pos.y +  rand(-20..20).float), rotation: rand(0..360).float, sprite_name: "bullet_case" ))  
+        # playSound(g.sounds["shot"])
 
     else: # scan for units in vicinity if i have not target
       if unit.look_around_check_in < 0:
-        for other_unit in battle.units:
+        for other_unit in battle.units: # sort for distance to current unit
+          if other_unit == unit: continue
+          if other_unit.health <= 0: continue
+          if other_unit.in_vehicle: continue
           if (unit.team < 3 and other_unit.team > 2) or (unit.team > 2 and other_unit.team < 3):
-            let in_reach = distance(unit.pos, other_unit.pos) < unit.weapon_range + (unit.weapon_range * 0.3)
+            let in_reach = distance(unit.pos, other_unit.pos) < unit.weapon_range.get_range_in_pixels
             if in_reach: unit.target_unit = some(other_unit); break
     
     if unit.move_target.isSome and can_move: # move towards this position, walk around obstacles
       # todo: check here oif i am bnear eniugh to my targte oif i have one
       unit.rotation = angleBetween(unit.pos, unit.move_target.get)
-      unit.pos = moveTowards(unit.pos, unit.move_target.get, unit.speed_per_second * delta_time)
-      if abs(distance(unit.pos, unit.move_target.get)) < unit.speed_per_second * delta_time:
+      unit.pos = moveTowards(unit.pos, unit.move_target.get, unit.speed.get_speed_in_pixels * delta_time)
+      if abs(distance(unit.pos, unit.move_target.get)) < unit.speed.get_speed_in_pixels * delta_time:
         unit.pos = unit.move_target.get
-        unit.move_target = none(Vector2)    
-    
+        unit.move_target = none(Vector2) 
+      # check if i am in a new chunk     
     
     unit.shoot_cooldown = unit.shoot_cooldown - delta_time  
     unit.look_around_check_in = unit.look_around_check_in - delta_time
-      
-
     
     block: discard # check if i am on target chunk, and if not try to move towards
 
@@ -360,7 +833,11 @@ proc battle_logic(g:var Game, delta_time: float): void =
   for shot in battle.shots: discard # apply at then end and remove
 
   for command_group in battle.command_groups: discard # ? -> was machen die?
-  
+
+  for unit in battle.units: #  todo: optimze via chunks !
+    # apply collision with other units, so they dont overlap: push each other out...
+    discard#  use raylib collision functions for this ...  
+
   # handle the zoom with the mouse wheel
   let moved = getMouseWheelMove()
   if moved != 0:
@@ -385,6 +862,57 @@ proc battle_logic(g:var Game, delta_time: float): void =
   if isKeyDown(KeyboardKey.W): battle.camera.target.y -= 10
   if isKeyDown(KeyboardKey.S): battle.camera.target.y += 10
 
+  if isKeyPressed(KeyboardKey.Space): battle.display_mode = if battle.display_mode == BattleDisplayMode.Tactic: BattleDisplayMode.Strategic else: BattleDisplayMode.Tactic
+
+  if isKeyPressed(KeyboardKey.ONE): spawn_scout_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.TWO): spawn_map_control_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.THREE): spawn_attack_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.FOUR): spawn_defense_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 1)
+
+  if isKeyPressed(KeyboardKey.FIVE): spawn_defense_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 3)
+
+  if isKeyPressed(KeyboardKey.U):
+    for unit in battle.currently_selected_units: unload_units_from_vehicle(g, unit)
+
+
+proc display_and_progress_explosions(g:var Game, delta_time: float): void =
+  var battle = g.current_battle.get
+  var explosions_to_remove: seq[BattleExplosion] = newSeq[BattleExplosion]()
+  for index, explosion in battle.explosions:
+    let size = (case explosion.size
+      of ExplosionSize.Femto: 8
+      of ExplosionSize.Mini: 16
+      of ExplosionSize.Small: 32
+      of ExplosionSize.Medium:  64
+      of ExplosionSize.Large: 128).float
+    explosion.active_since = explosion.active_since + delta_time
+    if explosion.active_since < 0.1: 
+      draw_from_atlas(g.battle_graphics["explosion_1"], g, explosion.pos.x, explosion.pos.y, size, size)
+    elif explosion.active_since < 0.2:
+      draw_from_atlas(g.battle_graphics["explosion_2"], g, explosion.pos.x, explosion.pos.y, size, size)
+    elif explosion.active_since < 0.3:
+      draw_from_atlas(g.battle_graphics["explosion_3"], g, explosion.pos.x, explosion.pos.y, size, size)
+    elif explosion.active_since < 0.4:
+      draw_from_atlas(g.battle_graphics["explosion_4"], g, explosion.pos.x, explosion.pos.y, size, size)
+    elif explosion.active_since < 0.5:
+      draw_from_atlas(g.battle_graphics["explosion_5"], g, explosion.pos.x, explosion.pos.y, size, size)
+    elif explosion.active_since < 0.6:
+      draw_from_atlas(g.battle_graphics["explosion_6"], g, explosion.pos.x, explosion.pos.y, size, size)
+    elif explosion.active_since < 0.7:
+      draw_from_atlas(g.battle_graphics["explosion_7"], g, explosion.pos.x, explosion.pos.y, size, size)
+    elif explosion.active_since < 0.8:
+      draw_from_atlas(g.battle_graphics["explosion_8"], g, explosion.pos.x, explosion.pos.y, size, size)
+    elif explosion.active_since < 0.9:
+      draw_from_atlas(g.battle_graphics["explosion_9"], g, explosion.pos.x, explosion.pos.y, size, size)
+    elif explosion.active_since < 1.0:
+      draw_from_atlas(g.battle_graphics["explosion_10"], g, explosion.pos.x, explosion.pos.y, size, size)
+    else: explosions_to_remove.add(explosion)
+  for explosion in explosions_to_remove: 
+    let index = battle.explosions.find(explosion)
+    battle.explosions.del index  
+
+
+
 #region BATTLE-DISPLAY
 proc battle_display(g:var Game, delta_time: float): void = 
 
@@ -395,8 +923,9 @@ proc battle_display(g:var Game, delta_time: float): void =
   let res = g.battle_graphics
   
   # select stuff and draw select-rect
-  
+
   case battle.display_mode:
+
     of BattleDisplayMode.Tactic:
       for chunk in battle.chunks:
         for tile in chunk.tiles:
@@ -404,38 +933,110 @@ proc battle_display(g:var Game, delta_time: float): void =
       for chunk in battle.chunks:
         drawRectangleLines(Rectangle(x:chunk.pos.x, y:chunk.pos.y, width:10*64, height:10*64), 2, BLUE)
 
-      #draw_from_atlas(g.battle_graphics["soldier_1_color_1"], g, 100, 100)
-      #draw_from_atlas(g.battle_graphics["tank_1_color_1"], g, 200, 200, 250, 250, rotation=rotation)
-      #rotation = rotation + 0.1
+      for sprite in battle.sprites:
+        if sprite.is_vehicle:
+          draw_from_atlas(g.battle_graphics[sprite.sprite_name], g, sprite.pos.x, sprite.pos.y, 256, 256, rotation=sprite.rotation-90)
+        else:
+          draw_from_atlas(g.battle_graphics[sprite.sprite_name], g, sprite.pos.x, sprite.pos.y, 0, 0, rotation=sprite.rotation)
+      
       for unit in battle.currently_selected_units:
-        drawCircleLines(Vector2(x:unit.pos.x, y:unit.pos.y), unit.weapon_range, RED)
-        drawRectangleLines(Rectangle(x:unit.pos.x - 32, y:unit.pos.y-32, width:64, height:64), 2, RED)  
+        drawCircleLines(Vector2(x:unit.pos.x, y:unit.pos.y), unit.weapon_range.get_range_in_pixels, RED)
+        if unit.is_soldier: drawRectangleLines(Rectangle(x:unit.pos.x - 32, y:unit.pos.y-32, width:64, height:64), 2, RED)  
+        else : drawRectangleLines(Rectangle(x:unit.pos.x - 64, y:unit.pos.y-64, width:128, height:128), 2, RED)
         if unit.move_target.isSome: drawLine(unit.pos, unit.move_target.get, RED)
-      for unit in battle.units: 
-        #draw_from_atlas(g.battle_graphics["tank_1_color_1"], g, unit.pos.x, unit.pos.y, 300, 300)
-        if unit.team == 1 or unit.team == 2:
-          draw_from_atlas(g.battle_graphics["mp_soldier_color_2"], g, unit.pos.x, unit.pos.y, 64, 64, rotation=unit.rotation)
-        elif unit.team == 3 or unit.team == 4:   
-          draw_from_atlas(g.battle_graphics["mp_soldier_color_1"], g, unit.pos.x, unit.pos.y, 64, 64, rotation=unit.rotation)
 
-        # display different if selected
+      for unit in battle.units:
+        if unit.in_vehicle: continue
+        if unit.target_unit.isSome: drawLine(unit.pos, unit.target_unit.get.pos, PURPLE)
+
+      for unit in battle.units:
+        if unit.in_vehicle: continue         
+        draw_from_atlas(g.battle_graphics[unit.texture_name], g, unit.pos.x, unit.pos.y, unit.texture_w, unit.texture_h, rotation=unit.rotation - 90)
+        if unit.health < unit.max_health:
+          drawRectangle(Rectangle(x:unit.pos.x - 32, y:unit.pos.y - 32, width:64, height:5), BLACK)
+          drawRectangle(Rectangle(x:unit.pos.x - 32, y:unit.pos.y - 32, width:64 * unit.health / unit.max_health, height:5), GREEN)
+
+
+        if not unit.is_soldier and unit.units_on_board.len > 0:
+          for index, unit_on_board in unit.units_on_board:
+            # draw a small filled circle on the vehicle to indicate that there are units on board
+            drawCircle(Vector2(x:(unit.pos.x.int + index * 5).float, y:(unit.pos.y.int).float + 32), 2, YELLOW)
+
       for shot in battle.shots: 
         drawLine(shot.start, shot.target, WHITE)
-        shot.duration = shot.duration - delta_time
+        shot.duration = shot.duration - delta_time  
+
+      display_and_progress_explosions(g, delta_time)
+
+      # draw green circle around all units 
+      for unit in battle.units:
+        drawCircleLines(Vector2(x:unit.pos.x, y:unit.pos.y), 64, RED)
       
       var shot_index  = 0
       while shot_index < battle.shots.len:
         var shot = battle.shots[shot_index]
         drawLine(shot.start, shot.target, WHITE)
         shot.duration = shot.duration - delta_time
-        if shot.duration < 0: battle.shots.del shot_index else: shot_index += 1
+        if shot.duration < 0: 
+          battle.shots.del shot_index 
+          var dead_units: seq[Unit] = newSeq[Unit]()
+          for index, unit in battle.units:
+            if unit.in_vehicle: continue            
+            if checkCollisionPointRec(shot.target, Rectangle(x:unit.pos.x - 16, y: unit.pos.y - 16, width:32, height:32)):
+              unit.health -= shot.damage
+              # create a explosion here
+              battle.explosions.add(BattleExplosion(
+                # apply some randomness to the explosion p
+                pos: Vector2(x: unit.pos.x + rand(-32..32).float, y: unit.pos.y + rand(-32..32).float),  
+                active_since: 0, 
+                size: (case shot.bullet_size
+                of BulletSize.Rifle: ExplosionSize.Femto
+                of BulletSize.HeavyRifle: ExplosionSize.Mini
+                of BulletSize.Bazooka: ExplosionSize.Small
+                of BulletSize.LightTank: ExplosionSize.Medium
+                of BulletSize.MediumTank: ExplosionSize.Large
+                of BulletSize.HeavyTank: ExplosionSize.Large
+                of BulletSize.Mortar: ExplosionSize.Medium
+                of BulletSize.Artillery: ExplosionSize.Large
+                of BulletSize.AntiTankGun: ExplosionSize.Large)))
+              if unit.health <= 0:
+                if unit.is_soldier:          
+                  for sprite_type in [ "blood_", "gore_", "bone_"]:# add blood and gore 
+                    g.current_battle.get.sprites.add(
+                      BattleSprite(
+                        pos: Vector2(x: unit.pos.x + (rand(-64..64).float), y: unit.pos.y + (rand(-64..64)).float), 
+                        rotation: rand(0..360).float, 
+                        is_vehicle: false,
+                        sprite_name: sprite_type & $rand(1..6)))
+                else:
+                    g.current_battle.get.sprites.add(
+                      BattleSprite(
+                        pos: Vector2(x: unit.pos.x, y: unit.pos.y), 
+                        rotation: unit.rotation.float, 
+                        sprite_name: "dead_tank_green",
+                        is_vehicle: true))                          
+                dead_units.add(unit)
+                for passenger in unit.units_on_board: dead_units.add(passenger)
+              break
+          for unit in dead_units: # todo: move the die uhnit logic out since this is bug heavy
+            let dead_unit = unit
+            let index = battle.units.find(unit)
+            battle.units.del(index) 
+            for unit in battle.units:
+              if unit.target_unit.isSome:
+                if unit.target_unit.get == dead_unit:
+                  unit.target_unit = none(Unit)
+
+
+        else: shot_index += 1
 
     of BattleDisplayMode.Strategic:
       discard #  display the minimap, conrtrol command groups, etc.
-      for command_group in battle.command_groups: discard # display
+      for command_group in battle.command_groups: discard # display   
 
   endMode2D()
 
+  # Select and control units
   var is_dragging {.global.} = false      
   var selection_rect {.global.} = Rectangle()
   if isMouseButtonPressed(MouseButton.Left):
@@ -453,25 +1054,37 @@ proc battle_display(g:var Game, delta_time: float): void =
   if isMouseButtonReleased(MouseButton.Left):
     isDragging = false
     battle.currently_selected_units = @[]
-    for unit in battle.units:
+    for unit in battle.units:        
+      if unit.in_vehicle: continue
       let point = getScreenToWorld2D(Vector2(x:  selection_rect.x - 32, y: selection_rect.y - 32), battle.camera)
-      if checkCollisionRecs(Rectangle(x: point.x, y: point.y, width:selection_rect.width, height:selection_rect.height), Rectangle(x:unit.pos.x, y: unit.pos.y, width:unit.width, height:unit.height)):
+      
+      let unit_rect = 
+        if unit.is_soldier:Rectangle(x:unit.pos.x-32, y: unit.pos.y-32, width: 64, height:64)
+        else: Rectangle(x:unit.pos.x-64, y: unit.pos.y-64, width:128, height:128)
+
+      if checkCollisionRecs(
+        Rectangle(x: point.x, y: point.y, width:selection_rect.width / battle.camera.zoom, height:selection_rect.height / battle.camera.zoom), 
+        unit_rect
+      ):
         battle.currently_selected_units.add(unit)
   if isMouseButtonPressed(MouseButton.Right):
     if battle.currently_selected_units.len != 0:
       let tpos = getScreenToWorld2D(getMousePosition(), battle.camera)
       for unit in battle.currently_selected_units:
-        unit.move_target = some(Vector2(x: tpos.x + rand(-100..100).float, y: tpos.y + rand(-100..100).float))      
-
-  # display small infocard for selected units
+        if battle.currently_selected_units.len > 1: 
+          unit.move_target = some(Vector2(x: tpos.x + rand(-100..100).float, y: tpos.y + rand(-100..100).float))      
+        else:
+          unit.move_target = some(Vector2(x: tpos.x, y: tpos.y))    
+  
+  # todo: display small infocard for selected units
 
   if battle.display_hire_overlay: discard #  display the "hire units screen"
 
-  if battle.selected_unit.isSome:
-    let unit = battle.selected_unit.get
-    drawText("Unit: rotation: " & $unit.rotation , 10, 10, 20, WHITE)
-    #drawText("Unit: needed_rotation: " & $unit.needed_rotation , 10, 30, 20, WHITE)
+  #drawText("Unit: needed_rotation: " & $unit.needed_rotation , 10, 30, 20, WHITE)
   drawText("Units selected: " & $battle.currently_selected_units.len , 10, 10, 20, WHITE)
+  drawText("Units on map: " & $battle.units.len , 10, 30, 20, WHITE)
+  drawText("Zoom: " & $battle.camera.zoom , 10, 50, 20, WHITE)
+  #drawText("Units on map: " & $battle.units.len , 10, 30, 20, WHITE)
 #region BATTLE-END
 
 #region FN-Helper
@@ -519,11 +1132,13 @@ func get_relation(self: Scenario, faction_one: int, faction_two: int): int =
 #-------------------------------------------------------------------------------
 const logfile_name = "log.txt"; if fileExists(logfile_name): removeFile(logfile_name)
 var logger = Logger(file: open(logfile_name, fmAppend)); logger.log("Start Mages Engine")
-setTraceLogLevel(TraceLogLevel.Error);initWindow(1900, 1080, "example"); setWindowMonitor(0)
+setTraceLogLevel(TraceLogLevel.Error);initWindow(getScreenHeight(), getScreenWidth(), "example"); setWindowMonitor(0)
+initAudioDevice()
 var camera = Camera2D(target: Vector2(x: 0, y: 0), offset: Vector2(x: 0, y: 0), rotation: 0, zoom: 1)
 setTargetFPS(60)
 # todo: this makes trouble??
-# toggleFullscreen();
+setWindowMonitor(2)
+toggleFullscreen();
 
 
 
@@ -534,22 +1149,118 @@ block:
   var game = Game(); var running = true; var button_click_event: string = ""
   game.mode = GameMode.Menu; game.scenario = Scenario(); game.scenario.turn = 1
 
+  game.sounds = initTable[string, Sound]()
+  game.sounds["shot"] = loadSound("bim/pistol.wav")
+
   game.atlases = initTable[string, Texture]()
   game.atlases["BATTLE_TILES"] = loadTexture("./bim/Tileset.png")
   game.atlases["TANK_COLOR_1"] = loadTexture("./bim/tank_atlas_color_1.png")
-  game.atlases["SOLDIERS_COLOR_1"] = loadTexture("./bim/soldiers_color1.png")
-  game.atlases["SIMPLE_SOLDIERS_COLOR_1"] = loadTexture("./bim/simple-soldiers_color1.png")
-  game.atlases["SIMPLE_SOLDIERS_COLOR_2"] = loadTexture("./bim/simple-soldiers_color2.png")
+  #game.atlases["SOLDIERS_COLOR_1"] = loadTexture("./bim/soldiers_color1.png")
+  #game.atlases["SIMPLE_SOLDIERS_COLOR_1"] = loadTexture("./bim/simple-soldiers_color1.png")
+  #game.atlases["SIMPLE_SOLDIERS_COLOR_2"] = loadTexture("./bim/simple-soldiers_color2.png")
+  game.atlases["BULLET_CASE"] = loadTexture("./bim/bullet-case.png")
+  game.atlases["TANKS_COLOR_1"] = loadTexture("./bim/tanks_color1.png")
+  game.atlases["crator"] = loadTexture("./bim/crator.png")
+  game.atlases["blood_and_gore"] = loadTexture("./bim/blood_and_gore.png")
+
+  # actual game assets
+  game.atlases["soldiers_gray"] = loadTexture("./bim/soldiers_gray.png")
+  game.atlases["soldiers_green"] = loadTexture("./bim/soldiers_green.png")
+  game.atlases["tanks_gray"] = loadTexture("./bim/TANKS_GRAY.png")
+  game.atlases["tanks_green"] = loadTexture("./bim/TANKS_GREEN.png")
+
+
+  game.atlases["explosion_1"] = loadTexture("./bim/Explosion_1.png")
 
   #region load Battle res
   game.battle_graphics = initTable[string, (int, int, int, int, string)]()
   game.battle_graphics["gras"] = (1225,127,64,64, "BATTLE_TILES")
-  game.battle_graphics["tank_1_color_1"] = (0, 0, 124,124, "TANK_COLOR_1") 
-  game.battle_graphics["soldier_1_color_1"] = (6*124, 2*64, 124, 124, "SOLDIERS_COLOR_1")
+  #game.battle_graphics["tank_1_color_1"] = (0, 0, 124,124, "TANK_COLOR_1") 
+  #game.battle_graphics["soldier_1_color_1"] = (6*124, 2*64, 124, 124, "SOLDIERS_COLOR_1")
 
-  game.battle_graphics["mp_soldier_color_1"] = (0, 0, 64, 64, "SIMPLE_SOLDIERS_COLOR_1")
-  game.battle_graphics["mp_soldier_color_2"] = (0, 0, 64, 64, "SIMPLE_SOLDIERS_COLOR_2")
-  
+  #game.battle_graphics["mp_soldier_color_1"] = (0, 0, 64, 64, "SIMPLE_SOLDIERS_COLOR_1")
+  #game.battle_graphics["mp_soldier_color_2"] = (0, 0, 64, 64, "SIMPLE_SOLDIERS_COLOR_2")
+  game.battle_graphics["bullet_case"] = (0, 0, 5, 5, "BULLET_CASE")
+
+  game.battle_graphics["tank_1_color_1"] = (0, 0, 256,256, "TANKS_COLOR_1")
+
+
+  game.battle_graphics["support_soldier_green"] = (0, 0, 64, 64, "soldiers_green")
+  game.battle_graphics["rifle_soldier_green"] = (64,0, 64, 64, "soldiers_green")
+  game.battle_graphics["storm_soldier_green"] = (128,0, 64, 64, "soldiers_green")
+  game.battle_graphics["bazooka_soldier_green"] = (192,0, 64, 64, "soldiers_green")
+  game.battle_graphics["dead_soldier_green"] = (256,0, 64, 64, "soldiers_green")
+
+  game.battle_graphics["support_soldier_gray"] = (0, 0, 64, 64, "soldiers_gray")
+  game.battle_graphics["rifle_soldier_gray"] = (64,0, 64, 64, "soldiers_gray")
+  game.battle_graphics["storm_soldier_gray"] = (128,0, 64, 64, "soldiers_gray")
+  game.battle_graphics["bazooka_soldier_gray"] = (192,0 , 64, 64, "soldiers_gray")
+  game.battle_graphics["dead_soldier_gray"] = (256, 0, 64, 64, "soldiers_gray")
+
+
+  game.battle_graphics["humvee_green"] = (0, 0, 256, 256, "tanks_green")
+  game.battle_graphics["truck_green"] = (256,0, 256, 256, "tanks_green")
+  game.battle_graphics["light_tank_green"] = (512, 0, 256, 256, "tanks_green")
+  game.battle_graphics["heavy_transport_green"] = (768, 0, 256, 256, "tanks_green")
+  game.battle_graphics["medium_tank_green"] = (1024, 0, 256, 256, "tanks_green")
+  game.battle_graphics["heavy_tank_green"] = (1280, 0, 256, 256, "tanks_green")
+  game.battle_graphics["anti_tank_gun_green"] = (1536, 0, 256, 256, "tanks_green")
+  game.battle_graphics["artillery_green"] = (1792, 0, 256, 256, "tanks_green")
+  game.battle_graphics["mortar_green"] = (2048, 0, 256, 256, "tanks_green")
+  game.battle_graphics["dead_tank_green"] = (2304, 0, 256, 256, "tanks_green")
+
+  game.battle_graphics["humvee_gray"] = (0, 0, 256, 256, "tanks_gray")
+  game.battle_graphics["truck_gray"] = (256, 0, 256, 256, "tanks_gray")
+  game.battle_graphics["light_tank_gray"] = (512, 0, 256, 256, "tanks_gray")
+  game.battle_graphics["heavy_transport_gray"] = (768, 0, 256, 256, "tanks_gray")
+  game.battle_graphics["medium_tank_gray"] = (1024, 0, 256, 256, "tanks_gray")
+  game.battle_graphics["heavy_tank_gray"] = (1280, 0, 256, 256, "tanks_gray")
+  game.battle_graphics["anti_tank_gun_gray"] = (1536, 0, 256, 256, "tanks_gray")
+  game.battle_graphics["artillery_gray"] = (1792 ,0 , 256, 256, "tanks_gray")
+  game.battle_graphics["mortar_gray"] = (2048 ,0, 256, 256, "tanks_gray")
+  game.battle_graphics["dead_tank_gray"] = (2304, 0, 256, 256, "tanks_gray")
+
+  game.battle_graphics["crator"] = (0, 0, 64, 64, "crator")
+
+  game.battle_graphics["bone_1"] = (0, 0, 16, 16, "blood_and_gore")
+  game.battle_graphics["bone_2"] = (16, 0, 16, 16, "blood_and_gore")
+  game.battle_graphics["bone_3"] = (32, 0, 16, 16, "blood_and_gore")
+  game.battle_graphics["bone_4"] = (48, 0, 16, 16, "blood_and_gore")
+  game.battle_graphics["bone_5"] = (64, 0, 16, 16, "blood_and_gore")
+  game.battle_graphics["bone_6"] = (80, 0, 16, 16, "blood_and_gore") 
+
+  game.battle_graphics["blood_1"] = (0, 16, 16, 16, "blood_and_gore")
+  game.battle_graphics["blood_2"] = (16, 16, 16, 16, "blood_and_gore")
+  game.battle_graphics["blood_3"] = (32, 16, 16, 16, "blood_and_gore")
+  game.battle_graphics["blood_4"] = (48, 16, 16, 16, "blood_and_gore")
+  game.battle_graphics["blood_5"] = (64, 16, 16, 16, "blood_and_gore")
+  game.battle_graphics["blood_6"] = (80, 16, 16, 16, "blood_and_gore")
+
+  game.battle_graphics["gore_1"] = (0, 32, 16, 16, "blood_and_gore")
+  game.battle_graphics["gore_2"] = (16, 32, 16, 16, "blood_and_gore")
+  game.battle_graphics["gore_3"] = (32, 32, 16, 16, "blood_and_gore")
+  game.battle_graphics["gore_4"] = (48, 32, 16, 16, "blood_and_gore")
+  game.battle_graphics["gore_5"] = (64, 32, 16, 16, "blood_and_gore")
+  game.battle_graphics["gore_6"] = (80, 32, 16, 16, "blood_and_gore")
+
+  game.battle_graphics["burned_1"] = (0, 48, 16, 16, "blood_and_gore")
+  game.battle_graphics["burned_2"] = (16, 48, 16, 16, "blood_and_gore")
+  game.battle_graphics["burned_3"] = (32, 48, 16, 16, "blood_and_gore")
+  game.battle_graphics["burned_4"] = (48, 48, 16, 16, "blood_and_gore")
+  game.battle_graphics["burned_5"] = (64, 48, 16, 16, "blood_and_gore")
+  game.battle_graphics["burned_6"] = (80, 48, 16, 16, "blood_and_gore")
+
+  game.battle_graphics["explosion_1"] = (0, 0, 64, 64, "explosion_1")
+  game.battle_graphics["explosion_2"] = (64, 0, 64, 64, "explosion_1")
+  game.battle_graphics["explosion_3"] = (128, 0, 64, 64, "explosion_1")
+  game.battle_graphics["explosion_4"] = (192, 0, 64, 64, "explosion_1")
+  game.battle_graphics["explosion_5"] = (256, 0, 64, 64, "explosion_1")
+  game.battle_graphics["explosion_6"] = (320, 0, 64, 64, "explosion_1")
+  game.battle_graphics["explosion_7"] = (384, 0, 64, 64, "explosion_1")
+  game.battle_graphics["explosion_8"] = (448, 0, 64, 64, "explosion_1")
+  game.battle_graphics["explosion_9"] = (512, 0, 64, 64, "explosion_1")
+  game.battle_graphics["explosion_10"] = (576, 0, 64, 64, "explosion_1")
+
   #region init-mod
   var enter_next_round_cool_down: float = 0
 

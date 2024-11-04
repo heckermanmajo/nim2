@@ -1,0 +1,47 @@
+Es gibt 3 Tech-level
+
+Infantrie
+- sniper; einzeln, sehr weit T2
+- raketenwerfer  T2
+- mp; burst mittel    T1
+- sturm-gewehr (sturmtruppen); Burst-weit  T2
+- Maschienen Gewehr; durchgehend weit  T2
+- default-gewehr; einzeln weit  T1
+- pistole (pioniere); einzeln kurz T1
+- Mörser; granate weit T2
+- Sturmtruppen haben 2 granaten T2
+
+
+Waffensysteme:
+- mg 
+- auto-geschütz (leicht, mittel, schwer(ostwind)) (wie eine flak?)
+- granat werfer (leicht/schwer)
+- artellerie geschütz (leicht/mittel/schwer)
+- Kanone (leicht, mittel, schwer)
+- raken-werfer- kadjuscha, nebelwerfer, etc.?? 
+
+Transport
+
+Supply-truck
+- kisten 1, 6, 12
+
+Light-Support
+- kleiner jeep unarmed, armed in tech 2 und großer jeep unarmed, armed in tech 3
+
+Heavy support (panzer mit rädern)
+-
+
+Light Tank
+- tech 1 sind langsamer
+- mg panzer
+- 
+
+Medium Tank
+- tech 1 sind langsamer
+- sturmgeschütz (tech 2)
+
+Heavy Tank
+- nur tech 2() und 3 (kingtiger)
+- Schwerer Granat-werfer HEAVY TANK; T3
+- SCHWREN PANZER TIGER; T3
+- SCHWERE ATILLERIE; T3

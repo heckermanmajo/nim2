@@ -1,0 +1,13 @@
+- Unit Constructors
+- remove the team 2 & 3
+- Explosions
+- Was für sprites braucht es?
+    - gore
+    - explosions
+    - fire-weapon
+- spawn platoons based on command points
+- target chunks -> keep one platoon in a control-group
+  - ai control of platoons -> a platoon can get a mission
+    ai works by assigning platoons missions
+- load and unload in jeep, truck and armored transport
+- random ai moves on campaign map
