@@ -1,7 +1,9 @@
+Command-Points
+
+
 
 Als erstes einzelne Atlases für panzer und soldaten machen.
 -> erstmal keine soldaten animationen, etc.
-
 
 Sound and Ambiente
 - Panzer müssen sich schwerfällig aber mächtig anfühlen
@@ -106,20 +108,67 @@ Supply-truck
 - der supply truck kann auch panzer mit einer kiste reparieren
 
 
-Man callt keine einzelnen einheiten into battle, sondern Truppen.
+The solution to ai is very good and smart controls
+that will be stiched together to create a battle-field ai.
 
-- Truppe: Kleiner 2 Fahrzeuge + Infantrie
+The controls need to be chunk based.
 
-- Platoon: 
+set chunk on defend,
 
+Missions: Ai can assignunits to missions and a mission 
+has atarget (a chunk) to hold, to conquer, etc.
 
-
-Tech1:
-
-
-
-Tech2: 
+The ai plays based on realism. 
 
 
 
-Tech3:
+STORY
+=======
+Der Mensch glaubte sich im Paradies...
+
+Doch dann 
+- geburtenrate + kybernetischer Sturm
+
+
+Nun 
+- darvinismus
+- kommunismus(bio-leniniismus)
+- china: bio-faschism
+- neu-christentum: Factionwars
+- usa: endphase UDSSR
+- OstEuropa: free for all
+- west europa: inner turmoil
+- india china war
+
+If sou go full faschism: Other hate you more but you gain options
+
+
+
+
+
+Only command points -> no tech level, no training
+Camp-map-Logistics
+Onle on field movement per turn (if not adding command points)
+
+
+
+
+
+in battle: only Brigarden: fast-light attack; heavy-slow attack; defense
+
+
+4 speeds
+- slow: defense brigade (geschütze and artellerie, also soldiers on foot)
+- very fast: jeeps
+- fast: trucks, light-tanks
+- normal slow: tanks, tank-transport 
+
+Artellerei: trumps all
+Geschütz: je nach tower: anti tank, all tanks, flak: soldiers and trucks/jeeps, granate launcher: light tank
+AttackTanks: trumps all vehicles and geschütz.
+light-tanks: trumps all trucs and jeeps and artellerie(not geschütz and tank)
+Soldiers-sturm: trump light tanks with granates or anti tank gun
+Anti tank gun also works against light-attack-tanks
+Bazooka trumps all tanks, but soldiers are very soft
+All systems trump soldiers.
+

@@ -1,9 +1,0 @@
-The solution to ai is very good and smart controls
-that will be stiched together to create a battle-field ai.
-
-The controls need to be chunk based.
-
-set chunk on defend,
-
-Missions: Ai can assignunits to missions and a mission 
-has atarget (a chunk) to hold, to conquer, etc.

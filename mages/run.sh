@@ -2,6 +2,5 @@
 nim compile \
   --define:debug \
   --checks:on \
-  --define:release \
   main.nim \
   && ./main  #--opt:none \

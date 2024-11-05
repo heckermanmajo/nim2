@@ -1,13 +1,73 @@
 ##[[nimble install naylib && nim compile main.nim && ./main 
 
 DONT PUBLISH A BETA: PUBLSIH AN ALPHA and then a SIGMA.
-Can we keep the game under 5000 lines to release?
 
+Can we keep the game under 5000 lines to release? - cloc-lines
+
+USE CIRCLE-COLLISIONS FOR UNITS instead of rectangles
+-> this way we dont need even tiles ...
+-> using chunks for collision is enough
+
+We need to make the engine-part solid and nice before we meddl with features
+this means:
+  - unit chunk tracking
+  - unit tile tracking
+  - debug view into the unit on click
+  - debug view into chunks on click
+  - debug view into tiles on click 
+  - comments and cleanup + read marker
+  - put clear todos into the code
+
+- CONCEPT-CONTROLS: HOW TO MAKE CONTROLS SUPERB???
+  - intuitive controls + Very nice battle-feeling
+
+CONCEPT: HOW TO MAKE GAMEPLAY FEEL RIGHT?
+  - Units need to behave (a bit more) like real units 
+  - Tanks need to be more effect-ful ... 
+  - better shooting Mechanis: taking Cover need to make sense
+    - for this we need to track all the stuff on tiles 
+      each tile a shot "visits" has a chance of blocking the shot
+  - move units in battle out of battle (Fallback-Button)
+  - select more "sensible" target: Tank for anit tank, except i am getting shot at, etc.
+  - better tile-management, allows for smarted formation
+  - also auto-go towards cover (use tanks etc. as cover)
+  - SCALE UP TANKS 1.5x? 1.3x? 1.7x? -> Tanks need to be bigger to feel right
+  - add simple objects to map for cover (trees, sandbags, etc.)
+  - jeeps are to fast
+  - smaller unit-spawn-batches (maybe all vehicles should be spawned for themself...)
+    Spawning to much at once makes the gameplay to "just throw all units at the enemy"
+  - we want to use units to their strenght  and build up for battles
+  - we need slow moving projectiles for mortars and artillery, and granates (maybe a granate lanucher-soldier?)
+  - replace support soldier with launcher soldier
+  - replace support soldier role with support vehicle role
+
+Question:
+ - how to make the map work?
+ - some spots give boni, so you want to hold them
+ - some make units cheaper
+ - some deliver units to the battlefield for free
+ - some increase the recruitment speed
+ - some offer out of map artillery/tactical nuke support  
+
+-> display all infos about the selected unit
+-> display all selcted units with icons
+-> add unit description
+
+- SPAWN-QUEUE
+  - add simple ui with buttons to spawn units and to show the current command points
+  - ai: spawn units: add spawn-qeue
+
+- cleanup, comment and strcuture the code
 
 - debug battles
 
-- BUG FIX: Security delete all dead units, some dead units still attack and exists
-  - create a function that checks for correct state each frame, so we detect this immediately
+- remove shot-lines; add fire on mussle of gun
+
+- add real camapign-battle-flow
+
+- let the ai spawn units -> need money for that
+
+- add gore if you kill a full transport
 
 - RE-LOAD UNits in the vicinity into transports via "L" - key
    - all units in 300 pixel radius are loaded into the transport until is full
@@ -16,12 +76,6 @@ Can we keep the game under 5000 lines to release?
 
 - Zoomlevel
   - move faster ober the map, based on the zoomlevel
-
-- dont show range if multiple units are selected
-
-- SPAWN-QUEUE
-  - add simple ui with buttons to spawn units and to show the current command points
-  - ai: spawn units: add spawn-qeue
 
 - command points: spawn units based on command points of faction
 - end battle-condition
@@ -37,6 +91,13 @@ Perforamnce:
 - only draw what is in the view
 - only collide with units in same chunk: Chunk tracking...
 
+GAME-DESIGN:
+- The campaign map needs to be simple:
+  - movement: conquer, attack, merge
+  - distance to logistics-tile determines costs of command points
+
+- you deploy small troops in battle
+- Some chunks in battle have a special effect (lower costs, faster deployment)
 
 ]]##
 
@@ -182,8 +243,8 @@ type
     weapon_range: WeaponRange
     weapon_system: BulletSize
     explosion_radius: int    
-    width: float
-    height: float
+    logical_width: float
+    logical_height: float
     shoot_cooldown: float
     shoots_per_minute: int
     look_around_check_in: float
@@ -195,6 +256,8 @@ type
     units_on_board: seq[Unit]
     can_fight: bool
     max_health: int
+    logical_radius: float
+    target_rotation: Option[float]
   CommandGroup = ref object
     units: seq[Unit]  
   BattleTile = ref object
@@ -291,8 +354,7 @@ proc create_storm_soldier(g: Game, x: float, y: float, target_chunk: BattleChunk
     unit.weapon_range = WeaponRange.Short 
     unit.weapon_system = BulletSize.HeavyRifle
     unit.explosion_radius = 0    
-    unit.width = 64
-    unit.height = 64
+    unit.logical_radius = 12
     unit.shoots_per_minute = 120
     unit.texture_name = if team == 1: "storm_soldier_gray" else: "storm_soldier_green"
     unit.texture_w = 64
@@ -315,8 +377,7 @@ proc create_support_soldier(g: Game, x: float, y: float,target_chunk: BattleChun
   unit.weapon_range = WeaponRange.SuperShort
   unit.weapon_system = BulletSize.Rifle
   unit.explosion_radius = 0
-  unit.width = 64
-  unit.height = 64
+  unit.logical_radius = 12
   unit.shoots_per_minute = 20
   unit.texture_name = if team == 1: "support_soldier_gray" else: "support_soldier_green"
   unit.texture_w = 64
@@ -339,8 +400,7 @@ proc create_rifle_soldier(g: Game, x: float, y: float, target_chunk: BattleChunk
   unit.weapon_range = WeaponRange.Short
   unit.weapon_system = BulletSize.Rifle
   unit.explosion_radius = 0
-  unit.width = 64
-  unit.height = 64
+  unit.logical_radius = 12
   unit.shoots_per_minute = 40
   unit.texture_name = if team == 1: "rifle_soldier_gray" else: "rifle_soldier_green"
   unit.texture_w = 64
@@ -363,8 +423,7 @@ proc create_bazooka_soldier(g: Game, x: float, y: float, target_chunk: BattleChu
   unit.weapon_range = WeaponRange.Short
   unit.weapon_system = BulletSize.Bazooka
   unit.explosion_radius = 1
-  unit.width = 64
-  unit.height = 64
+  unit.logical_radius = 12
   unit.shoots_per_minute = 10
   unit.texture_name = if team == 1: "bazooka_soldier_gray" else: "bazooka_soldier_green"
   unit.texture_w = 64
@@ -387,8 +446,7 @@ proc create_humvee(g: Game, x: float, y: float, target_chunk: BattleChunk, team:
   unit.weapon_range = WeaponRange.Short
   unit.weapon_system = BulletSize.Rifle
   unit.explosion_radius = 0
-  unit.width = 256
-  unit.height = 256
+  unit.logical_radius = 40
   unit.shoots_per_minute = 120
   unit.texture_name = if team == 1: "humvee_gray" else: "humvee_green"
   unit.texture_w = 256
@@ -419,8 +477,7 @@ proc create_truck(g: Game, x: float, y: float, target_chunk: BattleChunk, team: 
   unit.weapon_range = WeaponRange.Short
   unit.weapon_system = BulletSize.Rifle
   unit.explosion_radius = 0
-  unit.width = 256
-  unit.height = 256
+  unit.logical_radius = 55
   unit.shoots_per_minute = 0
   unit.texture_name = if team == 1: "truck_gray" else: "truck_green"
   unit.texture_w = 256
@@ -456,8 +513,7 @@ proc create_heavy_transport(g: Game, x: float, y: float, target_chunk: BattleChu
   unit.weapon_range = WeaponRange.Medium
   unit.weapon_system = BulletSize.LightTank
   unit.explosion_radius = 0
-  unit.width = 256
-  unit.height = 256
+  unit.logical_radius = 65
   unit.shoots_per_minute = 20
   unit.texture_name = if team == 1: "heavy_transport_gray" else: "heavy_transport_green"
   unit.texture_w = 256
@@ -505,8 +561,7 @@ proc create_light_tank(g: Game, x: float, y: float, target_chunk: BattleChunk, t
   unit.weapon_range = WeaponRange.Medium
   unit.weapon_system = BulletSize.LightTank
   unit.explosion_radius = 1
-  unit.width = 256
-  unit.height = 256
+  unit.logical_radius = 34
   unit.shoots_per_minute = 20
   unit.texture_name = if team == 1: "light_tank_gray" else: "light_tank_green"
   unit.texture_w = 256
@@ -529,8 +584,7 @@ proc create_medium_tank(g: Game, x: float, y: float, target_chunk: BattleChunk, 
   unit.weapon_range = WeaponRange.Medium
   unit.weapon_system = BulletSize.MediumTank
   unit.explosion_radius = 1
-  unit.width = 256
-  unit.height = 256
+  unit.logical_radius = 40
   unit.shoots_per_minute = 10
   unit.texture_name = if team == 1: "medium_tank_gray" else: "medium_tank_green"
   unit.texture_w = 256
@@ -553,8 +607,7 @@ proc create_heavy_tank(g: Game, x: float, y: float, target_chunk: BattleChunk, t
   unit.weapon_range = WeaponRange.Long
   unit.weapon_system = BulletSize.HeavyTank
   unit.explosion_radius = 1
-  unit.width = 256
-  unit.height = 256
+  unit.logical_radius = 60
   unit.shoots_per_minute = 5
   unit.texture_name = if team == 1: "heavy_tank_gray" else: "heavy_tank_green"
   unit.texture_w = 256
@@ -577,8 +630,7 @@ proc mobile_anti_tank_gun(g: Game, x: float, y: float, target_chunk: BattleChunk
   unit.weapon_range = WeaponRange.Medium
   unit.weapon_system = BulletSize.AntiTankGun
   unit.explosion_radius = 1
-  unit.width = 256
-  unit.height = 256
+  unit.logical_radius = 38
   unit.shoots_per_minute = 15
   unit.texture_name = if team == 1: "anti_tank_gun_gray" else: "anti_tank_gun_green"
   unit.texture_w = 256
@@ -602,8 +654,7 @@ proc mobile_mortar(g: Game, x: float, y: float, target_chunk: BattleChunk, team:
   unit.weapon_range = WeaponRange.VeryLong
   unit.weapon_system = BulletSize.Mortar
   unit.explosion_radius = 1
-  unit.width = 256
-  unit.height = 256
+  unit.logical_radius = 40
   unit.shoots_per_minute = 5
   unit.texture_name = if team == 1: "mortar_gray" else: "mortar_green"
   unit.texture_w = 256
@@ -614,7 +665,6 @@ proc mobile_mortar(g: Game, x: float, y: float, target_chunk: BattleChunk, team:
   unit.can_fight = true
   g.init_unit_in_world(unit)
   return unit
-
 
 proc mobile_artillery(g: Game, x: float, y: float, target_chunk: BattleChunk, team: int): Unit = 
   var unit = Unit()
@@ -627,8 +677,7 @@ proc mobile_artillery(g: Game, x: float, y: float, target_chunk: BattleChunk, te
   unit.weapon_range = WeaponRange.CrazyLong
   unit.weapon_system = BulletSize.Artillery
   unit.explosion_radius = 1
-  unit.width = 256
-  unit.height = 256
+  unit.logical_radius = 50
   unit.shoots_per_minute = 5
   unit.texture_name = if team == 1: "artillery_gray" else: "artillery_green"
   unit.texture_w = 256
@@ -660,7 +709,6 @@ proc spawn_map_control_platoon(g: Game, target_chunk: BattleChunk, origin_chunk:
   discard create_truck( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
   discard create_truck( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
 
-
 proc spawn_attack_platoon(g: Game, target_chunk: BattleChunk, origin_chunk: BattleChunk, team: int) = 
   # 2 medium tanks, 1 heavy tank, 1 heavy transport; cost 50
   discard create_medium_tank( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
@@ -675,15 +723,13 @@ proc spawn_defense_platoon(g: Game, target_chunk: BattleChunk, origin_chunk: Bat
   discard mobile_mortar( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
   discard mobile_mortar( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
   discard mobile_artillery( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
-  #for i in 0..20:
-  #  discard create_support_soldier( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
-  #  discard create_rifle_soldier( g, rand(origin_chunk.pos.x..origin_chunk.pos.x + CHUNK_SIZE_IN_PIXELS ), rand(origin_chunk.pos.y..origin_chunk.pos.y + CHUNK_SIZE_IN_PIXELS ), target_chunk, team)
+
+#region B- FUNCTIONS
 
 proc unload_units_from_vehicle(g: Game, vehicle: Unit) = 
   for u in vehicle.units_on_board:
     u.pos = Vector2(x: vehicle.pos.x + rand(-50..50).float, y: vehicle.pos.y + rand(-50..50).float)
     u.in_vehicle = false
-    g.current_battle.get.units.add(u)
   vehicle.units_on_board = @[]
 
 proc get_range_in_pixels(range: WeaponRange): float = 
@@ -709,13 +755,53 @@ proc get_damage_in_pixels(damage: BulletSize): int =
 
 proc get_speed_in_pixels(speed: UnitSpeedLevel): float = 
   return case speed
-    of UnitSpeedLevel.Slow: 30
-    of UnitSpeedLevel.Normal: 90
-    of UnitSpeedLevel.Fast: 140
-    of UnitSpeedLevel.VeryFast: 230       
+    of UnitSpeedLevel.Slow: 15
+    of UnitSpeedLevel.Normal: 45
+    of UnitSpeedLevel.Fast: 70
+    of UnitSpeedLevel.VeryFast: 115       
 
 proc get_start_chunk_of_player(g: Game): BattleChunk = return g.current_battle.get.chunks[0]
 proc get_start_chunk_of_ai(g: Game): BattleChunk = return g.current_battle.get.chunks[g.current_battle.get.chunks.len-1]
+
+proc check_collision(unit: Unit, target: Unit): bool = 
+  return checkCollisionRecs(
+    Rectangle(x: unit.pos.x-32.0, y: unit.pos.y-32.0, width: 64, height: 64),
+    Rectangle(x: target.pos.x-32.0, y: target.pos.y-32.0, width: 64, height:64))
+
+proc apply_battle_outcome(g:var Game #[more args here that describe the battle outcome]#) =
+  # couns all the existing units
+  g.mode = GameMode.Camp
+
+proc unit_die_and_remove(self: var Unit, battle: var BattleData) = 
+  let index = battle.units.find(self)
+  battle.units.del(index) 
+  for unit in battle.units:
+    if unit.target_unit.isSome:
+      if unit.target_unit.get == self: unit.target_unit = none(Unit)
+    let index_in_currently_selected_units = battle.currently_selected_units.find(self)
+    if index_in_currently_selected_units != -1: battle.currently_selected_units.del(index_in_currently_selected_units)     
+
+proc get_center(self: Unit): seq[Vector2] = discard #  the tile on which i stand
+
+proc get_tile_and_chunk_by_vec(self: BattleData, vec: Vector2): tuple[tile:BattleTile,chunk: BattleChunk] =
+  let chunk_index_x = (vec.x / CHUNK_SIZE_IN_PIXELS).floor
+  let chunk_index_y = (vec.y / CHUNK_SIZE_IN_PIXELS).floor
+
+proc normalize_angle(angle: float): float = 
+  let wrapped = angle mod 360.0; return (if wrapped < 0.0: wrapped + 360.0 else: wrapped)  
+
+# Function to calculate the angle between two Vector2 points in degrees (0 - 360)
+proc angleBetween(p1, p2: Vector2): float =
+  let deltaX = p2.x - p1.x; let deltaY = p2.y - p1.y
+  let angleRad = arctan2(deltaY, deltaX)
+  let angleDeg = angleRad * (180.0 / PI)
+  if angleDeg < 0: return angleDeg + 360 else: return angleDeg
+
+proc update_unit_position_on_chunk_and_tile(unit: Unit, g: Game) = 
+  discard
+
+proc get_logical_size_of_unit_as_rect(self: Unit): Rectangle = 
+  return Rectangle(x: self.pos.x - self.logical_width/2, y: self.pos.y - self.logical_height/2, width: self.logical_width, height: self.logical_height)
 
 #region BATTLE-START
 proc init_battle(g:var Game, #[more args here that describe the battle params]#) =
@@ -746,35 +832,19 @@ proc init_battle(g:var Game, #[more args here that describe the battle params]#)
   # todo: add the args so we know what to set in the battle -> what game play flags...
   battle.camera = Camera2D(target: Vector2(x: 0, y: 0), offset: Vector2(x: 0, y: 0), rotation: 0, zoom: 1)
 
-proc apply_battle_outcome(g:var Game #[more args here that describe the battle outcome]#) =
-  # couns all the existing units
-  g.mode = GameMode.Camp
-
-proc unit_die_and_remove(self: var Unit, battle: var BattleData) = discard # remove from contextn etc.
-#proc 
-proc get_center(self: Unit): seq[Vector2] = discard #  the tile on which i stand
-proc get_tile_and_chunk_by_vec(self: BattleData, vec: Vector2): tuple[tile:BattleTile,chunk: BattleChunk] =
-  let chunk_index_x = (vec.x / CHUNK_SIZE_IN_PIXELS).floor
-  let chunk_index_y = (vec.y / CHUNK_SIZE_IN_PIXELS).floor
-
-proc normalize_angle(angle: float): float = 
-  let wrapped = angle mod 360.0; return (if wrapped < 0.0: wrapped + 360.0 else: wrapped)  
-
-# Function to calculate the angle between two Vector2 points in degrees (0 - 360)
-proc angleBetween(p1, p2: Vector2): float =
-  let deltaX = p2.x - p1.x; let deltaY = p2.y - p1.y
-  let angleRad = arctan2(deltaY, deltaX)
-  let angleDeg = angleRad * (180.0 / PI)
-  if angleDeg < 0: return angleDeg + 360 else: return angleDeg
-
 proc battle_logic(g:var Game, delta_time: float): void = 
-  if isKeyPressed(KeyboardKey.L): apply_battle_outcome(g)
+  
+  if isKeyPressed(KeyboardKey.L): apply_battle_outcome(g) # todo: this should be another key
   var battle = g.current_battle.get
   
-  # update unit-tile, the ubnit stands on
+  # todo:update unit-tile, the unit stands on, also update the chunk the unit is on...
+  # todo: so this via a function
   var unit_batch_state {.global.} = 0 # this can be used to keep the batch-state between proc calls
   for unit in battle.units: # todo: dont iterate over all units each step ... 
     if unit.in_vehicle: continue
+    
+    update_unit_position_on_chunk_and_tile(unit, g)
+
     var can_move = true           
     if unit.target_unit.isSome:
 
@@ -783,12 +853,15 @@ proc battle_logic(g:var Game, delta_time: float): void =
 
       let target_in_reach = distance(unit.pos, unit.target_unit.get.pos) < unit.weapon_range.get_range_in_pixels        
       if target_in_reach: can_move = false
+      # todo: units should only be able to shoot if they are facing the target
+      # todo: we need to determine the "needed_rotation" to face the target
+      # todo: then we move with a "rotation_speed" towards this rotation
+      # todo: soldiers have instant rotation, vehicles have a rotation speed that is slower
       unit.rotation = angleBetween(unit.pos, unit.target_unit.get.pos)
     
     if unit.target_unit.isSome and unit.shoot_cooldown < 0 and unit.can_fight: 
       let target_in_reach = distance(unit.pos, unit.target_unit.get.pos) < unit.weapon_range.get_range_in_pixels
-      if target_in_reach and unit.shoot_cooldown < 0:
-        # todo: create shot here
+      if target_in_reach and unit.shoot_cooldown < 0: # SHOT !
         unit.shoot_cooldown = 60 / unit.shoots_per_minute
         battle.shots.add(
           Shot(
@@ -797,9 +870,10 @@ proc battle_logic(g:var Game, delta_time: float): void =
             duration: 0.2, 
             damage: unit.weapon_system.get_damage_in_pixels,
             bullet_size: unit.weapon_system))
-        battle.sprites.add(
-          BattleSprite(pos: Vector2(x: unit.pos.x + rand(-20..20).float, y: unit.pos.y +  rand(-20..20).float), rotation: rand(0..360).float, sprite_name: "bullet_case" ))  
-        # playSound(g.sounds["shot"])
+        battle.sprites.add( # todo: do we need this sprite?
+          BattleSprite(pos: Vector2(x: unit.pos.x + rand(-20..20).float, y: unit.pos.y +  rand(-20..20).float), 
+          rotation: rand(0..360).float, sprite_name: "bullet_case" ))  
+        # todo: invest some thought into sound-design playSound(g.sounds["shot"])
 
     else: # scan for units in vicinity if i have not target
       if unit.look_around_check_in < 0:
@@ -818,7 +892,9 @@ proc battle_logic(g:var Game, delta_time: float): void =
       if abs(distance(unit.pos, unit.move_target.get)) < unit.speed.get_speed_in_pixels * delta_time:
         unit.pos = unit.move_target.get
         unit.move_target = none(Vector2) 
-      # check if i am in a new chunk     
+        if unit.target_rotation.isSome:
+          unit.rotation = unit.target_rotation.get
+          unit.target_rotation = none(float)
     
     unit.shoot_cooldown = unit.shoot_cooldown - delta_time  
     unit.look_around_check_in = unit.look_around_check_in - delta_time
@@ -826,13 +902,13 @@ proc battle_logic(g:var Game, delta_time: float): void =
     block: discard # check if i am on target chunk, and if not try to move towards
 
   for chunk in battle.chunks: discard
-    # check how many unist are in this chunk
-    # loop over them and check if they collide on a tile  
-    # collision of units: push out of each other: use tiles for this
+    # todo check how many unist are in this chunk
+    # todo loop over them and check if they collide on a tile  
+    # todo collision of units: push out of each other: use tiles for this
 
-  for shot in battle.shots: discard # apply at then end and remove
-
-  for command_group in battle.command_groups: discard # ? -> was machen die?
+  for command_group in battle.command_groups: discard  # ? -> was machen die?
+  # todo: we need to think about command groups, since they might enable ai based control of units
+  # todo: command groups also should enable easy selection and meta control
 
   for unit in battle.units: #  todo: optimze via chunks !
     # apply collision with other units, so they dont overlap: push each other out...
@@ -864,15 +940,23 @@ proc battle_logic(g:var Game, delta_time: float): void =
 
   if isKeyPressed(KeyboardKey.Space): battle.display_mode = if battle.display_mode == BattleDisplayMode.Tactic: BattleDisplayMode.Strategic else: BattleDisplayMode.Tactic
 
-  if isKeyPressed(KeyboardKey.ONE): spawn_scout_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 1)
-  if isKeyPressed(KeyboardKey.TWO): spawn_map_control_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 1)
-  if isKeyPressed(KeyboardKey.THREE): spawn_attack_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 1)
-  if isKeyPressed(KeyboardKey.FOUR): spawn_defense_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.ONE): spawn_scout_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.TWO): spawn_map_control_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.THREE): spawn_attack_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.FOUR): spawn_defense_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
 
-  if isKeyPressed(KeyboardKey.FIVE): spawn_defense_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_player(g), 3)
+  if isKeyPressed(KeyboardKey.FIVE): spawn_defense_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_ai(g), 3)
+  if isKeyPressed(KeyboardKey.SIX): spawn_attack_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_ai(g), 3)
+  if isKeyPressed(KeyboardKey.SEVEN): spawn_map_control_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_ai(g), 3)
+  if isKeyPressed(KeyboardKey.EIGHT): spawn_scout_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_ai(g), 3)
+
 
   if isKeyPressed(KeyboardKey.U):
     for unit in battle.currently_selected_units: unload_units_from_vehicle(g, unit)
+
+  var dead_units: seq[Unit] = @[]
+  for index, unit in mpairs(battle.units): (if unit.health <= 0:  dead_units.add(unit))
+  for _, unit in mpairs(dead_units): unit_die_and_remove(unit, battle)  
 
 
 proc display_and_progress_explosions(g:var Game, delta_time: float): void =
@@ -940,7 +1024,7 @@ proc battle_display(g:var Game, delta_time: float): void =
           draw_from_atlas(g.battle_graphics[sprite.sprite_name], g, sprite.pos.x, sprite.pos.y, 0, 0, rotation=sprite.rotation)
       
       for unit in battle.currently_selected_units:
-        drawCircleLines(Vector2(x:unit.pos.x, y:unit.pos.y), unit.weapon_range.get_range_in_pixels, RED)
+        if battle.currently_selected_units.len < 4: drawCircleLines(Vector2(x:unit.pos.x, y:unit.pos.y), unit.weapon_range.get_range_in_pixels, RED)
         if unit.is_soldier: drawRectangleLines(Rectangle(x:unit.pos.x - 32, y:unit.pos.y-32, width:64, height:64), 2, RED)  
         else : drawRectangleLines(Rectangle(x:unit.pos.x - 64, y:unit.pos.y-64, width:128, height:128), 2, RED)
         if unit.move_target.isSome: drawLine(unit.pos, unit.move_target.get, RED)
@@ -966,11 +1050,12 @@ proc battle_display(g:var Game, delta_time: float): void =
         drawLine(shot.start, shot.target, WHITE)
         shot.duration = shot.duration - delta_time  
 
-      display_and_progress_explosions(g, delta_time)
-
-      # draw green circle around all units 
+      # debugging
       for unit in battle.units:
-        drawCircleLines(Vector2(x:unit.pos.x, y:unit.pos.y), 64, RED)
+        if unit.in_vehicle: continue
+        drawCircleLines(Vector2(x:unit.pos.x, y:unit.pos.y), unit.logical_radius, PURPLE)
+
+      display_and_progress_explosions(g, delta_time)
       
       var shot_index  = 0
       while shot_index < battle.shots.len:
@@ -1018,15 +1103,9 @@ proc battle_display(g:var Game, delta_time: float): void =
                 dead_units.add(unit)
                 for passenger in unit.units_on_board: dead_units.add(passenger)
               break
-          for unit in dead_units: # todo: move the die uhnit logic out since this is bug heavy
+          for index, unit in mpairs(dead_units): # todo: move the die uhnit logic out since this is bug heavy
             let dead_unit = unit
-            let index = battle.units.find(unit)
-            battle.units.del(index) 
-            for unit in battle.units:
-              if unit.target_unit.isSome:
-                if unit.target_unit.get == dead_unit:
-                  unit.target_unit = none(Unit)
-
+            unit_die_and_remove(unit, battle)
 
         else: shot_index += 1
 
@@ -1034,11 +1113,38 @@ proc battle_display(g:var Game, delta_time: float): void =
       discard #  display the minimap, conrtrol command groups, etc.
       for command_group in battle.command_groups: discard # display   
 
+  var is_dragging_position_selection {.global.} = false
+  var target_position {.global.} = Vector2(x: 0, y: 0)
+
+  # todo: if enough units in list, create 2, 3,4 rows and not one very long row...
+  # todo: sort units by type so we have artillery, tanks, soldiers, etc. in different rows ...
+  if isMouseButtonPressed(MouseButton.Right):
+    is_dragging_position_selection = true; target_position = getScreenToWorld2D(getMousePosition(), battle.camera)
+  
+  if is_dragging_position_selection:
+    let tpos = getScreenToWorld2D(getMousePosition(), battle.camera)
+    let rotation_units_should_have = angleBetween(target_position, tpos) * (PI / 180.0) - PI/2
+    var total_line_size: float = 0; let padding: float = 10
+    for unit in battle.currently_selected_units: total_line_size = total_line_size + unit.logical_radius * 2 + padding
+    let start_point_of_circles = (target_position - Vector2(x: total_line_size / 2, y: 0).rotate(rotation_units_should_have))
+    var current_circle_pos = start_point_of_circles; var unit_on_new_position: seq[tuple[unit:Unit,pos:Vector2]] = @[]
+    for unit in battle.currently_selected_units:
+      drawCircleLines(current_circle_pos + Vector2(x: unit.logical_radius,y:0).rotate(rotation_units_should_have), unit.logical_radius, PURPLE)
+      unit_on_new_position.add((unit:unit, pos:current_circle_pos + Vector2(x: unit.logical_radius,y:0).rotate(rotation_units_should_have)))
+      current_circle_pos = current_circle_pos + Vector2(x: unit.logical_radius * 2 + padding, y: 0).rotate(rotation_units_should_have)
+    drawLine(target_position, tpos,2, RED)
+    if isMouseButtonReleased(MouseButton.Right):
+      is_dragging_position_selection = false
+      for unit in unit_on_new_position:
+        unit.unit.move_target = some(unit.pos); unit.unit.target_unit = none(Unit); unit.unit.look_around_check_in = 0.5  
+        unit.unit.target_rotation = some(rotation_units_should_have * (180.0 / PI) + 90)
+
   endMode2D()
 
   # Select and control units
   var is_dragging {.global.} = false      
   var selection_rect {.global.} = Rectangle()
+
   if isMouseButtonPressed(MouseButton.Left):
     isDragging = true
     let mousePos = getMousePosition()
@@ -1067,14 +1173,7 @@ proc battle_display(g:var Game, delta_time: float): void =
         unit_rect
       ):
         battle.currently_selected_units.add(unit)
-  if isMouseButtonPressed(MouseButton.Right):
-    if battle.currently_selected_units.len != 0:
-      let tpos = getScreenToWorld2D(getMousePosition(), battle.camera)
-      for unit in battle.currently_selected_units:
-        if battle.currently_selected_units.len > 1: 
-          unit.move_target = some(Vector2(x: tpos.x + rand(-100..100).float, y: tpos.y + rand(-100..100).float))      
-        else:
-          unit.move_target = some(Vector2(x: tpos.x, y: tpos.y))    
+
   
   # todo: display small infocard for selected units
 
@@ -1138,7 +1237,7 @@ var camera = Camera2D(target: Vector2(x: 0, y: 0), offset: Vector2(x: 0, y: 0), 
 setTargetFPS(60)
 # todo: this makes trouble??
 setWindowMonitor(2)
-toggleFullscreen();
+#toggleFullscreen();
 
 
 
