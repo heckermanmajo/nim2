@@ -1,7 +1,5 @@
 Command-Points
 
-
-
 Als erstes einzelne Atlases für panzer und soldaten machen.
 -> erstmal keine soldaten animationen, etc.
 

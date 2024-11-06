@@ -2,102 +2,99 @@
 
 DONT PUBLISH A BETA: PUBLSIH AN ALPHA and then a SIGMA.
 
-Can we keep the game under 5000 lines to release? - cloc-lines
+Can we keep the game under 3000 (5000) lines to release? - cloc-lines
 
-USE CIRCLE-COLLISIONS FOR UNITS instead of rectangles
--> this way we dont need even tiles ...
--> using chunks for collision is enough
+Next-Todos: 
 
-We need to make the engine-part solid and nice before we meddl with features
-this means:
-  - unit chunk tracking
-  - unit tile tracking
-  - debug view into the unit on click
-  - debug view into chunks on click
-  - debug view into tiles on click 
-  - comments and cleanup + read marker
-  - put clear todos into the code
+  Make campaign Work:(1)
+    - create and increase command-points of armies
+    - logistics system
+    - army merge and simple move 
+    - concept for ai moves
 
-- CONCEPT-CONTROLS: HOW TO MAKE CONTROLS SUPERB???
-  - intuitive controls + Very nice battle-feeling
-
-CONCEPT: HOW TO MAKE GAMEPLAY FEEL RIGHT?
-  - Units need to behave (a bit more) like real units 
-  - Tanks need to be more effect-ful ... 
-  - better shooting Mechanis: taking Cover need to make sense
-    - for this we need to track all the stuff on tiles 
-      each tile a shot "visits" has a chance of blocking the shot
+CONCEPT:
+  - Think about a nice system for conqerable chunks in the battle map that
+    give boni to the player and have some visual representation on the map.
+      - lover costs
+      - see big parts of the map
+      - faster unit spawn
+      - more unit moral
+      - some deliver units to the battlefield for free
+      - offer out of map artillery support
+  - projectile and Shoot-system:
+    - two types of projectiles: instant and slow moving 
+    - slow moving projectiles: mortars, artillery, granates, rockets
+    - two systems: Projectile(granates, rockets) and Shot (instant)
+    - "deckung-mechanik"
+    - explosion-radius-mechanik
+  - 2 ai problems: campaign map and battle map
   - move units in battle out of battle (Fallback-Button)
-  - select more "sensible" target: Tank for anit tank, except i am getting shot at, etc.
-  - better tile-management, allows for smarted formation
+
+AI Concept:
+  - different "tactics" to combine
+
+Campaign-AI (1):
+  - create basic campaign ai
+
+Battle-AI:  (1)
   - also auto-go towards cover (use tanks etc. as cover)
-  - SCALE UP TANKS 1.5x? 1.3x? 1.7x? -> Tanks need to be bigger to feel right
-  - add simple objects to map for cover (trees, sandbags, etc.)
-  - jeeps are to fast
-  - smaller unit-spawn-batches (maybe all vehicles should be spawned for themself...)
-    Spawning to much at once makes the gameplay to "just throw all units at the enemy"
-  - we want to use units to their strenght  and build up for battles
-  - we need slow moving projectiles for mortars and artillery, and granates (maybe a granate lanucher-soldier?)
-  - replace support soldier with launcher soldier
-  - replace support soldier role with support vehicle role
+  - select more "sensible" target: Tank for anit tank, except I am getting shot at, etc.
 
-Question:
- - how to make the map work?
- - some spots give boni, so you want to hold them
- - some make units cheaper
- - some deliver units to the battlefield for free
- - some increase the recruitment speed
- - some offer out of map artillery/tactical nuke support  
+Information-Acess:(1)
+  - display unit information if selected
+  - display all units with icons if selected
+  - use the icon for sb selection
+  - use of better icons and ui elements
 
--> display all infos about the selected unit
--> display all selcted units with icons
--> add unit description
+Battle Feel: (Movement-Controls:1; Zoom + reload units back in truck + fogofwar(1); Projectile-System: 1)
+ - fix controls: order units so that it makes sense (artillery in the back, tanks in the front)
+ - add more rows if you command a lot of units at once
+ - use selection icons for sub selections
+ - double click on unit to select all units of the same type in the current view 
+ - new projectile system: start with granates
+ - Zoom:
+    at certain zoom out display chunks in color of the owner
+    and dont draw units, but dots for units
+    and dont draw tiles 
+    and move the cam faster, the further you are zoomed out
+    - render all units and vehicles as dots and rects at a certain zoom-level    
+  - add support vehicle for repair and building stuff
+  - add ammunition system for artillery
+  - spawn QUEUE +  visual hints
+  - fog of war: draw a gray-overlay over each chunk not in view
+  - RE-LOAD UNits in the vicinity into transports via "L" - key
+    - all units in 300 pixel radius are loaded into the transport until is full
 
-- SPAWN-QUEUE
-  - add simple ui with buttons to spawn units and to show the current command points
-  - ai: spawn units: add spawn-qeue
+Content:
+  (1: out oof map)
+  - a granate lanucher-soldier
+  - out of map artillery support
+  - a supply truck
+  - out of map tactical nuke support
+  - air-support; paratroopers
+  - add simple objects to map for cover (trees, sandbags, etc.) (1: nach projectile system)
+     - make the simple objects destructable and burnable
 
-- cleanup, comment and strcuture the code
+Battle look: (1)  
+- add smoke to fire: smoke lingers arougn for some time and floats in a diretction slowly    
+- add bodies for dead soldiers(based on what weapon killed them)
+- add blood and gore to destroyed vehicles with units inside
+- SCALE UP TANKS 1.5x? 1.3x? 1.7x? -> Tanks need to be bigger to feel right
+- add fire on mussle of gun: for shooting units
 
-- debug battles
-
-- remove shot-lines; add fire on mussle of gun
-
-- add real camapign-battle-flow
-
-- let the ai spawn units -> need money for that
-
-- add gore if you kill a full transport
-
-- RE-LOAD UNits in the vicinity into transports via "L" - key
-   - all units in 300 pixel radius are loaded into the transport until is full
-
-- double click on unit to select all units of the same type in the current view
-
-- Zoomlevel
-  - move faster ober the map, based on the zoomlevel
-
-- command points: spawn units based on command points of faction
-- end battle-condition
-- ownership of chunks; display at a certain zoom-level; track on what chunk a unit is
-- render all units and vehicles as dots and rects at a certain zoom-level
-- add explosions and hit markers(smoke, etc.)
-- add crators
-- add dead soldiers(based on what weapon killed them)
-- add fire for destroyed vehicles
-- fog of war
-
-Perforamnce:
+Performance:(1)
 - only draw what is in the view
 - only collide with units in same chunk: Chunk tracking...
 
-GAME-DESIGN:
-- The campaign map needs to be simple:
-  - movement: conquer, attack, merge
-  - distance to logistics-tile determines costs of command points
+Code-Quality: (1 (offline))
+  - add comments; cleanup; read marker
+  - allow to click on a chunk and display all the debug info about the chunk
 
-- you deploy small troops in battle
-- Some chunks in battle have a special effect (lower costs, faster deployment)
+Save and Load-Campaign: (1)
+
+Later-Ideas:
+  - moral-system: more moral better fighting
+  - diplomacy
 
 ]]##
 
@@ -126,6 +123,14 @@ const CHUNK_SIZE_IN_TILES = 10
 const TILE_SIZE = 64
 const CHUNK_SIZE_IN_PIXELS = CHUNK_SIZE_IN_TILES * TILE_SIZE
 const WORLD_IN_CHUNKS = 10
+
+const COST_SCOUT_PLATOON = 100
+const COST_CONTROL_PLATOON = 100
+const COST_ATTACK_PLATOON = 350
+const COST_DEFENSE_PLATOON = 500
+
+const PLAYER = 1
+const ENEMY = 2
 
 #region type-definitions
 type
@@ -222,7 +227,12 @@ type
     pos: Vector2
     size: ExplosionSize
     active_since: float
-  BattleParticle = ref object # fire, vehicle-parts, body-parts, dead bodies, etc.; passive stuff that interacts only on the visual side
+  BattleFire = ref object
+    pos: Vector2
+    fire_type: int
+    active_since: float
+    current_frame: int
+    time_since_last_frame: float
   UnitCategory = enum Soldier, Pioneer, LightVehicle, MediumVehicle, LightTank, MediumTank, Tank, SlowGun 
   UnitSpeedLevel = enum Slow, Normal, Fast, VeryFast  
   WeaponRange = enum SuperShort, Short, Medium, Long, VeryLong, CrazyLong
@@ -239,6 +249,7 @@ type
     rotation: float
     needed_rotation: float
     rotation_speed_per_second: float
+    reapply_command_points: float
     speed: UnitSpeedLevel
     weapon_range: WeaponRange
     weapon_system: BulletSize
@@ -258,6 +269,7 @@ type
     max_health: int
     logical_radius: float
     target_rotation: Option[float]
+    chunk_i_am_on: Option[BattleChunk]
   CommandGroup = ref object
     units: seq[Unit]  
   BattleTile = ref object
@@ -299,6 +311,11 @@ type
     selected_chunk: Option[BattleChunk]
     sprites: seq[BattleSprite]
     explosions: seq[BattleExplosion]
+    faction_1_command_points: float
+    faction_2_command_points: float
+    player_tile: Tile
+    enemy_tile: Tile
+    fires: seq[BattleFire]
   ##################################################################
 
   TileType = enum Land, Water, Mountain, Minerals
@@ -363,6 +380,7 @@ proc create_storm_soldier(g: Game, x: float, y: float, target_chunk: BattleChunk
     unit.cannot_be_hit_by = @[]
     unit.target_chunk = target_chunk
     unit.can_fight = true
+    unit.reapply_command_points = 4
     g.init_unit_in_world(unit)
     return unit
 
@@ -386,6 +404,7 @@ proc create_support_soldier(g: Game, x: float, y: float,target_chunk: BattleChun
   unit.cannot_be_hit_by = @[]
   unit.target_chunk = target_chunk
   unit.can_fight = true
+  unit.reapply_command_points = 4  
   g.init_unit_in_world(unit)
   return unit
 
@@ -409,6 +428,7 @@ proc create_rifle_soldier(g: Game, x: float, y: float, target_chunk: BattleChunk
   unit.cannot_be_hit_by = @[]
   unit.target_chunk = target_chunk  
   unit.can_fight = true
+  unit.reapply_command_points = 4
   g.init_unit_in_world(unit)
   return unit
 
@@ -432,6 +452,7 @@ proc create_bazooka_soldier(g: Game, x: float, y: float, target_chunk: BattleChu
   unit.cannot_be_hit_by = @[]
   unit.target_chunk = target_chunk
   unit.can_fight = true
+  unit.reapply_command_points = 4
   g.init_unit_in_world(unit)
   return unit
 
@@ -463,6 +484,7 @@ proc create_humvee(g: Game, x: float, y: float, target_chunk: BattleChunk, team:
   unit.target_chunk = target_chunk
   unit.can_fight = true
   # todo: add units on board
+  unit.reapply_command_points = 10
   g.init_unit_in_world(unit)
   return unit
 
@@ -497,6 +519,7 @@ proc create_truck(g: Game, x: float, y: float, target_chunk: BattleChunk, team: 
   for u in unit.units_on_board: u.in_vehicle = true  
   unit.target_chunk = target_chunk
   unit.can_fight = false
+  unit.reapply_command_points = 10
   # todo: add units on board
   g.init_unit_in_world(unit)
   return unit
@@ -547,6 +570,7 @@ proc create_heavy_transport(g: Game, x: float, y: float, target_chunk: BattleChu
   unit.target_chunk = target_chunk
   # todo: add units on board
   unit.can_fight = true
+  unit.reapply_command_points = 20
   g.init_unit_in_world(unit)
   return unit
 
@@ -570,6 +594,7 @@ proc create_light_tank(g: Game, x: float, y: float, target_chunk: BattleChunk, t
   unit.cannot_be_hit_by = @[BulletSize.Rifle, BulletSize.HeavyRifle]
   unit.target_chunk = target_chunk
   unit.can_fight = true
+  unit.reapply_command_points = 20
   g.init_unit_in_world(unit)
   return unit
 
@@ -593,6 +618,7 @@ proc create_medium_tank(g: Game, x: float, y: float, target_chunk: BattleChunk, 
   unit.cannot_be_hit_by = @[BulletSize.Rifle, BulletSize.HeavyRifle]
   unit.target_chunk = target_chunk
   unit.can_fight = true
+  unit.reapply_command_points = 20
   g.init_unit_in_world(unit)
   return unit
 
@@ -616,6 +642,7 @@ proc create_heavy_tank(g: Game, x: float, y: float, target_chunk: BattleChunk, t
   unit.cannot_be_hit_by = @[BulletSize.Rifle, BulletSize.HeavyRifle, BulletSize.LightTank]
   unit.target_chunk = target_chunk
   unit.can_fight = true
+  unit.reapply_command_points = 20
   g.init_unit_in_world(unit)
   return unit
 
@@ -639,6 +666,7 @@ proc mobile_anti_tank_gun(g: Game, x: float, y: float, target_chunk: BattleChunk
   unit.cannot_be_hit_by = @[BulletSize.Rifle, BulletSize.HeavyRifle, BulletSize.LightTank]
   unit.target_chunk = target_chunk
   unit.can_fight = true
+  unit.reapply_command_points = 20
   g.init_unit_in_world(unit)
   return unit
 
@@ -663,6 +691,7 @@ proc mobile_mortar(g: Game, x: float, y: float, target_chunk: BattleChunk, team:
   unit.cannot_be_hit_by = @[]
   unit.target_chunk = target_chunk
   unit.can_fight = true
+  unit.reapply_command_points = 20
   g.init_unit_in_world(unit)
   return unit
 
@@ -686,11 +715,16 @@ proc mobile_artillery(g: Game, x: float, y: float, target_chunk: BattleChunk, te
   unit.cannot_be_hit_by = @[]
   unit.target_chunk = target_chunk
   unit.can_fight = true
+  unit.reapply_command_points = 20
   g.init_unit_in_world(unit)
   return unit
 
-proc can_afford(g: Game, cost: int): bool = g.scenario.factions[0].money >= cost
-proc apply_cost(g: Game, cost: int): void = g.scenario.factions[0].money -= cost
+proc can_afford(g: Game, cost: int, player_num: int): bool = 
+  if player_num == PLAYER: return g.current_battle.get.faction_1_command_points >= cost.float
+  else: return g.current_battle.get.faction_2_command_points >= cost.float
+proc apply_cost(g: Game, cost: int, player_num: int): void = 
+  if player_num == PLAYER: g.current_battle.get.faction_1_command_points -= cost.float
+  else: g.current_battle.get.faction_2_command_points -= cost.float
 
 # we can spawn 4 types of platoons: scout, control, attack, defense  
 proc spawn_scout_platoon(g: Game, target_chunk: BattleChunk, origin_chunk: BattleChunk, team: int) = 
@@ -771,6 +805,22 @@ proc check_collision(unit: Unit, target: Unit): bool =
 proc apply_battle_outcome(g:var Game #[more args here that describe the battle outcome]#) =
   # couns all the existing units
   g.mode = GameMode.Camp
+  let battle = g.current_battle.get
+
+  # count all units and re-apply command points
+  for unit in battle.units:
+    if unit.team == 1: battle.faction_1_command_points += unit.reapply_command_points
+    else: battle.faction_2_command_points += unit.reapply_command_points
+
+  if battle.faction_1_command_points < 100: # lost the army
+    battle.player_tile.owner = none(Faction)
+    battle.player_tile.army = none(Army)
+  else: battle.player_tile.army.get.command_points = battle.faction_1_command_points.int  
+
+  if battle.faction_2_command_points < 100: # lost the army
+    battle.enemy_tile.owner = none(Faction)
+    battle.enemy_tile.army = none(Army)  
+  else: battle.enemy_tile.army.get.command_points = battle.faction_2_command_points.int   
 
 proc unit_die_and_remove(self: var Unit, battle: var BattleData) = 
   let index = battle.units.find(self)
@@ -779,13 +829,28 @@ proc unit_die_and_remove(self: var Unit, battle: var BattleData) =
     if unit.target_unit.isSome:
       if unit.target_unit.get == self: unit.target_unit = none(Unit)
     let index_in_currently_selected_units = battle.currently_selected_units.find(self)
-    if index_in_currently_selected_units != -1: battle.currently_selected_units.del(index_in_currently_selected_units)     
+    if index_in_currently_selected_units != -1: battle.currently_selected_units.del(index_in_currently_selected_units) 
+  #remove from chunk
+  if self.chunk_i_am_on.isSome:
+    let index = self.chunk_i_am_on.get.units_on_chunk.find(self)
+    self.chunk_i_am_on.get.units_on_chunk.del(index)
+    self.chunk_i_am_on = none(BattleChunk)
+  # spawn fire if unit was a vehicle
+  if self.is_soldier == false:
+    let fire = BattleFire()
+    fire.pos = self.pos
+    fire.current_frame = 1
+    battle.fires.add(fire)        
 
 proc get_center(self: Unit): seq[Vector2] = discard #  the tile on which i stand
 
-proc get_tile_and_chunk_by_vec(self: BattleData, vec: Vector2): tuple[tile:BattleTile,chunk: BattleChunk] =
+proc get_chunk_by_vec(self: BattleData, vec: Vector2): Option[BattleChunk] =
   let chunk_index_x = (vec.x / CHUNK_SIZE_IN_PIXELS).floor
   let chunk_index_y = (vec.y / CHUNK_SIZE_IN_PIXELS).floor
+  if chunk_index_x < 0 or chunk_index_x >= WORLD_IN_CHUNKS: return none(BattleChunk)
+  if chunk_index_y < 0 or chunk_index_y >= WORLD_IN_CHUNKS: return none(BattleChunk)
+  return some(self.chunks[chunk_index_y.int + chunk_index_x.int * WORLD_IN_CHUNKS])
+
 
 proc normalize_angle(angle: float): float = 
   let wrapped = angle mod 360.0; return (if wrapped < 0.0: wrapped + 360.0 else: wrapped)  
@@ -797,16 +862,27 @@ proc angleBetween(p1, p2: Vector2): float =
   let angleDeg = angleRad * (180.0 / PI)
   if angleDeg < 0: return angleDeg + 360 else: return angleDeg
 
-proc update_unit_position_on_chunk_and_tile(unit: Unit, g: Game) = 
-  discard
-
-proc get_logical_size_of_unit_as_rect(self: Unit): Rectangle = 
-  return Rectangle(x: self.pos.x - self.logical_width/2, y: self.pos.y - self.logical_height/2, width: self.logical_width, height: self.logical_height)
+proc update_unit_position_on_chunk(unit: Unit, g: Game) =
+  let chunk = g.current_battle.get.get_chunk_by_vec(unit.pos) 
+  if unit.chunk_i_am_on.isSome:
+    if not chunk.isSome:
+      let index = unit.chunk_i_am_on.get.units_on_chunk.find(unit)
+      unit.chunk_i_am_on.get.units_on_chunk.del(index)
+      unit.chunk_i_am_on = none(BattleChunk)
+    elif unit.chunk_i_am_on.get != chunk.get:
+      let index = unit.chunk_i_am_on.get.units_on_chunk.find(unit)
+      unit.chunk_i_am_on.get.units_on_chunk.del(index)
+      chunk.get.units_on_chunk.add(unit); unit.chunk_i_am_on = chunk
+  elif chunk.isSome: chunk.get.units_on_chunk.add(unit);unit.chunk_i_am_on = chunk
 
 #region BATTLE-START
-proc init_battle(g:var Game, #[more args here that describe the battle params]#) =
+proc init_battle(g:var Game, faction_1_command_points: float, faction_2_command_points: float, player_tile: Tile, enemy_tile: Tile #[more args here that describe the battle params]#) =
   g.mode = GameMode.Battle
   g.current_battle = some(BattleData()); var battle = g.current_battle.get
+  battle.faction_1_command_points = faction_1_command_points
+  battle.faction_2_command_points = faction_2_command_points
+  battle.player_tile = player_tile
+  battle.enemy_tile = enemy_tile
   let tile_size_in_pixels = 64
   battle.chunk_size_in_tiles = 10; let chunk_size_pixel = tile_size_in_pixels*battle.chunk_size_in_tiles
   battle.chunks = @[]
@@ -819,6 +895,7 @@ proc init_battle(g:var Game, #[more args here that describe the battle params]#)
       chunk.tiles = @[]
       chunk.units_on_chunk = @[]
       chunk.battle_objects = @[]
+      chunk.owner = 0
       for tile_x in 0..(battle.chunk_size_in_tiles)-1:
         for tile_y in 0..(battle.chunk_size_in_tiles)-1:
           var tile = BattleTile()
@@ -827,6 +904,9 @@ proc init_battle(g:var Game, #[more args here that describe the battle params]#)
           tile.battle_object = none(BattleObject)
           chunk.tiles.add(tile)
 
+  get_start_chunk_of_player(g).owner = 1
+  get_start_chunk_of_ai(g).owner = 2
+  
   # todo; create all chunks here ...
   # todo; create all tiles here ...
   # todo: add the args so we know what to set in the battle -> what game play flags...
@@ -843,7 +923,7 @@ proc battle_logic(g:var Game, delta_time: float): void =
   for unit in battle.units: # todo: dont iterate over all units each step ... 
     if unit.in_vehicle: continue
     
-    update_unit_position_on_chunk_and_tile(unit, g)
+    update_unit_position_on_chunk(unit, g)
 
     var can_move = true           
     if unit.target_unit.isSome:
@@ -940,10 +1020,14 @@ proc battle_logic(g:var Game, delta_time: float): void =
 
   if isKeyPressed(KeyboardKey.Space): battle.display_mode = if battle.display_mode == BattleDisplayMode.Tactic: BattleDisplayMode.Strategic else: BattleDisplayMode.Tactic
 
-  if isKeyPressed(KeyboardKey.ONE): spawn_scout_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
-  if isKeyPressed(KeyboardKey.TWO): spawn_map_control_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
-  if isKeyPressed(KeyboardKey.THREE): spawn_attack_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
-  if isKeyPressed(KeyboardKey.FOUR): spawn_defense_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.ONE) and can_afford(g, COST_SCOUT_PLATOON, PLAYER): 
+    apply_cost(g, COST_SCOUT_PLATOON, PLAYER); spawn_scout_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.TWO) and can_afford(g, COST_CONTROL_PLATOON, PLAYER):
+    apply_cost(g, COST_CONTROL_PLATOON, PLAYER); spawn_map_control_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.THREE) and can_afford(g, COST_ATTACK_PLATOON, PLAYER):
+    apply_cost(g, COST_ATTACK_PLATOON, PLAYER); spawn_attack_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
+  if isKeyPressed(KeyboardKey.FOUR) and can_afford(g, COST_DEFENSE_PLATOON, PLAYER):
+    apply_cost(g, COST_DEFENSE_PLATOON, PLAYER); spawn_defense_platoon(g, get_start_chunk_of_player(g), get_start_chunk_of_player(g), 1)
 
   if isKeyPressed(KeyboardKey.FIVE): spawn_defense_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_ai(g), 3)
   if isKeyPressed(KeyboardKey.SIX): spawn_attack_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_ai(g), 3)
@@ -958,6 +1042,20 @@ proc battle_logic(g:var Game, delta_time: float): void =
   for index, unit in mpairs(battle.units): (if unit.health <= 0:  dead_units.add(unit))
   for _, unit in mpairs(dead_units): unit_die_and_remove(unit, battle)  
 
+  # todo:this does not need to happen each frame
+  # check if someone won the battle 
+  var player_units = 0; var enemy_units = 0; for unit in battle.units: (if unit.team == 1: player_units += 1 else: enemy_units += 1)
+  if battle.faction_1_command_points < 100 and player_units == 0: apply_battle_outcome(g)
+  if battle.faction_2_command_points < 100 and enemy_units == 0: apply_battle_outcome(g)
+
+  # todo:this does not need to happen each frame
+  # check chunk ownership
+  for chunk in battle.chunks:
+    var player_units = 0; var enemy_units = 0
+    for unit in chunk.units_on_chunk: (if unit.team == 1: player_units += 1 else: enemy_units += 1)
+    if player_units == 0 and enemy_units != 0: chunk.owner = 2
+    elif enemy_units == 0 and player_units != 0: chunk.owner = 1
+    elif enemy_units != 0 and player_units != 0: chunk.owner = -1
 
 proc display_and_progress_explosions(g:var Game, delta_time: float): void =
   var battle = g.current_battle.get
@@ -996,7 +1094,6 @@ proc display_and_progress_explosions(g:var Game, delta_time: float): void =
     battle.explosions.del index  
 
 
-
 #region BATTLE-DISPLAY
 proc battle_display(g:var Game, delta_time: float): void = 
 
@@ -1015,7 +1112,13 @@ proc battle_display(g:var Game, delta_time: float): void =
         for tile in chunk.tiles:
             draw_from_atlas(res["gras"], g, tile.pos.x, tile.pos.y)
       for chunk in battle.chunks:
-        drawRectangleLines(Rectangle(x:chunk.pos.x, y:chunk.pos.y, width:10*64, height:10*64), 2, BLUE)
+        let color = case chunk.owner
+          of -1: YELLOW 
+          of 1: GREEN
+          of 2: RED
+          else: WHITE
+        drawRectangleLines(Rectangle(x:chunk.pos.x, y:chunk.pos.y, width:10*64, height:10*64), 2, color)
+        drawText($chunk.units_on_chunk.len, chunk.pos.x.int32+3, chunk.pos.y.int32+3, 20, BLUE)
 
       for sprite in battle.sprites:
         if sprite.is_vehicle:
@@ -1049,6 +1152,14 @@ proc battle_display(g:var Game, delta_time: float): void =
       for shot in battle.shots: 
         drawLine(shot.start, shot.target, WHITE)
         shot.duration = shot.duration - delta_time  
+
+      for fire in battle.fires:
+        draw_from_atlas(g.battle_graphics["fire_1_frame_" & $fire.current_frame], g, fire.pos.x, fire.pos.y, 32, 32)
+        fire.time_since_last_frame = fire.time_since_last_frame + delta_time
+        if fire.time_since_last_frame > 0.2:
+          fire.current_frame = fire.current_frame + 1
+          fire.time_since_last_frame = 0   
+        if fire.current_frame > 7: fire.current_frame = 1
 
       # debugging
       for unit in battle.units:
@@ -1180,9 +1291,19 @@ proc battle_display(g:var Game, delta_time: float): void =
   if battle.display_hire_overlay: discard #  display the "hire units screen"
 
   #drawText("Unit: needed_rotation: " & $unit.needed_rotation , 10, 30, 20, WHITE)
-  drawText("Units selected: " & $battle.currently_selected_units.len , 10, 10, 20, WHITE)
-  drawText("Units on map: " & $battle.units.len , 10, 30, 20, WHITE)
-  drawText("Zoom: " & $battle.camera.zoom , 10, 50, 20, WHITE)
+  drawText("Units selected: " & $battle.currently_selected_units.len , 10, 10 + 120, 20, WHITE)
+  drawText("Units on map: " & $battle.units.len , 10, 30 + 120, 20, WHITE)
+  drawText("Zoom: " & $battle.camera.zoom , 10, 50 + 120, 20, WHITE)
+
+  let black_with_alpha = Color(r:0,g:0,b:0,a:100)
+  drawRectangle(5, 5, 200, 55, black_with_alpha)
+  drawText($battle.faction1_command_points & " CP player", 10, 10, 20, GREEN)
+  drawText($battle.faction2_command_points & " CP enemy", 10, 60 , 20, RED)
+
+  var map_control_player = 0; var map_control_enemy = 0
+  for chunk in battle.chunks: (if chunk.owner == 1: map_control_player += 1 elif chunk.owner == 2: map_control_enemy += 1)
+  drawText("Map control player: " & $map_control_player, 10, 35, 20, GREEN)
+  drawText("Map control enemy: " & $map_control_enemy, 10, 85, 20, RED)
   #drawText("Units on map: " & $battle.units.len , 10, 30, 20, WHITE)
 #region BATTLE-END
 
@@ -1267,6 +1388,7 @@ block:
   game.atlases["soldiers_green"] = loadTexture("./bim/soldiers_green.png")
   game.atlases["tanks_gray"] = loadTexture("./bim/TANKS_GRAY.png")
   game.atlases["tanks_green"] = loadTexture("./bim/TANKS_GREEN.png")
+  game.atlases["fire_1"] = loadTexture("./bim/fire.png")
 
 
   game.atlases["explosion_1"] = loadTexture("./bim/Explosion_1.png")
@@ -1359,6 +1481,14 @@ block:
   game.battle_graphics["explosion_8"] = (448, 0, 64, 64, "explosion_1")
   game.battle_graphics["explosion_9"] = (512, 0, 64, 64, "explosion_1")
   game.battle_graphics["explosion_10"] = (576, 0, 64, 64, "explosion_1")
+
+  game.battle_graphics["fire_1_frame_1"] = (0, 0, 32, 32, "fire_1")
+  game.battle_graphics["fire_1_frame_2"] = (32, 0, 32, 32, "fire_1")
+  game.battle_graphics["fire_1_frame_3"] = (64, 0, 32, 32, "fire_1")
+  game.battle_graphics["fire_1_frame_4"] = (96, 0, 32, 32, "fire_1")
+  game.battle_graphics["fire_1_frame_5"] = (128, 0, 32, 32, "fire_1")
+  game.battle_graphics["fire_1_frame_6"] = (160, 0, 32, 32, "fire_1")
+  game.battle_graphics["fire_1_frame_7"] = (192, 0, 32, 32, "fire_1")
 
   #region init-mod
   var enter_next_round_cool_down: float = 0
@@ -1571,8 +1701,18 @@ block:
             else:
               discard # just go there
           else:
-             # attack (only on war)
-             init_battle(game)
+            if not target_tile.army.isSome:
+              discard
+              # todo: simply occupy the tile, since no army is there
+            else:  
+              # attack (only on war)
+              if army.faction.is_player_faction: 
+                init_battle(game, army.command_points.float, target_tile.army.get.command_points.float, source_tile, target_tile)
+              elif  target_tile.owner.is_some and target_tile.owner.get.is_player_faction:
+                init_battle(game, army.command_points.float, target_tile.army.get.command_points.float, target_tile, source_tile)
+              else:
+                discard # todo: ai vs ai battle 
+
           if movment_success: target_tile.army.get.last_moved_at_turn = game.scenario.turn
 
       of GameMode.Battle: battle_logic(game, delta_time)
