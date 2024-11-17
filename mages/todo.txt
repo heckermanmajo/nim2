@@ -1,5 +1,0 @@
-Vorgehen: 
-- Make the engine work nice and comment the code.
-- improve the battle handling: zoom, spawn, command points
-- Make the campaign work and streamline the gameplay
-- iterate on the battle-feeling

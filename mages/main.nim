@@ -4,13 +4,17 @@ DONT PUBLISH A BETA: PUBLSIH AN ALPHA and then a SIGMA.
 
 Can we keep the game under 3000 (5000) lines to release? - cloc-lines
 
+A good game is good software: Good documentation; Good performance; Good Code-Quality;
+The end-product should be a nice brick of quality software.
+
+Look at "running with rifles" for inspiration - but we want more startegic gameplay -> command all resources.
+
 Next-Todos: 
 
   Make campaign Work:(1)
-    - create and increase command-points of armies
-    - logistics system
-    - army merge and simple move 
     - concept for ai moves
+    - concept for ai attacks
+    - remove army-level from the game: not needed...
 
 CONCEPT:
   - Think about a nice system for conqerable chunks in the battle map that
@@ -31,14 +35,19 @@ CONCEPT:
   - move units in battle out of battle (Fallback-Button)
 
 AI Concept:
-  - different "tactics" to combine
+  - different "tactics" to combine; 
+  - the battle ai has missions: A mission is a goal that has units assigend to it
+    these units try to fulfill the mission. 
+    Also the ai has a spawn-queue.
 
 Campaign-AI (1):
   - create basic campaign ai
 
-Battle-AI:  (1)
+Battle-AI:  (1) The idea is to make units smart, so we dont need a crazy good battle ai and the player has less micro to do
   - also auto-go towards cover (use tanks etc. as cover)
+     - cover depends on the shoot system
   - select more "sensible" target: Tank for anit tank, except I am getting shot at, etc.
+     - artilliere shoots at the biggest group of units
 
 Information-Acess:(1)
   - display unit information if selected
@@ -82,9 +91,10 @@ Battle look: (1)
 - SCALE UP TANKS 1.5x? 1.3x? 1.7x? -> Tanks need to be bigger to feel right
 - add fire on mussle of gun: for shooting units
 
-Performance:(1)
+Performance:(1))
 - only draw what is in the view
 - only collide with units in same chunk: Chunk tracking...
+- dont do all calculations each frame: split up the calculations over multiple frames
 
 Code-Quality: (1 (offline))
   - add comments; cleanup; read marker
@@ -95,6 +105,12 @@ Save and Load-Campaign: (1)
 Later-Ideas:
   - moral-system: more moral better fighting
   - diplomacy
+  - 2 vs 2 battles -> one ai friend that you can give orders to
+  - civilian uprisings
+  - city battles; camp map city management -> manage the population
+  - some simple base building/structures on the map
+  - water-battles
+  - better call in air support
 
 ]]##
 
@@ -124,10 +140,23 @@ const TILE_SIZE = 64
 const CHUNK_SIZE_IN_PIXELS = CHUNK_SIZE_IN_TILES * TILE_SIZE
 const WORLD_IN_CHUNKS = 10
 
-const COST_SCOUT_PLATOON = 100
-const COST_CONTROL_PLATOON = 100
-const COST_ATTACK_PLATOON = 350
-const COST_DEFENSE_PLATOON = 500
+const COST_SCOUT_PLATOON = 5
+const COST_CONTROL_PLATOON = 10
+const COST_ATTACK_PLATOON = 35
+const COST_DEFENSE_PLATOON = 25
+
+const LOGISTICS_DISTANCE_ONE = 200
+const LOGISTICS_DISTANCE_TWO = 400
+const LOGISTICS_DISTANCE_THREE = 600
+const LOGISTICS_DISTANCE_FOUR = 800
+
+const LOGISTICS_CENTER_COST = 100
+
+const START_ARMY_COMMAND_POINTS = 25
+const ARMY_COST = 10
+
+const MONEY_PER_FLAT_LAND_PER_ROUND = 1
+const MONEY_PER_MINERAL_PER_ROUND = 10
 
 const PLAYER = 1
 const ENEMY = 2
@@ -327,6 +356,7 @@ type
     owner: Option[Faction]
     army: Option[Army]
     faction: Option[Faction]
+    is_logistics_center: bool
 
   Army = ref object
     ## An army on the campaign map.
@@ -851,7 +881,6 @@ proc get_chunk_by_vec(self: BattleData, vec: Vector2): Option[BattleChunk] =
   if chunk_index_y < 0 or chunk_index_y >= WORLD_IN_CHUNKS: return none(BattleChunk)
   return some(self.chunks[chunk_index_y.int + chunk_index_x.int * WORLD_IN_CHUNKS])
 
-
 proc normalize_angle(angle: float): float = 
   let wrapped = angle mod 360.0; return (if wrapped < 0.0: wrapped + 360.0 else: wrapped)  
 
@@ -1034,7 +1063,6 @@ proc battle_logic(g:var Game, delta_time: float): void =
   if isKeyPressed(KeyboardKey.SEVEN): spawn_map_control_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_ai(g), 3)
   if isKeyPressed(KeyboardKey.EIGHT): spawn_scout_platoon(g, get_start_chunk_of_ai(g), get_start_chunk_of_ai(g), 3)
 
-
   if isKeyPressed(KeyboardKey.U):
     for unit in battle.currently_selected_units: unload_units_from_vehicle(g, unit)
 
@@ -1045,8 +1073,8 @@ proc battle_logic(g:var Game, delta_time: float): void =
   # todo:this does not need to happen each frame
   # check if someone won the battle 
   var player_units = 0; var enemy_units = 0; for unit in battle.units: (if unit.team == 1: player_units += 1 else: enemy_units += 1)
-  if battle.faction_1_command_points < 100 and player_units == 0: apply_battle_outcome(g)
-  if battle.faction_2_command_points < 100 and enemy_units == 0: apply_battle_outcome(g)
+  if battle.faction_1_command_points < COST_SCOUT_PLATOON and player_units == 0: apply_battle_outcome(g)
+  if battle.faction_2_command_points < COST_SCOUT_PLATOON and enemy_units == 0: apply_battle_outcome(g)
 
   # todo:this does not need to happen each frame
   # check chunk ownership
@@ -1346,6 +1374,15 @@ func get_relation(self: Scenario, faction_one: int, faction_two: int): int =
       base_relation += event.relation_change; counter += 1
   return floor(base_relation / counter).int
 
+proc get_nearest_logistics_center(self: Scenario, pos: Tile): Option[Tile] =
+  if pos.faction.isNone: (echo "[CODE-PROBLEM] No faction on tile"; return none(Tile))
+  let faction = pos.faction.get; var nearest_center = none(Tile); var nearest_distance = 1000000.0
+  for tile in self.tiles:
+    if tile.faction.isNone: continue
+    let distance: float = distance(pos.pos, tile.pos)
+    if distance < nearest_distance and tile.is_logistics_center and faction == tile.faction.get: nearest_center = some(tile); nearest_distance = distance
+  return nearest_center
+
 #region init raylib
 #-------------------------------------------------------------------------------
 # Init logger and raylib stuff
@@ -1498,7 +1535,8 @@ block:
     minerals:loadTexture("./mods/lerman/res/minerals_0.png"),
     mountain: loadTexture("./mods/lerman/res/mountain_0.png"),
     water:loadTexture("./mods/lerman/res/water_0.png"),
-    menu_background: loadTexture("./mods/lerman/res/background.png")
+    menu_background: loadTexture("./mods/lerman/res/background.png"),
+    logistics: loadTexture("./bim/logistics.png"),
   )
 
   let MENU_TEXTURE = loadTexture("./mods/lerman/res/menu.png")
@@ -1536,19 +1574,28 @@ block:
             of 81..90: TileType.Water
             of 91..99: TileType.Mountain
             else: TileType.Land
-        if tile.category == TileType.Land:
-          tile.faction = case rand(0..20)
-            of 0: some(self.factions[0])
-            of 1: some(self.factions[1])
-            of 2: some(self.factions[2])
-            of 3: some(self.factions[3])
-            of 4: some(self.factions[4])
-            of 5: some(self.factions[5])
-            else: none(Faction)
-        if tile.faction.is_some:
-          tile.army = some(Army(faction:tile.faction.get, tile_i_am_on: tile, command_points: rand(100..3800), level: 1))
+        #if tile.category == TileType.Land:
+        #  tile.faction = case rand(0..20)
+        #    of 0: some(self.factions[0])
+        #    of 1: some(self.factions[1])
+        #    of 2: some(self.factions[2])
+        #    of 3: some(self.factions[3])
+        #    of 4: some(self.factions[4])
+        #    of 5: some(self.factions[5])
+        #    else: none(Faction)
+        #if tile.faction.is_some:
+        #  tile.army = some(Army(faction:tile.faction.get, tile_i_am_on: tile, command_points: rand(100..3800), level: 1))
 
-
+    var counter = 0
+    while true:
+      let rand_tile = self.tiles[rand(0..self.tiles.len-1)]
+      if rand_tile.faction.is_some: continue
+      if rand_tile.category == TileType.Land:
+        rand_tile.faction = some(self.factions[counter])
+        rand_tile.is_logistics_center = true
+        rand_tile.army = some(Army(faction:rand_tile.faction.get, tile_i_am_on: rand_tile, command_points: START_ARMY_COMMAND_POINTS, level: 1))
+        counter += 1
+        if counter == self.factions.len: break
 
 
   # directly start with a rng game to get the basic game loop working, remove this later
@@ -1588,8 +1635,8 @@ block:
                 if t.faction.isSome:
                   let f = t.faction.get
                   let income = case t.category:
-                    of TileType.Land: 10
-                    of TileType.Minerals: 100
+                    of TileType.Land: MONEY_PER_FLAT_LAND_PER_ROUND
+                    of TileType.Minerals: MONEY_PER_MINERAL_PER_ROUND
                     else: 0
                   f.money += income  
               # todo: call the ai-processing
@@ -1667,7 +1714,7 @@ block:
                   let down_one = game.scenario.get_tile(tile.pos.x, tile.pos.y + TileSizePixel)
                   if down_one.is_some: move_to = down_one;logger.log("move to down")
                 # there could be a valid tile to move an army to ...
-                if move_to.is_some() and move_to.get.category == TileType.Land:
+                if move_to.is_some() and (move_to.get.category == TileType.Land or move_to.get.category == TileType.Minerals):
                   game.player_movement_task = some(
                     ArmyMovementTask(army: tile.army.get,target_tile: move_to.get))
 
@@ -1697,21 +1744,30 @@ block:
             movment_success = true
           elif target_tile.faction.get == source_tile.faction.get:
             if target_tile.army.is_some:
-              discard # merge armies, higher tech level
+              target_tile.army.get.command_points += source_tile.army.get.command_points
+              source_tile.army = none(Army)
+              movment_success = true
             else:
-              discard # just go there
+              target_tile.army = game.selected_tile.get.army
+              source_tile.army = none(Army)
+              target_tile.army.get.tile_i_am_on = target_tile
+              movment_success = true
           else:
             if not target_tile.army.isSome:
-              discard
-              # todo: simply occupy the tile, since no army is there
+              target_tile.army = game.selected_tile.get.army
+              source_tile.army = none(Army)
+              target_tile.army.get.tile_i_am_on = target_tile
+              target_tile.faction = source_tile.faction
+              assert(target_tile.faction.isSome)
+              movment_success = true
             else:  
               # attack (only on war)
               if army.faction.is_player_faction: 
                 init_battle(game, army.command_points.float, target_tile.army.get.command_points.float, source_tile, target_tile)
-              elif  target_tile.owner.is_some and target_tile.owner.get.is_player_faction:
+              elif target_tile.owner.is_some and target_tile.owner.get.is_player_faction:
                 init_battle(game, army.command_points.float, target_tile.army.get.command_points.float, target_tile, source_tile)
               else:
-                discard # todo: ai vs ai battle 
+                discard # todo: ai vs ai battle; use simple math to calculate the winner use the command points to calc the 
 
           if movment_success: target_tile.army.get.last_moved_at_turn = game.scenario.turn
 
@@ -1749,7 +1805,11 @@ block:
               of TileType.Water: drawTexture(ModImages.water,tile.pos,WHITE)
               of TileType.Mountain: drawTexture(ModImages.mountain,tile.pos,WHITE)
               of TileType.Minerals: drawTexture(ModImages.minerals,tile.pos,WHITE)
-
+            if tile.is_logistics_center: # draw logistics center-tiles if is logistics center
+              drawTexture(ModImages.logistics, Vector2(x: tile.pos.x+10, y: (tile.pos.y + 20).float), WHITE)
+              drawTexture(ModImages.logistics, Vector2(x: tile.pos.x+80, y: (tile.pos.y + 20).float), WHITE)
+              drawTexture(ModImages.logistics, Vector2(x: (tile.pos.x+12).float, y: (tile.pos.y + 128 - 40).float), WHITE)
+              drawTexture(ModImages.logistics, Vector2(x: (tile.pos.x+80).float, y: (tile.pos.y + 128 - 40).float), WHITE)
             # draw a faction colored border around the tile
             if tile.faction.isSome:
               let faction = tile.faction.get; let color = faction.color
@@ -1806,6 +1866,41 @@ block:
             drawRectangleLines(
               Rectangle(x: selected.pos.x,y: selected.pos.y,width: TileSizePixel,height: TileSizePixel),
               2, raylib.WHITE)
+            if game.selected_tile.get.is_logistics_center:
+              # loop over all my tiles/armies and check if this logistics center is the nearest one
+              # if so, draw a line to it
+              echo "selected logistics center"
+              for t in game.scenario.tiles:
+                if t.army.isNone: continue
+                if t.faction.isSome and t.faction.get.is_player_faction:
+                  let nearest_center = game.scenario.get_nearest_logistics_center(t)
+                  if nearest_center.is_none: continue
+                  let distance = distance(t.pos, selected.pos)
+                  let color = case distance
+                    of 0..LOGISTICS_DISTANCE_ONE: GREEN
+                    of (LOGISTICS_DISTANCE_ONE+1)..LOGISTICS_DISTANCE_TWO: YELLOW
+                    of (LOGISTICS_DISTANCE_TWO+1)..LOGISTICS_DISTANCE_THREE: ORANGE
+                    of (LOGISTICS_DISTANCE_THREE+1)..LOGISTICS_DISTANCE_FOUR: RED
+                    else: RED
+                  if nearest_center.get == selected:
+                    if LOGISTICS_DISTANCE_THREE > distance: 
+                      drawLine(Vector2(x: t.pos.x + TileSizePixel / 2, y: t.pos.y + TileSizePixel / 2),
+                        Vector2(x: selected.pos.x + TileSizePixel / 2, y: selected.pos.y + TileSizePixel / 2), 4, color)
+                  echo "nearest center: " & $nearest_center.get.pos  
+            else: 
+              let my_logistics_center = game.scenario.get_nearest_logistics_center(selected)
+              if my_logistics_center.is_some:
+                let center = my_logistics_center.get
+                let distance = distance(my_logistics_center.get.pos, selected.pos)
+                let color = case distance
+                  of 0..LOGISTICS_DISTANCE_ONE: GREEN
+                  of (LOGISTICS_DISTANCE_ONE+1)..LOGISTICS_DISTANCE_TWO: YELLOW
+                  of (LOGISTICS_DISTANCE_TWO+1)..LOGISTICS_DISTANCE_THREE: ORANGE
+                  of (LOGISTICS_DISTANCE_THREE+1)..LOGISTICS_DISTANCE_FOUR: RED
+                  else: RED
+                if LOGISTICS_DISTANCE_THREE > distance:  
+                  drawLine(Vector2(x: selected.pos.x + TileSizePixel / 2, y: selected.pos.y + TileSizePixel / 2),
+                    Vector2(x: center.pos.x + TileSizePixel / 2, y: center.pos.y + TileSizePixel / 2), 4, color)      
 
           endMode2D()
           # end the camera : this means here comes the ui
@@ -1844,6 +1939,42 @@ block:
                 # todo: draw the relation number on a color spctrum from green to red
                 drawText("RELARTION-NUMBER XXX", (menu_start + 10).int32, (140+top_bar_height).int32, 20, BLACK)
                 # todo: display some debug information here about the faction....
+              else:
+              # todo: draw the "create logistics-center" button
+                if tile_data.is_logistics_center:
+                  drawText("Logistics Center", (menu_start + 10).int32, (160+top_bar_height).int32, 20, BLACK)
+                  # todo; button for creating an army, if this logistics center is not already occupied by an army
+                  if tile_data.army.isNone:
+                    if Button(text= "Create Army: " & $ARMY_COST & "$ ", pos= Vector2(x: menu_start + 10, y: 180+top_bar_height), width= 300, height= 20):
+                      if faction.money >= ARMY_COST:
+                        tile_data.army = some(Army(faction: faction, tile_i_am_on: tile_data, command_points: START_ARMY_COMMAND_POINTS, level: 1))
+                        faction.money -= ARMY_COST
+                else: 
+                  if Button(text= "Create Logistics Center: " & $LOGISTICS_CENTER_COST & "$ ", pos= Vector2(x: menu_start + 10, y: 160+top_bar_height), width= 300, height= 20):
+                    if faction.money >= LOGISTICS_CENTER_COST:
+                      tile_data.is_logistics_center = true
+                      let faction = tile_data.faction.get
+                      faction.money -= LOGISTICS_CENTER_COST
+
+                if tile_data.army.isSome:
+                  let my_logistics_center = game.scenario.get_nearest_logistics_center(tile_data)
+                  if my_logistics_center.isSome:
+                    let distance = distance(my_logistics_center.get.pos, tile_data.pos)
+                    let cost_level = case distance
+                      of 0..LOGISTICS_DISTANCE_ONE: 1
+                      of (LOGISTICS_DISTANCE_ONE+1)..LOGISTICS_DISTANCE_TWO: 2
+                      of (LOGISTICS_DISTANCE_TWO+1)..LOGISTICS_DISTANCE_THREE: 3
+                      of (LOGISTICS_DISTANCE_THREE+1)..LOGISTICS_DISTANCE_FOUR: 4
+                      else: 4                   
+                    if cost_level == 4:
+                      drawText("Army to far away from logistics center", (menu_start + 10).int32, (230+top_bar_height).int32, 20, RED)
+                    else:
+                      let costs = cost_level * 5
+                      if Button(text="Reinforce " & $costs & "$ for 5 CP", pos= Vector2(x: menu_start + 10, y: 230+top_bar_height), width= 300, height= 20):
+                        if faction.money >= costs:
+                          tile_data.army.get.command_points += 5
+                          faction.money -= costs
+
             else:
               drawText("No Faction", (menu_start + 10).int32, (50+top_bar_height).int32, 20, BLACK)
               drawText(("Type: " & $tile_data.category), (menu_start + 10).int32, (70+top_bar_height).int32, 20, BLACK)

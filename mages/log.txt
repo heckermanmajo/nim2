@@ -1,2 +1,20 @@
 Start Mages Engine
+next round
+move to down
+next round
+move to down
+next round
+move to down
+next round
+move to down
+next round
+move to down
+next round
+move to up
+next round
+next round
+move to up
+next round
+move to up
+next round
 move to up
